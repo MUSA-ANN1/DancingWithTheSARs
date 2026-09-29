@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dancing with the SARs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600&family=Inter:wght@400;500&display=swap">
+<script src="vendor/d3.min.js"></script>
+<script src="vendor/topojson-client.min.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+  <canvas id="globe" aria-label="Interactive globe"></canvas>
+  <svg id="line"><line id="l"/><rect id="m" width="8" height="8"/></svg>
+  <div class="head">
+    <p class="eyebrow">NASA Space Apps 2026</p>
+    <h1>Dancing with the SARs</h1>
+    <p>Surface change seen by NISAR radar. Drag to rotate the globe, then select a country.</p>
+  </div>
+  <div class="legend">
+    <p class="status" id="status"></p>
+    <div class="key">
+      <span><i class="sw" style="background:var(--land-data)"></i>Sample record</span>
+      <span><i class="sw" style="background:var(--land)"></i>No record yet</span>
+      <span><i class="sw" style="background:var(--accent);border-color:var(--accent)"></i>Selected</span>
+    </div>
+  </div>
+  <div id="box" hidden></div>
+</div>
+<script src="world.js"></script>
+<script src="icons.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
