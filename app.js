@@ -1,12 +1,15 @@
 try{const world=WORLD;
+const NEWS="https://www.earthdata.nasa.gov/news/nisar-l-band-data-released-expanding-record-surface-changes";
 const D={
- "Brazil":{icon:"tree",type:"Deforestation",signal:"L-band backscatter drops after clearing",product:"GCOV",text:"Cleared forest returns less radar energy. L-band passes through cloud, so the Amazon can be watched all year."},
- "United States of America":{icon:"fire",type:"Wildfire",signal:"Backscatter change in burned canopy",product:"GCOV",text:"Burn scars change how radar bounces off vegetation. Compare passes before and after a fire to map its extent."},
- "Japan":{icon:"mountains",type:"Earthquake",signal:"Ground motion from interferograms",product:"GUNW",text:"Two passes on either side of a quake show how far the ground moved toward or away from the satellite."},
- "Turkey":{icon:"mountains",type:"Earthquake",signal:"Fault displacement from interferograms",product:"GUNW",text:"Interferograms show fringes where a fault slipped, so the rupture can be traced across the surface."},
- "India":{icon:"plant",type:"Farming activity",signal:"Backscatter cycle through the crop season",product:"GCOV",text:"Planting, growth and harvest each change the radar return. The repeating pattern maps crop stage."},
- "Greenland":{icon:"snowflake",type:"Glacier movement",signal:"Ice velocity from pixel offsets",product:"GOFF",text:"Tracking features between passes shows how fast ice flows toward the sea."},
- "Bangladesh":{icon:"waves",type:"Wetland and flood extent",signal:"Open water lowers radar return",product:"GCOV",text:"Standing water looks dark to radar. Repeated passes track wetland extent and seasonal flooding."}
+ "Venezuela":{icon:"mountains",type:"Earthquake",signal:"Ground displacement, before and after passes",product:"NISAR L-band",at:[-66.9,10.5],
+  text:"Two earthquakes on 24 June 2026 moved the ground, most strongly near Caracas and La Guaira. NISAR passes from 13 and 18 June (before) and 25 and 30 June (after) were compared to map the shift.",
+  src:{t:"NASA Earthdata, 21 Jul 2026",u:NEWS}},
+ "South Africa":{icon:"plant",type:"Farming and vegetation",signal:"Growing-season change, 2025 to 2026",product:"NISAR L-band time series",
+  text:"A false-color composite of an agricultural region. Green shows vegetated areas, red shows unvegetated surfaces, and blue shows how fast the vegetation changed.",
+  src:{t:"NASA Earthdata, 21 Jul 2026",u:NEWS}},
+ "Antarctica":{icon:"snowflake",type:"Ice structure and flow",signal:"L-band radar through snow, Aug 2025",product:"NISAR L-band",
+  text:"Nunatak Zaterjavshijsja in East Antarctica, a mountaintop rising through ice that flows northeast to the ocean. Radar sees structure that optical images miss.",
+  src:{t:"NASA JPL release, 21 Jul 2026",u:"https://indiawest.com/india-us-satellite-spots-antarctic-hummingbird/"}}
 };
 const feats=topojson.feature(world,world.objects.countries).features;
 const $=s=>document.querySelector(s), C={};
@@ -15,8 +18,8 @@ colors();matchMedia("(prefers-color-scheme:light)").addEventListener("change",co
 const app=$("#app"),cv=$("#globe"),ctx=cv.getContext("2d"),box=$("#box"),L=$("#l"),M=$("#m");
 const proj=d3.geoOrthographic().clipAngle(90).precision(.5),path=d3.geoPath(proj,ctx);
 const grat=d3.geoGraticule10(),sph={type:"Sphere"};
-let W,H,narrow,rot=[10,-20],sel=null,cen=null,shown=false,drag=null,tw=null,zoom=1,last=0,pinch=null;
-const pts=new Map(),mark=()=>{last=performance.now()};
+let W,H,narrow,rot=[10,-20],sel=null,cen=null,shown=false,drag=null,tw=null,zoom=1,pinch=null;
+const pts=new Map();
 const setStatus=n=>$("#status").innerHTML=ICONS["cursor-click"]+(n?n:"No country selected");
 setStatus();
 
@@ -57,7 +60,7 @@ function place(){
 }
 
 function frame(now){
-  if(!sel&&!drag&&!tw&&!pts.size&&now-last>2000)rot[0]+=.06;
+  if(!sel&&!drag&&!tw&&!pts.size)rot[0]+=.06;
   if(tw){
     const t=Math.min(1,(now-tw.t0)/700),e=d3.easeCubicInOut(t);
     rot=[tw.a[0]+(tw.b[0]-tw.a[0])*e,tw.a[1]+(tw.b[1]-tw.a[1])*e];
@@ -66,38 +69,67 @@ function frame(now){
   draw();place();requestAnimationFrame(frame);
 }
 
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 function render(f){
   const n=f.properties.name,r=D[n],x=`<button id="x" aria-label="Close">${ICONS.x}</button>`;
-  box.innerHTML=r
-   ?`<div class="top">${ICONS[r.icon]}${x}</div><h2>${n}</h2><p class="tag">Sample record, not NISAR data</p>
-     <dl><dt>Change</dt><dd>${r.type}</dd><dt>Signal</dt><dd>${r.signal}</dd><dt>Product</dt><dd>${r.product}</dd></dl><p>${r.text}</p>`
-   :`<div class="top">${ICONS.info}${x}</div><h2>${n}</h2><p class="tag">No record yet</p>
-     <p>No surface change has been logged for this country.</p>
-     <p class="muted">Countries in lighter blue have sample records.</p>`;
-  $("#x").onclick=clear;
+  box.innerHTML=(r
+   ?`<div class="top">${ICONS[r.icon]}${x}</div><h2>${n}</h2>
+     <p class="tag">Source: <a href="${r.src.u}" target="_blank" rel="noopener">${r.src.t}</a></p>
+     <dl><dt>Change</dt><dd>${r.type}</dd><dt>Signal</dt><dd>${r.signal}</dd><dt>Data</dt><dd>${r.product}</dd></dl><p>${r.text}</p>`
+   :`<div class="top">${ICONS.info}${x}</div><h2>${n}</h2><p class="tag">No featured record</p>
+     <p class="muted">Countries in lighter blue have a featured record.</p>`)
+   +`<div id="live"></div>`;
+  $("#x").onclick=clear;live(r);
+}
+
+const ASF="https://api.daac.asf.alaska.edu/services/search/param",VERTEX="https://search.asf.alaska.edu/";
+let liveId=0;
+async function live(r){
+  const id=++liveId,c=(r&&r.at)||cen,el=()=>id===liveId&&$("#live"),head='<h3>Live NISAR products</h3>';
+  const put=h=>{const e=el();if(e)e.innerHTML=head+h};
+  const foot=`<p><a href="${VERTEX}" target="_blank" rel="noopener">Open ASF Vertex</a></p>`;
+  put('<p class="muted">Searching the ASF archive...</p>');
+  const ac=new AbortController(),t=setTimeout(()=>ac.abort(),12000);
+  try{
+    const wkt=encodeURIComponent(`POINT(${c[0].toFixed(3)} ${c[1].toFixed(3)})`);
+    const res=await fetch(`${ASF}?dataset=NISAR&processingLevel=GCOV,GUNW&intersectsWith=${wkt}&maxResults=25&output=geojson`,{signal:ac.signal});
+    if(!res.ok)throw new Error("HTTP "+res.status);
+    const items=((await res.json()).features||[]).map(f=>f.properties)
+      .sort((a,b)=>String(b.startTime).localeCompare(String(a.startTime)));
+    if(!items.length)return put(`<p>No NISAR GCOV or GUNW product covers this point yet. Coverage grows with each data release.</p>`+foot);
+    const shot=(items.find(p=>p.browse&&p.browse[0])||{}).browse;
+    put((shot?`<img id="shot" src="${esc(shot[0])}" alt="NISAR browse image" referrerpolicy="no-referrer">`:"")
+      +`<p>${items.length}${items.length>=25?"+":""} products cover this point. Newest first:</p><ul>`
+      +items.slice(0,3).map(p=>`<li><span>${esc(String(p.startTime).slice(0,10))}</span><b>${esc(p.processingLevel)}</b>
+         <a href="${esc(p.url)}" title="${esc(p.sceneName||p.fileID)}">${esc(p.sceneName||p.fileID)}</a></li>`).join("")
+      +`</ul><p class="muted">Downloads need a free NASA Earthdata login.</p>`+foot);
+    const im=$("#shot");if(im)im.onerror=()=>im.remove();
+  }catch(e){
+    put(`<p>Live search is not available right now. Check your connection.</p>`+foot);
+  }finally{clearTimeout(t)}
 }
 function select(f){
   sel=f;cen=d3.geoCentroid(f);shown=false;render(f);setStatus(f.properties.name);
   const a=[...rot];let b0=-cen[0];b0=a[0]+((b0-a[0]+540)%360)-180;
   tw={a,b:[b0,Math.max(-70,Math.min(70,-cen[1]))],t0:performance.now()};
 }
-function clear(){sel=cen=tw=null;shown=false;mark();setStatus()}
+function clear(){sel=cen=tw=null;shown=false;liveId++;setStatus()}
 
 const dist=()=>{const[a,b]=[...pts.values()];return Math.hypot(a[0]-b[0],a[1]-b[1])};
 cv.onpointerdown=e=>{
   pts.set(e.pointerId,[e.clientX,e.clientY]);try{cv.setPointerCapture(e.pointerId)}catch{}
-  mark();cv.style.cursor="grabbing";if(tw){tw=null;shown=true}
+  cv.style.cursor="grabbing";if(tw){tw=null;shown=true}
   if(pts.size===1)drag={x:e.clientX,y:e.clientY,r:[...rot],m:0};
   else if(pts.size===2){drag=null;pinch={d:dist(),z:zoom}}
 };
 cv.onpointermove=e=>{
-  if(!pts.has(e.pointerId))return;pts.set(e.pointerId,[e.clientX,e.clientY]);mark();
+  if(!pts.has(e.pointerId))return;pts.set(e.pointerId,[e.clientX,e.clientY]);
   if(pts.size===2&&pinch)return setZoom(pinch.z*dist()/pinch.d);
   if(!drag)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;drag.m=Math.max(drag.m,Math.hypot(dx,dy));
   if(drag.m>4){const k=57.3/proj.scale();rot=[drag.r[0]+dx*k,Math.max(-80,Math.min(80,drag.r[1]-dy*k))]}
 };
 cv.onpointerup=cv.onpointercancel=e=>{
-  pts.delete(e.pointerId);if(pts.size<2)pinch=null;mark();cv.style.cursor="grab";
+  pts.delete(e.pointerId);if(pts.size<2)pinch=null;cv.style.cursor="grab";
   const d=drag;drag=null;if(!d||d.m>4||e.type==="pointercancel")return;
   const r=cv.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top,c=proj.translate();
   if(Math.hypot(x-c[0],y-c[1])>proj.scale())return clear();
@@ -105,7 +137,7 @@ cv.onpointerup=cv.onpointercancel=e=>{
   f?select(f):clear();
 };
 cv.addEventListener("wheel",e=>{
-  e.preventDefault();mark();
+  e.preventDefault();
   setZoom(zoom*Math.exp(-e.deltaY*(e.deltaMode?.033:1)*(e.ctrlKey?.01:.0015)));
 },{passive:false});
 addEventListener("keydown",e=>{if(e.key==="Escape")clear()});
