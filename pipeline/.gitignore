@@ -1,0 +1,19 @@
+# Earthdata and cloud credentials
+.netrc
+.env
+*.pem
+*credentials*
+.aws/
+
+# Downloaded science data and generated outputs
+data/
+*.h5
+*.hdf5
+*.tif
+*.tiff
+*.png
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
