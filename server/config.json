@@ -1,0 +1,21 @@
+{
+  "target_px": 512,
+  "regions": [
+    {
+      "name": "kara-bogaz-gol",
+      "label": "Kara-Bogaz-Gol",
+      "lon": 53.6,
+      "lat": 41.1,
+      "mode": "shore",
+      "days": 60
+    },
+    {
+      "name": "turkmenbashi",
+      "label": "Turkmenbashi coast",
+      "lon": 53.0,
+      "lat": 40.0,
+      "mode": "shore",
+      "days": 60
+    }
+  ]
+}
