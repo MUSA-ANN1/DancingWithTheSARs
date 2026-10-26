@@ -19,8 +19,8 @@ jobs:
       GITHUB_REPO: MUSA-ANN1/DancingWithTheSARs
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       OUT_DIR: ${{ github.workspace }}/out
-      TMP_DIR: ${{ runner.temp }}/nisar-tmp
-      STATE_FILE: ${{ runner.temp }}/nisar-state.json
+      TMP_DIR: ${{ github.workspace }}/nisar-tmp
+      STATE_FILE: ${{ github.workspace }}/nisar-state.json
 
     steps:
       - name: Check out repository
