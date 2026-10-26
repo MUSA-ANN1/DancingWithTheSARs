@@ -85,6 +85,7 @@ def finish(r, meta, rd):
 def write_gcov(r, f1, f2, scenes, target):
     p = L.load(f1, "gcov", target); q = L.load(f2, "gcov", target, step=p["step"])
     A, B, x, y = L.overlap(p, q)
+    A, B, x, y = L.crop_pair_to_region(A, B, x, y, p["epsg"], r["lon"], r["lat"])
     a, b = 10 * np.log10(A), 10 * np.log10(B); diff = b - a
     d1, d2 = [L.parse_name(os.path.basename(f))["date"] for f in (f1, f2)]
     rd = OUT / "regions" / r["name"]; rd.mkdir(parents=True, exist_ok=True)
@@ -104,6 +105,7 @@ def write_shore(r, f1, f2, scenes, target):
     pols = ("HHHH", "HVHV")                                     # HH separates calm water from land best
     p = L.load(f1, "gcov", target, pols=pols); q = L.load(f2, "gcov", target, step=p["step"], pols=pols)
     A, B, x, y = L.overlap(p, q)
+    A, B, x, y = L.crop_pair_to_region(A, B, x, y, p["epsg"], r["lon"], r["lat"])
     a, b = 10 * np.log10(A), 10 * np.log10(B)
     d1, d2 = [L.parse_name(os.path.basename(f))["date"] for f in (f1, f2)]
     t1, t2 = L.otsu(a), L.otsu(b); notes = []
