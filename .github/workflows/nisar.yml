@@ -1,0 +1,57 @@
+name: NISAR Caspian processing
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: nisar-caspian-processing
+  cancel-in-progress: false
+
+jobs:
+  process:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      EDL_TOKEN: ${{ secrets.EDL_TOKEN }}
+      GITHUB_REPO: MUSA-ANN1/DancingWithTheSARs
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      OUT_DIR: ${{ github.workspace }}/out
+      TMP_DIR: ${{ runner.temp }}/nisar-tmp
+      STATE_FILE: ${{ runner.temp }}/nisar-state.json
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Check available disk space
+        run: |
+          df -h
+          mkdir -p "$OUT_DIR" "$TMP_DIR"
+          df -h "$OUT_DIR" "$TMP_DIR"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: server/requirements.txt
+
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && python -m pip install -r server/requirements.txt
+
+      - name: Check EDL token is configured
+        run: |
+          if [ -z "$EDL_TOKEN" ]; then
+            echo "::error::Add EDL_TOKEN in Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+
+      - name: Process NISAR data
+        run: python server/run_job.py
+
+      - name: Publish compact outputs to data branch
+        if: success()
+        run: bash server/publish.sh
