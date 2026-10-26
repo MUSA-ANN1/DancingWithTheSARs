@@ -3,33 +3,77 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Dancing with the SARs</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600&family=Inter:wght@400;500&display=swap">
-<script src="vendor/d3.min.js"></script>
-<script src="vendor/topojson-client.min.js"></script>
+<title>Dancing with the SARs – Caspian Sea</title>
+<meta name="description" content="NISAR satellite radar surface-change data over the Caspian Sea, visualized on an interactive 3D globe.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div id="app">
-  <canvas id="globe" aria-label="Interactive globe"></canvas>
-  <svg id="line"><line id="l"/><rect id="m" width="8" height="8"/></svg>
-  <div class="head">
-    <p class="eyebrow">NASA Space Apps 2026</p>
-    <h1>Dancing with the SARs</h1>
-    <p>Surface change seen by NISAR radar. Drag to rotate the globe, then select a country.</p>
-  </div>
-  <div class="legend">
-    <p class="status" id="status"></p>
-    <div class="key">
-      <span><i class="sw" style="background:var(--land-data)"></i>Featured record</span>
-      <span><i class="sw" style="background:var(--land)"></i>No featured record</span>
-      <span><i class="sw" style="background:var(--accent);border-color:var(--accent)"></i>Selected</span>
+
+  <!-- Space background: stars + sun drawn here -->
+  <canvas id="stars"></canvas>
+
+  <!-- Three.js WebGL globe -->
+  <div id="globe-container"></div>
+
+  <!-- Intro overlay shown during opening animation -->
+  <div id="intro-overlay">
+    <div id="intro-text">
+      <p class="eyebrow">NASA Space Apps 2026</p>
+      <h1>Dancing with the SARs</h1>
+      <p>Surface change seen by NISAR radar · Caspian Sea</p>
     </div>
   </div>
-  <div id="box" hidden></div>
+
+  <!-- Top-left header (visible after intro) -->
+  <div class="head" id="main-head" hidden>
+    <p class="eyebrow">NASA Space Apps 2026</p>
+    <h1>Dancing with the SARs</h1>
+    <p>NISAR radar surface change · Caspian Sea</p>
+  </div>
+
+  <!-- NISAR image panel (bottom-right) -->
+  <div id="nisar-panel" hidden>
+    <div id="nisar-img-wrap">
+      <img id="nisar-img" alt="NISAR browse image" referrerpolicy="no-referrer">
+      <div id="nisar-no-img">No browse image available</div>
+    </div>
+    <div id="nisar-meta">
+      <span id="nisar-date-label">—</span>
+      <span id="nisar-type">—</span>
+    </div>
+    <a id="nisar-link" href="https://search.asf.alaska.edu/" target="_blank" rel="noopener">Open in ASF Vertex ↗</a>
+  </div>
+
+  <!-- Date slider (Google Earth style) -->
+  <div id="timeline" hidden>
+    <button id="play-btn" aria-label="Play/Pause" title="Play">
+      <svg id="play-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+      <svg id="pause-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" hidden><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+    </button>
+    <div id="slider-wrap">
+      <div id="tick-labels"></div>
+      <input type="range" id="date-range" min="0" max="0" value="0" step="1">
+    </div>
+    <div id="current-date-badge">—</div>
+  </div>
+
+  <!-- Status bar -->
+  <div id="status-bar">
+    <span id="status-msg">Initializing…</span>
+  </div>
+
 </div>
-<script src="world.js"></script>
-<script src="icons.js"></script>
+
+<!-- Three.js r158 (importmap-free, global) -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+<!-- SunCalc for real-time sun position -->
+<script src="https://cdn.jsdelivr.net/npm/suncalc@1.9.0/suncalc.js"></script>
+<!-- TWEEN.js for smooth animations -->
+<script src="https://cdn.jsdelivr.net/npm/@tweenjs/tween.js@23.1.3/dist/tween.umd.js"></script>
+
 <script src="app.js"></script>
 </body>
 </html>
