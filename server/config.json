@@ -1,8 +1,0 @@
-{
-  "target_px": 512,
-  "regions": [
-    {"name": "venezuela", "label": "Venezuela", "lon": -66.9, "lat": 10.5, "mode": "gunw", "days": 60},
-    {"name": "south-africa", "label": "South Africa", "lon": 25.0, "lat": -29.0, "mode": "gcov", "days": 45},
-    {"name": "antarctica", "label": "Antarctica", "lon": 0.0, "lat": -72.0, "mode": "gcov", "days": 45}
-  ]
-}
