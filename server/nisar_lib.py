@@ -62,6 +62,32 @@ def load(path, mode, target=512, step=None, pols=None):
         y = g["yCoordinates"][:arr.shape[0] * step].reshape(-1, step).mean(1)
         return dict(a=arr, coh=coh, pol=pol, x=x, y=y, epsg=epsg_of(g), step=step)
 
+
+def crop_pair_to_region(A, B, x, y, epsg, lon, lat, half_width_km=35):
+    """Crop aligned rasters to a square around the requested lon/lat.
+
+    x/y are projected coordinate vectors corresponding to A/B after overlap().
+    A 70 km square keeps the two configured Caspian study areas separate.
+    """
+    from pyproj import Transformer
+    to_xy = Transformer.from_crs(4326, epsg, always_xy=True)
+    cx, cy = to_xy.transform(float(lon), float(lat))
+    radius = float(half_width_km) * 1000.0
+    cols = np.flatnonzero((x >= cx - radius) & (x <= cx + radius))
+    rows = np.flatnonzero((y >= cy - radius) & (y <= cy + radius))
+    if cols.size < 2 or rows.size < 2:
+        raise RuntimeError(
+            f"Requested region ({lon}, {lat}) is not covered by the aligned "
+            f"NISAR overlap at a usable resolution; crop has {cols.size} columns "
+            f"and {rows.size} rows."
+        )
+    c0, c1 = int(cols[0]), int(cols[-1]) + 1
+    r0, r1 = int(rows[0]), int(rows[-1]) + 1
+    # Prevent silently accepting a crop that only clips the edge of the target.
+    if x.min() > cx or x.max() < cx or y.min() > cy or y.max() < cy:
+        raise RuntimeError(f"NISAR overlap does not contain target center ({lon}, {lat}).")
+    return A[r0:r1, c0:c1], B[r0:r1, c0:c1], x[c0:c1], y[r0:r1]
+
 def overlap(p, q):
     dx, dy = p["x"][1] - p["x"][0], p["y"][1] - p["y"][0]
     ox, oy = (q["x"][0] - p["x"][0]) / dx, (q["y"][0] - p["y"][0]) / dy
