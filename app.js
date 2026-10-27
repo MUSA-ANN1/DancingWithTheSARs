@@ -249,25 +249,26 @@
     const fill = new THREE.Mesh(
       fillGeometry,
       new THREE.MeshBasicMaterial({
-        color: 0xFC3D21,
-        transparent: true,
-        opacity: 0.20,
+        color: 0x00E5FF,
+        transparent: false,
+        opacity: 1.0,
         depthWrite: false,
         side: THREE.DoubleSide,
         polygonOffset: true,
         polygonOffsetFactor: -2
       })
     );
-    fill.renderOrder = 3;
+    fill.renderOrder = 10;
+    fill.material.depthTest = false;
     scene.add(fill);
 
     const outlinePoints = shore.map(([lon, lat]) => sphToVec3(lon * DEG, lat * DEG, 1.009));
     const outlineGeometry = new THREE.BufferGeometry().setFromPoints(outlinePoints);
     const outline = new THREE.LineLoop(
       outlineGeometry,
-      new THREE.LineBasicMaterial({ color: 0xFC3D21, transparent: true, opacity: 0.96 })
+      new THREE.LineBasicMaterial({ color: 0x00E5FF, transparent: false, opacity: 1.0, depthTest: false })
     );
-    outline.renderOrder = 4;
+    outline.renderOrder = 11;
     scene.add(outline);
   }
 
