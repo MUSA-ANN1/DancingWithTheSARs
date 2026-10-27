@@ -220,7 +220,57 @@
         }`
     });
     scene.add(new THREE.Mesh(new THREE.SphereGeometry(1, 128, 96), mat));
+    buildCaspianHighlight();
   }
+  function buildCaspianHighlight() {
+    // Approximate Caspian shoreline, ordered around the sea in lon/lat.
+    const shore = [
+      [47.0, 48.0], [49.4, 47.2], [51.8, 46.8], [53.5, 45.8],
+      [53.9, 44.2], [53.2, 42.5], [52.8, 40.7], [52.1, 39.0],
+      [51.5, 37.8], [50.1, 36.7], [49.0, 37.2], [48.5, 38.6],
+      [48.0, 40.0], [47.3, 41.2], [46.7, 42.8], [47.0, 44.2],
+      [48.0, 45.4], [48.2, 46.6]
+    ];
+    const seaShape = new THREE.Shape();
+    seaShape.moveTo(shore[0][0], shore[0][1]);
+    for (let i = 1; i < shore.length; i++) seaShape.lineTo(shore[i][0], shore[i][1]);
+    seaShape.closePath();
+
+    const fillGeometry = new THREE.ShapeGeometry(seaShape, 2);
+    const positions = fillGeometry.attributes.position;
+    const vertex = new THREE.Vector3();
+    for (let i = 0; i < positions.count; i++) {
+      vertex.set(positions.getX(i), positions.getY(i), 0);
+      const p = sphToVec3(vertex.x * DEG, vertex.y * DEG, 1.006);
+      positions.setXYZ(i, p.x, p.y, p.z);
+    }
+    positions.needsUpdate = true;
+    fillGeometry.computeVertexNormals();
+    const fill = new THREE.Mesh(
+      fillGeometry,
+      new THREE.MeshBasicMaterial({
+        color: 0xFC3D21,
+        transparent: true,
+        opacity: 0.20,
+        depthWrite: false,
+        side: THREE.DoubleSide,
+        polygonOffset: true,
+        polygonOffsetFactor: -2
+      })
+    );
+    fill.renderOrder = 3;
+    scene.add(fill);
+
+    const outlinePoints = shore.map(([lon, lat]) => sphToVec3(lon * DEG, lat * DEG, 1.009));
+    const outlineGeometry = new THREE.BufferGeometry().setFromPoints(outlinePoints);
+    const outline = new THREE.LineLoop(
+      outlineGeometry,
+      new THREE.LineBasicMaterial({ color: 0xFC3D21, transparent: true, opacity: 0.96 })
+    );
+    outline.renderOrder = 4;
+    scene.add(outline);
+  }
+
   function buildAtmosphere() {
     const mat = new THREE.ShaderMaterial({
       uniforms: atmUniforms,
