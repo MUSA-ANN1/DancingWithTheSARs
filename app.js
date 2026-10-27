@@ -155,7 +155,7 @@
     const paintBase = (ctx, ocean, land, border, graticule) => {
       ctx.fillStyle = ocean;
       ctx.fillRect(0, 0, width, height);
-      if (!window.WORLD || !window.topojson || !window.d3) return false;
+      if (typeof WORLD === 'undefined' || !window.topojson || !window.d3) return false;
       const projection = d3.geoEquirectangular()
         .scale(width / (2 * Math.PI)).translate([width / 2, height / 2]);
       const path = d3.geoPath(projection, ctx);
