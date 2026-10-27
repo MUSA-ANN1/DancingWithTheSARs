@@ -126,6 +126,7 @@
     scene.add(sky);
 
     buildEarth();
+    buildCountryBorders();
     buildAtmosphere();
     buildSun();
     buildMoon();
@@ -222,6 +223,43 @@
     scene.add(new THREE.Mesh(new THREE.SphereGeometry(1, 128, 96), mat));
     buildCaspianHighlight();
   }
+  function buildCountryBorders() {
+    // Keep country boundaries as true spherical vector lines, rather than
+    // relying only on the rasterized map texture. This mirrors the crisp,
+    // continuous vector borders from the earlier globe.
+    if (typeof WORLD === 'undefined' || !window.topojson) return;
+
+    const mesh = topojson.mesh(WORLD, WORLD.objects.countries, (a, b) => a !== b);
+    const positions = [];
+    const radius = 1.003;
+
+    for (const line of (mesh.coordinates || [])) {
+      for (let i = 1; i < line.length; i++) {
+        const [lonA, latA] = line[i - 1];
+        const [lonB, latB] = line[i];
+        const a = sphToVec3(lonA * DEG, latA * DEG, radius);
+        const b = sphToVec3(lonB * DEG, latB * DEG, radius);
+        positions.push(a.x, a.y, a.z, b.x, b.y, b.z);
+      }
+    }
+
+    if (!positions.length) return;
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+    const borders = new THREE.LineSegments(
+      geometry,
+      new THREE.LineBasicMaterial({
+        color: 0x071A3A,
+        transparent: true,
+        opacity: 0.88,
+        depthTest: true,
+        depthWrite: false
+      })
+    );
+    borders.renderOrder = 4;
+    scene.add(borders);
+  }
+
   function buildCaspianHighlight() {
     // Approximate Caspian shoreline, ordered around the sea in lon/lat.
     const shore = [
@@ -266,7 +304,7 @@
     const outlineGeometry = new THREE.BufferGeometry().setFromPoints(outlinePoints);
     const outline = new THREE.LineLoop(
       outlineGeometry,
-      new THREE.LineBasicMaterial({ color: 0x00E5FF, transparent: false, opacity: 1.0, depthTest: false })
+      new THREE.LineBasicMaterial({ color: 0x071A3A, transparent: false, opacity: 1.0, depthTest: true, depthWrite: false })
     );
     outline.renderOrder = 11;
     scene.add(outline);
