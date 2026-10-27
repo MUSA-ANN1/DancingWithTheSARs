@@ -38,7 +38,29 @@
       <i class="ph ph-clock-counter-clockwise" aria-hidden="true"></i>
       <span>Historical imagery</span>
     </button>
+    <button id="menu-btn" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="menu-panel">
+      <i class="ph ph-list" aria-hidden="true"></i>
+    </button>
+    <div id="menu-panel" role="menu" hidden>
+      <button id="settings-btn" type="button" role="menuitem" aria-expanded="false" aria-controls="settings-panel">
+        <i class="ph ph-sliders-horizontal" aria-hidden="true"></i>
+        <span>Settings</span>
+      </button>
+    </div>
   </div>
+
+  <section id="settings-panel" aria-labelledby="settings-title" hidden>
+    <div class="settings-heading">
+      <h2 id="settings-title">Settings</h2>
+      <button id="settings-close" type="button" aria-label="Close settings"><i class="ph ph-x" aria-hidden="true"></i></button>
+    </div>
+    <fieldset>
+      <legend>Earth theme</legend>
+      <label><input type="radio" name="earth-theme" value="default" checked><span><strong>Default</strong><small>Real Sun and day/night shadows</small></span></label>
+      <label><input type="radio" name="earth-theme" value="light"><span><strong>Light</strong><small>Entire Earth stays illuminated</small></span></label>
+      <label><input type="radio" name="earth-theme" value="dark"><span><strong>Dark</strong><small>Entire Earth stays on the night side</small></span></label>
+    </fieldset>
+  </section>
 
   <!-- Date bar, hidden until the history button is pressed -->
   <div id="timeline" role="group" aria-label="Historical imagery dates" hidden>
@@ -100,6 +122,6 @@
 <script src="astro.js"></script>
 <script src="caspian-coastline.js?v=d746d94d"></script>
 
-<script src="app.js?v=caspian-coastline-1"></script>
+<script src="app.js?v=theme-menu-slower-intro-1"></script>
 </body>
 </html>
