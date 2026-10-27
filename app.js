@@ -13,7 +13,7 @@
 
   const CASPIAN = { lon: 50.7, lat: 41.8 };                  // view centre
   const CASPIAN_BBOX = { w: 46.5, s: 36.4, e: 55.0, n: 47.5 }; // ASF search area
-  const INTRO_MS = 3000;
+  const INTRO_MS = 6500;
   const START_DIST = 11;      // Earth radii, far away
   const END_DIST = 1.55;      // zoomed on the Caspian
   const MIN_DIST = 1.08;
@@ -46,6 +46,11 @@
   const mainHead = $('#main-head');
   const toolbar = $('#toolbar');
   const historyBtn = $('#history-btn');
+  const menuBtn = $('#menu-btn');
+  const menuPanel = $('#menu-panel');
+  const settingsBtn = $('#settings-btn');
+  const settingsPanel = $('#settings-panel');
+  const themeInputs = Array.from(document.querySelectorAll('input[name="earth-theme"]'));
   const historyClose = $('#history-close');
   const timeline = $('#timeline');
   const dateRange = $('#date-range');
@@ -99,6 +104,7 @@
     dayMap: { value: null },
     nightMap: { value: null },
     hasNight: { value: 1 },
+    themeMode: { value: 0 }, // 0 = solar system, 1 = always-lit Earth, 2 = always-night Earth
     sunDir: { value: new THREE.Vector3(1, 0, 0) }
   };
   const atmUniforms = { sunDir: earthUniforms.sunDir };
@@ -200,7 +206,7 @@
         }`,
       fragmentShader: `
         uniform sampler2D dayMap; uniform sampler2D nightMap;
-        uniform float hasNight; uniform vec3 sunDir;
+        uniform float hasNight; uniform float themeMode; uniform vec3 sunDir;
         varying vec3 vN; varying vec2 vUv; varying vec3 vP;
         void main() {
           vec3 n = normalize(vN);
@@ -214,9 +220,16 @@
           vec3 col = mix(nightCol, dayCol, dayMix);
           float twilight = smoothstep(-0.18, -0.02, d) * (1.0 - dayMix);
           col += vec3(0.04, 0.08, 0.16) * twilight;
+          if (themeMode > 0.5 && themeMode < 1.5) {
+            col = day * 1.12; // Light: show the entire Earth without a night-side shadow.
+          } else if (themeMode >= 1.5) {
+            col = night; // Dark: keep the whole Earth on its night-side map.
+          }
           vec3 v = normalize(cameraPosition - vP);
           float rim = pow(1.0 - max(dot(n, v), 0.0), 3.0);
-          col += vec3(0.04, 0.20, 0.48) * rim * 0.38 * clamp(d + 0.35, 0.0, 1.0);
+          if (themeMode < 0.5) {
+            col += vec3(0.04, 0.20, 0.48) * rim * 0.38 * clamp(d + 0.35, 0.0, 1.0);
+          }
           gl_FragColor = vec4(col, 1.0);
         }`
     });
@@ -603,6 +616,51 @@
   }
 
   function setZoom(d) { distTarget = clamp(d, MIN_DIST, MAX_DIST); }
+
+  const THEME_STORAGE_KEY = 'dancing-with-the-sars-earth-theme';
+  function setEarthTheme(theme, persist = true) {
+    const modes = { default: 0, light: 1, dark: 2 };
+    if (!(theme in modes)) theme = 'default';
+    earthUniforms.themeMode.value = modes[theme];
+    themeInputs.forEach(input => { input.checked = input.value === theme; });
+    document.documentElement.dataset.earthTheme = theme;
+    if (persist) {
+      try { localStorage.setItem(THEME_STORAGE_KEY, theme); } catch (_) {}
+    }
+  }
+  function closeMenu() {
+    menuPanel.hidden = true;
+    menuBtn.setAttribute('aria-expanded', 'false');
+  }
+  function closeSettings() {
+    settingsPanel.hidden = true;
+    settingsBtn.setAttribute('aria-expanded', 'false');
+  }
+  menuBtn.addEventListener('click', () => {
+    const opening = menuPanel.hidden;
+    closeSettings();
+    menuPanel.hidden = !opening;
+    menuBtn.setAttribute('aria-expanded', String(opening));
+  });
+  settingsBtn.addEventListener('click', () => {
+    closeMenu();
+    settingsPanel.hidden = !settingsPanel.hidden;
+    settingsBtn.setAttribute('aria-expanded', String(!settingsPanel.hidden));
+  });
+  themeInputs.forEach(input => input.addEventListener('change', () => {
+    if (input.checked) setEarthTheme(input.value);
+  }));
+  document.addEventListener('click', event => {
+    if (!event.target.closest('#toolbar') && !event.target.closest('#settings-panel')) {
+      closeMenu();
+      closeSettings();
+    }
+  });
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape') { closeMenu(); closeSettings(); }
+  });
+  try { setEarthTheme(localStorage.getItem(THEME_STORAGE_KEY) || 'default', false); }
+  catch (_) { setEarthTheme('default', false); }
 
   function addZoomControls() {
     const el = renderer.domElement;
