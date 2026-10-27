@@ -264,7 +264,7 @@
     // Keep the sea fill, but draw its shoreline as spherical vector segments.
     // The outline deliberately uses the same radius, color and depth behavior
     // as buildCountryBorders(), so both kinds of borders share one visual style.
-    const shore = [
+    const shore = window.CASPIAN_SHORELINE || [
       [47.0, 48.0], [49.4, 47.2], [51.8, 46.8], [53.5, 45.8],
       [53.9, 44.2], [53.2, 42.5], [52.8, 40.7], [52.1, 39.0],
       [51.5, 37.8], [50.1, 36.7], [49.0, 37.2], [48.5, 38.6],
