@@ -229,13 +229,13 @@
 
     const mat = new THREE.ShaderMaterial({
       uniforms: earthUniforms,
-      vertexShader: \`
+      vertexShader: `
         varying vec3 vN; varying vec2 vUv; varying vec3 vP;
         void main() {
           vUv = uv; vN = normalize(normal); vP = position;
           gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-        }\`,
-      fragmentShader: \`
+        }`,
+      fragmentShader: `
         uniform sampler2D dayMap; uniform sampler2D nightMap; uniform sampler2D cityMap;
         uniform float hasNight; uniform float hasCity; uniform vec3 sunDir;
         varying vec3 vN; varying vec2 vUv; varying vec3 vP;
@@ -256,7 +256,7 @@
           float rim = pow(1.0 - max(dot(n, v), 0.0), 3.0);
           col += vec3(0.04, 0.20, 0.48) * rim * 0.38 * clamp(d + 0.35, 0.0, 1.0);
           gl_FragColor = vec4(col, 1.0);
-        }\`
+        }`
     });
     scene.add(new THREE.Mesh(new THREE.SphereGeometry(1, 128, 96), mat));
   }
