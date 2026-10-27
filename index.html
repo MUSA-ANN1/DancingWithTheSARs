@@ -3,76 +3,97 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Dancing with the SARs – Caspian Sea</title>
-<meta name="description" content="NISAR satellite radar surface-change data over the Caspian Sea, visualized on an interactive 3D globe.">
+<title>Dancing with the SARs: Caspian Sea</title>
+<meta name="description" content="NISAR satellite radar surface-change data over the Caspian Sea, on an interactive 3D globe under the real sky.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div id="app">
 
-  <!-- Space background: stars + sun drawn here -->
-  <canvas id="stars"></canvas>
-
-  <!-- Three.js WebGL globe -->
+  <!-- Three.js scene: Earth, real stars, Milky Way, Sun, Moon -->
   <div id="globe-container"></div>
 
-  <!-- Intro overlay shown during opening animation -->
+  <!-- Intro overlay, shown during the opening animation -->
   <div id="intro-overlay">
     <div id="intro-text">
-      <p class="eyebrow">NASA Space Apps 2026</p>
+      <p class="eyebrow">NASA Space Apps Challenge 2026</p>
       <h1>Dancing with the SARs</h1>
-      <p>Surface change seen by NISAR radar · Caspian Sea</p>
+      <p class="lede">Surface change over the Caspian Sea, seen by NISAR radar.</p>
     </div>
   </div>
 
-  <!-- Top-left header (visible after intro) -->
+  <!-- Top-left header, visible after the intro -->
   <div class="head" id="main-head" hidden>
-    <p class="eyebrow">NASA Space Apps 2026</p>
+    <p class="eyebrow">NASA Space Apps Challenge 2026</p>
     <h1>Dancing with the SARs</h1>
-    <p>NISAR radar surface change · Caspian Sea</p>
+    <p class="lede">NISAR radar surface change over the Caspian Sea.</p>
   </div>
 
-  <!-- NISAR image panel (bottom-right) -->
-  <div id="nisar-panel" hidden>
-    <div id="nisar-img-wrap">
-      <img id="nisar-img" alt="NISAR browse image" referrerpolicy="no-referrer">
-      <div id="nisar-no-img">No browse image available</div>
-    </div>
-    <div id="nisar-meta">
-      <span id="nisar-date-label">—</span>
-      <span id="nisar-type">—</span>
-    </div>
-    <a id="nisar-link" href="https://search.asf.alaska.edu/" target="_blank" rel="noopener">Open in ASF Vertex ↗</a>
+  <!-- Top toolbar: the history button opens the date bar -->
+  <div id="toolbar" hidden>
+    <button id="history-btn" type="button" aria-expanded="false" aria-controls="timeline">
+      <i class="ph ph-clock-counter-clockwise" aria-hidden="true"></i>
+      <span>Historical imagery</span>
+    </button>
   </div>
 
-  <!-- Date slider (Google Earth style) -->
-  <div id="timeline" hidden>
-    <button id="play-btn" aria-label="Play/Pause" title="Play">
-      <svg id="play-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-      <svg id="pause-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" hidden><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+  <!-- Date bar, hidden until the history button is pressed -->
+  <div id="timeline" role="group" aria-label="Historical imagery dates" hidden>
+    <button id="play-btn" type="button" aria-label="Play or pause the date sequence">
+      <i id="play-icon" class="ph ph-play" aria-hidden="true"></i>
+      <i id="pause-icon" class="ph ph-pause" aria-hidden="true" hidden></i>
     </button>
     <div id="slider-wrap">
       <div id="tick-labels"></div>
-      <input type="range" id="date-range" min="0" max="0" value="0" step="1">
+      <div id="track">
+        <div id="tick-marks"></div>
+        <input type="range" id="date-range" min="0" max="0" value="0" step="1" aria-label="Observation date">
+      </div>
     </div>
-    <div id="current-date-badge">—</div>
+    <div id="current-date-badge">None</div>
+    <button id="history-close" type="button" aria-label="Close historical imagery">
+      <i class="ph ph-x" aria-hidden="true"></i>
+    </button>
   </div>
 
-  <!-- Status bar -->
-  <div id="status-bar">
-    <span id="status-msg">Initializing…</span>
+  <!-- NISAR image panel, bottom right, shown with the date bar -->
+  <div id="nisar-panel" hidden>
+    <div id="nisar-img-wrap">
+      <img id="nisar-img" alt="NISAR browse image" referrerpolicy="no-referrer" hidden>
+      <div id="nisar-no-img">
+        <i id="nisar-empty-icon" class="ph ph-image" aria-hidden="true"></i>
+        <p id="nisar-empty-title" class="empty-title">No browse image for this date</p>
+        <p id="nisar-empty-body" class="empty-body">NISAR does not image every place every day. Drag the date bar to the nearest marked date.</p>
+      </div>
+    </div>
+    <div id="nisar-meta">
+      <span id="nisar-date-label">None selected</span>
+      <span id="nisar-type">No product</span>
+    </div>
+    <a id="nisar-link" href="https://search.asf.alaska.edu/" target="_blank" rel="noopener">
+      <span>Open in ASF Vertex</span>
+      <i class="ph ph-arrow-up-right" aria-hidden="true"></i>
+    </a>
+  </div>
+
+  <!-- Status -->
+  <div id="status-bar" role="status" hidden>
+    <span id="status-msg"></span>
   </div>
 
 </div>
 
-<!-- Three.js r158 (importmap-free, global) -->
+<!-- Phosphor icons, regular weight, pinned version -->
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+
+<!-- Three.js r158 (global build) -->
 <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
-<!-- SunCalc for real-time sun position -->
-<script src="https://cdn.jsdelivr.net/npm/suncalc@1.9.0/suncalc.js"></script>
-<!-- TWEEN.js for smooth animations -->
-<script src="https://cdn.jsdelivr.net/npm/@tweenjs/tween.js@23.1.3/dist/tween.umd.js"></script>
+
+<!-- Real-time Sun, Moon and sidereal time -->
+<script src="astro.js"></script>
 
 <script src="app.js"></script>
 </body>

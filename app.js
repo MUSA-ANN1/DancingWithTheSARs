@@ -1,627 +1,721 @@
-/* ============================================================
-   DancingWithTheSARs – Caspian Sea Edition
-   app.js  –  space background · Three.js globe · opening animation
-              real-time sun · NISAR date slider
-   ============================================================ */
+/* Dancing with the SARs: Caspian Sea
+   Real sky (star catalogue, Milky Way, Sun, Moon) around a day/night Earth.
+   The camera orbits the Earth; the Earth itself never rotates, so the
+   Caspian always stays centred. Users can only zoom.
+   Requires: three.js r158 (global), astro.js (window.Astro). */
 'use strict';
 
 (function () {
 
   /* ── Constants ─────────────────────────────────────────────── */
-  const CASPIAN_LON = 51.0;   // centre of Caspian Sea
-  const CASPIAN_LAT = 42.0;
-  const ANIM_DURATION = 2800;  // ms total opening animation
-  const INTRO_HOLD = 600;    // ms extra hold before zoom starts
-  const PLAY_SPEED = 1600;   // ms per tick when playing
+  const DEG = Math.PI / 180;
+  const A = window.Astro;
+
+  const CASPIAN = { lon: 50.7, lat: 41.8 };                  // view centre
+  const CASPIAN_BBOX = { w: 46.5, s: 36.4, e: 55.0, n: 47.5 }; // ASF search area
+  const INTRO_MS = 3000;
+  const START_DIST = 11;      // Earth radii, far away
+  const END_DIST = 1.55;      // zoomed on the Caspian
+  const MIN_DIST = 1.08;
+  const MAX_DIST = 11;
+  const PLAY_MS = 1600;
+  const DAY_MS = 86400000;
+
+  const SUN_RENDER_DIST = 600;
+  const SKY_RADIUS = 2000;
+  const MILKY_RADIUS = 3000;
+
   const ASF_BASE = 'https://api.daac.asf.alaska.edu/services/search/param';
   const VERTEX_URL = 'https://search.asf.alaska.edu/';
-  // Current local time passed in by the environment: 2026-10-26T22:37:42+05:00
-  // We use Date.now() for the live sun.
-  const NOW = new Date('2026-10-26T22:37:42+05:00');  // seed from env; updates live
 
-  /* ── Utility ────────────────────────────────────────────────── */
+  const IMG = 'https://unpkg.com/three-globe@2.31.2/example/img/';
+  const DAY_TEX = IMG + 'earth-blue-marble.jpg';     // NASA Blue Marble
+  const NIGHT_TEX = IMG + 'earth-night.jpg';
+
+  const STAR_URLS = [
+    'https://cdn.jsdelivr.net/gh/ofrohn/d3-celestial@master/data/stars.6.json',
+    'https://raw.githubusercontent.com/ofrohn/d3-celestial/master/data/stars.6.json'
+  ];
+  const MW_URLS = [
+    'https://dieghernan.github.io/celestial_data/data/mw.min.geojson',
+    'https://cdn.jsdelivr.net/gh/ofrohn/d3-celestial@master/data/mw.json',
+    'https://raw.githubusercontent.com/ofrohn/d3-celestial/master/data/mw.json'
+  ];
+
+  /* ── DOM ────────────────────────────────────────────────────── */
   const $ = s => document.querySelector(s);
-  const setStatus = msg => { const el = $('#status-msg'); if (el) el.textContent = msg; };
-
-  /* ── Element refs ────────────────────────────────────────────── */
-  const starsCv = $('#stars');
   const globeEl = $('#globe-container');
   const introOv = $('#intro-overlay');
   const mainHead = $('#main-head');
+  const toolbar = $('#toolbar');
+  const historyBtn = $('#history-btn');
+  const historyClose = $('#history-close');
   const timeline = $('#timeline');
   const dateRange = $('#date-range');
   const playBtn = $('#play-btn');
   const playIcon = $('#play-icon');
   const pauseIcon = $('#pause-icon');
   const dateBadge = $('#current-date-badge');
-  const tickLbls = $('#tick-labels');
+  const tickLabels = $('#tick-labels');
+  const tickMarks = $('#tick-marks');
   const nisarPanel = $('#nisar-panel');
   const nisarImg = $('#nisar-img');
   const nisarNoImg = $('#nisar-no-img');
+  const emptyIcon = $('#nisar-empty-icon');
+  const emptyTitle = $('#nisar-empty-title');
+  const emptyBody = $('#nisar-empty-body');
   const nisarDL = $('#nisar-date-label');
   const nisarType = $('#nisar-type');
   const nisarLink = $('#nisar-link');
+  const statusMsg = $('#status-msg');
+  const statusBar = $('#status-bar');
 
-  /* ════════════════════════════════════════════════════════════
-     1. STAR-FIELD + SUN (2D canvas behind the globe)
-  ════════════════════════════════════════════════════════════ */
-
-  const starsCtx = starsCv.getContext('2d');
-  let starsW = 0, starsH = 0;
-
-  // Star data: [x_frac, y_frac, radius, opacity, twinkle_offset]
-  const STARS = [];
-  function makeStars(n) {
-    STARS.length = 0;
-    for (let i = 0; i < n; i++) {
-      STARS.push([
-        Math.random(),           // x fraction
-        Math.random(),           // y fraction
-        Math.random() * 1.6 + 0.2,  // radius 0.2–1.8
-        Math.random() * 0.7 + 0.3,  // base opacity
-        Math.random() * Math.PI * 2  // twinkle phase
-      ]);
-    }
+  let statusTimer = null;
+  function setStatus(msg, ms) {
+    statusMsg.textContent = msg;
+    statusBar.hidden = !msg;
+    clearTimeout(statusTimer);
+    if (msg && ms) statusTimer = setTimeout(() => setStatus(''), ms);
   }
 
-  // A few bright "cluster" stars with blue/yellow tint
-  const BRIGHT = [];
-  function makeBright(n) {
-    BRIGHT.length = 0;
-    const colors = ['#c8e6fa', '#fffbe6', '#ffddc1', '#d0f0ff', '#ffe8a3'];
-    for (let i = 0; i < n; i++) {
-      BRIGHT.push({
-        xf: Math.random(), yf: Math.random(),
-        r: Math.random() * 1.8 + 1.0,
-        col: colors[Math.floor(Math.random() * colors.length)],
-        phase: Math.random() * Math.PI * 2
-      });
-    }
-  }
-
-  function resizeStars() {
-    starsW = starsCv.width = window.innerWidth;
-    starsH = starsCv.height = window.innerHeight;
-  }
-
-  function drawStars(t) {
-    starsCtx.clearRect(0, 0, starsW, starsH);
-
-    // Milky-way faint band
-    const bx = starsW * 0.35, by = 0, bw = starsW * 0.35, bh = starsH;
-    const mlk = starsCtx.createLinearGradient(bx, by, bx + bw, by + bh);
-    mlk.addColorStop(0, 'rgba(30,40,80,0)');
-    mlk.addColorStop(0.4, 'rgba(30,40,80,0.25)');
-    mlk.addColorStop(0.6, 'rgba(30,40,80,0.25)');
-    mlk.addColorStop(1, 'rgba(30,40,80,0)');
-    starsCtx.fillStyle = mlk;
-    starsCtx.fillRect(0, 0, starsW, starsH);
-
-    // Regular stars
-    const ts = t * 0.00045;
-    for (const [xf, yf, r, op, ph] of STARS) {
-      const twinkle = 0.55 + 0.45 * Math.sin(ts + ph);
-      starsCtx.beginPath();
-      starsCtx.arc(xf * starsW, yf * starsH, r, 0, Math.PI * 2);
-      starsCtx.fillStyle = `rgba(220,235,255,${op * twinkle})`;
-      starsCtx.fill();
-    }
-
-    // Bright stars with glow
-    for (const s of BRIGHT) {
-      const twinkle = 0.7 + 0.3 * Math.sin(ts * 1.3 + s.phase);
-      const x = s.xf * starsW, y = s.yf * starsH;
-      const grd = starsCtx.createRadialGradient(x, y, 0, x, y, s.r * 4);
-      grd.addColorStop(0, s.col);
-      grd.addColorStop(0.3, s.col.replace(')', `,${0.4 * twinkle})`).replace('rgb', 'rgba').replace('##', 'rgba(').replace('#c8e6fa', `rgba(200,230,250,${0.4 * twinkle})`).replace('#fffbe6', `rgba(255,251,230,${0.4 * twinkle})`).replace('rgba(rgba', 'rgba'));
-      grd.addColorStop(1, 'rgba(0,0,0,0)');
-      starsCtx.beginPath();
-      starsCtx.arc(x, y, s.r, 0, Math.PI * 2);
-      starsCtx.fillStyle = `rgba(255,255,240,${0.9 * twinkle})`;
-      starsCtx.fill();
-    }
-
-    drawSun(t);
-  }
-
-  /* ── Real-time Sun ─── */
-  let sunPos = { x: starsW * 0.8, y: starsH * 0.15 };
-
-  function updateSun() {
-    // SunCalc gives azimuth (N-clock) & altitude (rad) for Caspian lat/lon
-    const pos = SunCalc.getPosition(new Date(), CASPIAN_LAT, CASPIAN_LON);
-    const az = pos.azimuth + Math.PI;  // radians from N
-    const alt = pos.altitude;           // radians above horizon
-    // Map to screen: sun below horizon → push off-screen top
-    const progress = Math.max(0, Math.min(1, (alt + 0.3) / 1.0));
-    // azimuth → x fraction (0=N, π=S wraps to east/west)
-    const xFrac = (az / (2 * Math.PI) + 0.5) % 1;
-    sunPos = {
-      x: xFrac * starsW,
-      y: (1 - progress) * starsH * 0.55 + starsH * 0.03
-    };
-  }
-
-  function drawSun(t) {
-    const { x, y } = sunPos;
-    const pulsate = 1 + 0.03 * Math.sin(t * 0.0012);
-    // Outer glow
-    let g = starsCtx.createRadialGradient(x, y, 0, x, y, 160 * pulsate);
-    g.addColorStop(0, 'rgba(255,220,100,0.18)');
-    g.addColorStop(0.35, 'rgba(255,160,40,0.07)');
-    g.addColorStop(1, 'rgba(0,0,0,0)');
-    starsCtx.beginPath();
-    starsCtx.arc(x, y, 160 * pulsate, 0, Math.PI * 2);
-    starsCtx.fillStyle = g;
-    starsCtx.fill();
-    // Corona glow
-    g = starsCtx.createRadialGradient(x, y, 0, x, y, 55 * pulsate);
-    g.addColorStop(0, 'rgba(255,240,180,0.95)');
-    g.addColorStop(0.4, 'rgba(255,200,80,0.6)');
-    g.addColorStop(0.75, 'rgba(255,140,30,0.18)');
-    g.addColorStop(1, 'rgba(0,0,0,0)');
-    starsCtx.beginPath();
-    starsCtx.arc(x, y, 55 * pulsate, 0, Math.PI * 2);
-    starsCtx.fillStyle = g;
-    starsCtx.fill();
-    // Core disc
-    g = starsCtx.createRadialGradient(x, y, 0, x, y, 12 * pulsate);
-    g.addColorStop(0, 'rgba(255,255,220,1)');
-    g.addColorStop(0.6, 'rgba(255,230,130,0.9)');
-    g.addColorStop(1, 'rgba(255,190,60,0)');
-    starsCtx.beginPath();
-    starsCtx.arc(x, y, 12 * pulsate, 0, Math.PI * 2);
-    starsCtx.fillStyle = g;
-    starsCtx.fill();
-  }
-
-  /* ════════════════════════════════════════════════════════════
-     2. THREE.JS GLOBE
-  ════════════════════════════════════════════════════════════ */
-  const THREE = window.THREE;
-  let renderer, scene, camera, globeMesh, atmosphereMesh, caspianLine;
-  let W = window.innerWidth, H = window.innerHeight;
-  let isDragging = false, prevMouse = { x: 0, y: 0 };
-  let globeRotX = 0, globeRotY = 0;  // current rotation (rad)
-  let targetRotX = 0, targetRotY = 0;
-  const GLOBE_RADIUS = 1.0;
-
-  // Lon/lat → 3D XYZ on unit sphere
-  function lonLatToVec3(lon, lat, r) {
-    const phi = (90 - lat) * Math.PI / 180;
-    const theta = (lon + 180) * Math.PI / 180;
+  /* ── Geometry helpers ───────────────────────────────────────── */
+  /* One formula for both geography and the sky: longitude / right
+     ascension 0 sits on +x, north is +y, east runs toward -z.
+     This matches how THREE.SphereGeometry wraps an equirectangular
+     texture, so the Earth map, the stars and the Sun all agree. */
+  function sphToVec3(lonRad, latRad, r) {
     return new THREE.Vector3(
-      -r * Math.sin(phi) * Math.cos(theta),
-      r * Math.cos(phi),
-      r * Math.sin(phi) * Math.sin(theta)
+      r * Math.cos(latRad) * Math.cos(lonRad),
+      r * Math.sin(latRad),
+      -r * Math.cos(latRad) * Math.sin(lonRad)
     );
   }
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+  const easeInOut = t => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 
-  function initThree() {
-    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  /* ════════════════════════════════════════════════════════════
+     1. SCENE
+  ════════════════════════════════════════════════════════════ */
+  let renderer, scene, camera, sky, sunGroupItems = {}, moonMesh, moonLight;
+  const earthUniforms = {
+    dayMap: { value: null },
+    nightMap: { value: null },
+    hasNight: { value: 0 },
+    sunDir: { value: new THREE.Vector3(1, 0, 0) }
+  };
+  const atmUniforms = { sunDir: earthUniforms.sunDir };
+  const starUniforms = { uPR: { value: 1 } };
+
+  let W = window.innerWidth, H = window.innerHeight;
+
+  function initScene() {
+    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.setSize(W, H);
-    renderer.setClearColor(0x000000, 0);
+    renderer.setClearColor(0x000000, 1);
+    renderer.domElement.style.touchAction = 'none';
     globeEl.appendChild(renderer.domElement);
+    starUniforms.uPR.value = renderer.getPixelRatio();
 
     scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera(45, W / H, 0.05, 4000);
 
-    // Camera
-    camera = new THREE.PerspectiveCamera(45, W / H, 0.1, 100);
-    camera.position.set(0, 0, 4);  // start far
+    // The sky group holds everything that lives in inertial space.
+    // It is rotated each frame by minus the sidereal time, so that in
+    // the Earth-fixed frame the stars, Sun and Moon sit where they
+    // really are right now.
+    sky = new THREE.Group();
+    scene.add(sky);
 
-    // Lights
-    const ambient = new THREE.AmbientLight(0x334466, 0.6);
-    scene.add(ambient);
-    const sunLight = new THREE.DirectionalLight(0xfff5d0, 1.8);
-    sunLight.position.set(5, 3, 5);
-    scene.add(sunLight);
+    buildEarth();
+    buildAtmosphere();
+    buildSun();
+    buildMoon();
+  }
 
-    // Globe sphere
-    const geo = new THREE.SphereGeometry(GLOBE_RADIUS, 64, 64);
+  function placeholderTexture(r, g, b) {
+    const t = new THREE.DataTexture(new Uint8Array([r, g, b, 255]), 1, 1);
+    t.needsUpdate = true;
+    return t;
+  }
 
-    // Load earth texture
+  function buildEarth() {
+    earthUniforms.dayMap.value = placeholderTexture(10, 30, 70);
+    earthUniforms.nightMap.value = placeholderTexture(0, 0, 0);
+
     const loader = new THREE.TextureLoader();
-    loader.crossOrigin = 'anonymous';
+    loader.setCrossOrigin('anonymous');
+    const aniso = renderer.capabilities.getMaxAnisotropy();
 
-    // Day texture via public NASA CDN
-    const dayTex = loader.load(
-      'https://unpkg.com/three-globe@2.31.2/example/img/earth-blue-marble.jpg',
-      () => { /* loaded */ },
-      undefined,
-      () => {
-        // Fallback: solid colored sphere
-        mat.color.set(0x1a4a9a);
-      }
-    );
+    loader.load(DAY_TEX, tex => {
+      tex.anisotropy = aniso;
+      earthUniforms.dayMap.value = tex;
+    }, undefined, () => setStatus('Earth texture could not be loaded.', 6000));
 
-    const mat = new THREE.MeshPhongMaterial({
-      map: dayTex,
-      specular: new THREE.Color(0x333355),
-      shininess: 12,
+    loader.load(NIGHT_TEX, tex => {
+      tex.anisotropy = aniso;
+      earthUniforms.nightMap.value = tex;
+      earthUniforms.hasNight.value = 1;
     });
 
-    globeMesh = new THREE.Mesh(geo, mat);
-    scene.add(globeMesh);
-
-    // Atmosphere glow
-    const atmGeo = new THREE.SphereGeometry(GLOBE_RADIUS * 1.025, 64, 64);
-    const atmMat = new THREE.MeshPhongMaterial({
-      color: 0x4fc3f7,
-      transparent: true,
-      opacity: 0.08,
-      side: THREE.BackSide,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false,
+    const mat = new THREE.ShaderMaterial({
+      uniforms: earthUniforms,
+      vertexShader: `
+        varying vec3 vN; varying vec2 vUv; varying vec3 vP;
+        void main() {
+          vUv = uv; vN = normalize(normal); vP = position;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }`,
+      fragmentShader: `
+        uniform sampler2D dayMap; uniform sampler2D nightMap;
+        uniform float hasNight; uniform vec3 sunDir;
+        varying vec3 vN; varying vec2 vUv; varying vec3 vP;
+        void main() {
+          vec3 n = normalize(vN);
+          vec3 s = normalize(sunDir);
+          float d = dot(n, s);
+          float dayMix = smoothstep(-0.10, 0.16, d);
+          vec3 day = texture2D(dayMap, vUv).rgb;
+          vec3 night = texture2D(nightMap, vUv).rgb;
+          vec3 dayCol = day * (0.18 + 0.95 * max(d, 0.0));
+          vec3 nightCol = day * 0.035 + night * hasNight * 1.15;
+          vec3 col = mix(nightCol, dayCol, dayMix);
+          vec3 v = normalize(cameraPosition - vP);
+          float rim = pow(1.0 - max(dot(n, v), 0.0), 3.0);
+          col += vec3(0.22, 0.45, 0.95) * rim * 0.45 * clamp(d + 0.35, 0.0, 1.0);
+          gl_FragColor = vec4(col, 1.0);
+        }`
     });
-    atmosphereMesh = new THREE.Mesh(atmGeo, atmMat);
-    scene.add(atmosphereMesh);
-
-    // Outer glow ring
-    const outerGeo = new THREE.SphereGeometry(GLOBE_RADIUS * 1.065, 64, 64);
-    const outerMat = new THREE.MeshPhongMaterial({
-      color: 0x1a6bb5,
-      transparent: true,
-      opacity: 0.04,
-      side: THREE.BackSide,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false,
-    });
-    scene.add(new THREE.Mesh(outerGeo, outerMat));
-
-    buildCaspianOutline();
-
-    // Drag to rotate (after animation)
-    addDragHandlers();
+    scene.add(new THREE.Mesh(new THREE.SphereGeometry(1, 96, 64), mat));
   }
 
-  /* ── Caspian Sea Outline ─────────────────────────────────── */
-  // Simplified Caspian coastline polygon (lon, lat) clockwise from north
-  const CASPIAN_COORDS = [
-    [54.0, 51.5], [53.1, 50.3], [52.5, 49.4], [52.8, 48.5], [53.3, 47.4],
-    [53.7, 46.5], [54.2, 45.5], [50.3, 44.9], [49.9, 44.0], [50.4, 43.2],
-    [51.3, 42.5], [51.9, 41.7], [53.1, 40.9], [53.6, 40.2], [53.8, 39.4],
-    [53.5, 38.5], [52.6, 37.4], [51.0, 36.8], [50.2, 37.2], [50.0, 38.1],
-    [49.5, 39.0], [49.2, 40.0], [49.1, 41.0], [48.7, 41.9], [48.7, 42.8],
-    [49.0, 43.8], [49.4, 44.5], [49.0, 45.4], [48.5, 46.3], [48.7, 47.2],
-    [49.2, 47.9], [49.9, 48.7], [50.4, 49.5], [51.0, 50.3], [51.8, 51.0],
-    [54.0, 51.5]
-  ];
-
-  function buildCaspianOutline() {
-    const pts = CASPIAN_COORDS.map(([lon, lat]) =>
-      lonLatToVec3(lon, lat, GLOBE_RADIUS * 1.004)
-    );
-    const geo = new THREE.BufferGeometry().setFromPoints(pts);
-
-    // Glowing line
-    const mat = new THREE.LineBasicMaterial({
-      color: 0x4fc3f7,
-      linewidth: 2,
-      transparent: true,
-      opacity: 0.9,
+  function buildAtmosphere() {
+    const mat = new THREE.ShaderMaterial({
+      uniforms: atmUniforms,
+      side: THREE.BackSide,
       blending: THREE.AdditiveBlending,
+      transparent: true,
       depthWrite: false,
+      vertexShader: `
+        varying vec3 vN; varying vec3 vW;
+        void main() {
+          vN = normalize(normalMatrix * normal);
+          vW = normalize(position);
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }`,
+      fragmentShader: `
+        uniform vec3 sunDir; varying vec3 vN; varying vec3 vW;
+        void main() {
+          float i = pow(max(0.0, 0.72 - dot(vN, vec3(0.0, 0.0, 1.0))), 3.5);
+          float lit = clamp(dot(vW, normalize(sunDir)) + 0.4, 0.06, 1.0);
+          gl_FragColor = vec4(0.25, 0.55, 1.0, 1.0) * i * lit * 1.5;
+        }`
     });
-    caspianLine = new THREE.Line(geo, mat);
-    caspianLine.visible = false;  // revealed after animation
-    scene.add(caspianLine);
+    scene.add(new THREE.Mesh(new THREE.SphereGeometry(1.12, 64, 48), mat));
+  }
 
-    // Filled "water" as separate transparent mesh
-    // Simple fan triangulation around centroid
-    const centroid = lonLatToVec3(CASPIAN_LON, CASPIAN_LAT, GLOBE_RADIUS * 1.002);
-    const fillPts = [centroid, ...pts];
-    const indices = [];
-    for (let i = 1; i < fillPts.length - 1; i++) {
-      indices.push(0, i, i + 1);
+  function glowTexture() {
+    const c = document.createElement('canvas');
+    c.width = c.height = 256;
+    const x = c.getContext('2d');
+    const g = x.createRadialGradient(128, 128, 0, 128, 128, 128);
+    g.addColorStop(0, 'rgba(255,244,214,1)');
+    g.addColorStop(0.12, 'rgba(255,226,160,0.55)');
+    g.addColorStop(0.4, 'rgba(255,190,90,0.12)');
+    g.addColorStop(1, 'rgba(255,170,60,0)');
+    x.fillStyle = g;
+    x.fillRect(0, 0, 256, 256);
+    return new THREE.CanvasTexture(c);
+  }
+
+  function buildSun() {
+    // Real angular size: about 0.53 degrees across, scaled by Earth-Sun distance.
+    const disc = new THREE.Mesh(
+      new THREE.SphereGeometry(1, 32, 16),
+      new THREE.MeshBasicMaterial({ color: 0xfff4d8 })
+    );
+    const glow = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: glowTexture(), blending: THREE.AdditiveBlending,
+      transparent: true, depthWrite: false
+    }));
+    sky.add(disc, glow);
+    sunGroupItems = { disc, glow };
+  }
+
+  function buildMoon() {
+    moonMesh = new THREE.Mesh(
+      new THREE.SphereGeometry(1737.4 / A.EARTH_RADIUS_KM, 48, 24),
+      new THREE.MeshStandardMaterial({ color: 0xa6a49f, roughness: 1, metalness: 0 })
+    );
+    sky.add(moonMesh);
+    moonLight = new THREE.DirectionalLight(0xffffff, 3.2);
+    scene.add(moonLight);
+    scene.add(new THREE.AmbientLight(0x1a2233, 0.35));
+  }
+
+  /* ── Real stars ─────────────────────────────────────────────── */
+  async function fetchJSON(urls, timeoutMs) {
+    for (const url of urls) {
+      try {
+        const ac = new AbortController();
+        const id = setTimeout(() => ac.abort(), timeoutMs || 20000);
+        const res = await fetch(url, { signal: ac.signal });
+        clearTimeout(id);
+        if (res.ok) return await res.json();
+      } catch (e) { /* try next source */ }
     }
-    const fillGeo = new THREE.BufferGeometry().setFromPoints(fillPts);
-    fillGeo.setIndex(indices);
-    fillGeo.computeVertexNormals();
-
-    const fillMat = new THREE.MeshBasicMaterial({
-      color: 0x1a6dcc,
-      transparent: true,
-      opacity: 0.28,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false,
-      side: THREE.FrontSide,
-    });
-    const fillMesh = new THREE.Mesh(fillGeo, fillMat);
-    fillMesh.visible = false;
-    scene.add(fillMesh);
-
-    // Store ref for reveal
-    caspianLine._fill = fillMesh;
+    return null;
   }
 
-  /* ── Drag handlers ────────────────────────────────────────── */
-  let dragEnabled = false;
-  let lastTouchDist = null;
+  function kelvinToRGB(k) {
+    const t = k / 100;
+    let r, g, b;
+    if (t <= 66) { r = 255; g = 99.4708025861 * Math.log(t) - 161.1195681661; }
+    else { r = 329.698727446 * Math.pow(t - 60, -0.1332047592); g = 288.1221695283 * Math.pow(t - 60, -0.0755148492); }
+    if (t >= 66) b = 255; else if (t <= 19) b = 0; else b = 138.5177312231 * Math.log(t - 10) - 305.0447927307;
+    return [clamp(r, 0, 255) / 255, clamp(g, 0, 255) / 255, clamp(b, 0, 255) / 255];
+  }
 
-  function addDragHandlers() {
+  function bvToRGB(bv) {
+    const k = 4600 * (1 / (0.92 * bv + 1.7) + 1 / (0.92 * bv + 0.62));
+    const [r, g, b] = kelvinToRGB(clamp(k, 2500, 30000));
+    const w = 0.5; // eyes see stars as pale, so blend toward white
+    return [lerp(r, 1, w), lerp(g, 1, w), lerp(b, 1, w)];
+  }
+
+  async function loadStars() {
+    setStatus('Loading star catalogue');
+    const data = await fetchJSON(STAR_URLS);
+    if (!data || !Array.isArray(data.features)) {
+      setStatus('Star catalogue could not be loaded, so the sky is empty.', 8000);
+      return;
+    }
+    const n = data.features.length;
+    const pos = new Float32Array(n * 3);
+    const col = new Float32Array(n * 3);
+    const size = new Float32Array(n);
+    let k = 0;
+    for (const f of data.features) {
+      const c = f.geometry && f.geometry.coordinates;
+      if (!c) continue;
+      const mag = parseFloat(f.properties && f.properties.mag);
+      if (!isFinite(mag)) continue;
+      let bv = parseFloat(f.properties.bv);
+      if (!isFinite(bv)) bv = 0.6;
+      // Catalogue coordinates are [right ascension in degrees, declination].
+      const v = sphToVec3(c[0] * DEG, c[1] * DEG, SKY_RADIUS);
+      pos.set([v.x, v.y, v.z], k * 3);
+      const [r, g, b] = bvToRGB(bv);
+      const bright = clamp(1.15 - mag * 0.12, 0.3, 1);
+      col.set([r * bright, g * bright, b * bright], k * 3);
+      size[k] = Math.max(1.0, 3.6 - mag * 0.42);
+      k++;
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(pos.subarray(0, k * 3), 3));
+    geo.setAttribute('aColor', new THREE.BufferAttribute(col.subarray(0, k * 3), 3));
+    geo.setAttribute('aSize', new THREE.BufferAttribute(size.subarray(0, k), 1));
+    const mat = new THREE.ShaderMaterial({
+      uniforms: starUniforms,
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      vertexShader: `
+        attribute float aSize; attribute vec3 aColor; varying vec3 vC; uniform float uPR;
+        void main() {
+          vC = aColor; gl_PointSize = aSize * uPR;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }`,
+      fragmentShader: `
+        varying vec3 vC;
+        void main() {
+          float d = length(gl_PointCoord - vec2(0.5));
+          float a = smoothstep(0.5, 0.05, d);
+          gl_FragColor = vec4(vC, a);
+        }`
+    });
+    const pts = new THREE.Points(geo, mat);
+    pts.frustumCulled = false;
+    pts.renderOrder = -1;
+    sky.add(pts);
+    setStatus(`${k.toLocaleString('en-US')} real stars loaded`, 4000);
+  }
+
+  /* ── Real Milky Way (outline data painted to a sky texture) ── */
+  async function loadMilkyWay() {
+    const data = await fetchJSON(MW_URLS);
+    if (!data || !Array.isArray(data.features)) return;
+
+    const CW = 2048, CH = 1024;
+    const cv = document.createElement('canvas');
+    cv.width = CW; cv.height = CH;
+    const ctx = cv.getContext('2d');
+    if ('filter' in ctx) ctx.filter = 'blur(5px)';
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.fillStyle = 'rgba(168,184,232,0.07)';
+
+    for (const f of data.features) {
+      const g = f.geometry;
+      if (!g) continue;
+      const polys = g.type === 'MultiPolygon' ? g.coordinates : g.type === 'Polygon' ? [g.coordinates] : [];
+      for (const poly of polys) {
+        const path = new Path2D();
+        for (const ring of poly) {
+          // unwrap longitudes so rings crossing the +-180 seam stay continuous
+          let prev = null;
+          const pts = ring.map(([lo, la]) => {
+            if (prev !== null) {
+              while (lo - prev > 180) lo -= 360;
+              while (prev - lo > 180) lo += 360;
+            }
+            prev = lo;
+            return [lo, la];
+          });
+          for (const off of [-360, 0, 360]) {
+            pts.forEach(([lo, la], i) => {
+              const x = ((lo + off + 180) / 360) * CW;
+              const y = ((90 - la) / 180) * CH;
+              if (i === 0) path.moveTo(x, y); else path.lineTo(x, y);
+            });
+            path.closePath();
+          }
+        }
+        ctx.fill(path, 'evenodd');
+      }
+    }
+
+    const tex = new THREE.CanvasTexture(cv);
+    const mesh = new THREE.Mesh(
+      new THREE.SphereGeometry(MILKY_RADIUS, 64, 32),
+      new THREE.MeshBasicMaterial({ map: tex, side: THREE.BackSide, transparent: true, depthWrite: false })
+    );
+    mesh.renderOrder = -2;
+    sky.add(mesh);
+  }
+
+  /* ── Per-frame real-time sky ────────────────────────────────── */
+  const Y_AXIS = new THREE.Vector3(0, 1, 0);
+
+  function updateSky() {
+    const jd = A.julianDate(Date.now());
+    const theta = A.gmst(jd);
+    sky.rotation.y = -theta;
+
+    const sun = A.sunEq(jd);
+    const sunVec = sphToVec3(sun.ra, sun.dec, 1);
+
+    // Sun position in inertial space, with its true angular size
+    const angRadius = (0.2666 * DEG) / sun.au;
+    const r = SUN_RENDER_DIST * Math.tan(angRadius);
+    sunGroupItems.disc.position.copy(sunVec).multiplyScalar(SUN_RENDER_DIST);
+    sunGroupItems.disc.scale.setScalar(r);
+    sunGroupItems.glow.position.copy(sunGroupItems.disc.position);
+    sunGroupItems.glow.scale.setScalar(r * 22);
+
+    // Sun direction in the Earth-fixed frame, used for day/night shading
+    const fixed = sunVec.clone().applyAxisAngle(Y_AXIS, -theta);
+    earthUniforms.sunDir.value.copy(fixed);
+    moonLight.position.copy(fixed).multiplyScalar(50);
+
+    const moon = A.moonEq(jd);
+    moonMesh.position.copy(sphToVec3(moon.ra, moon.dec, moon.distEarthRadii));
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     2. CAMERA: opening animation and zoom-only controls
+  ════════════════════════════════════════════════════════════ */
+  let phase = 'intro';          // intro, explore
+  let introStart = 0;
+  let fadeStarted = false;
+  let dist = START_DIST;
+  let distTarget = END_DIST;
+
+  function placeCamera(lonDeg, latDeg, d) {
+    camera.position.copy(sphToVec3(lonDeg * DEG, latDeg * DEG, d));
+    camera.up.set(0, 1, 0);
+    camera.lookAt(0, 0, 0);
+  }
+
+  function stepIntro(now) {
+    const t = clamp((now - introStart) / INTRO_MS, 0, 1);
+    const e = easeInOut(t);
+    // start over longitude 0, orbit one full turn, finish above the Caspian
+    placeCamera(lerp(0, 360 + CASPIAN.lon, e), lerp(0, CASPIAN.lat, e), lerp(START_DIST, END_DIST, e));
+
+    if (t > 0.78 && !fadeStarted) {
+      fadeStarted = true;
+      introOv.classList.add('fade-out');
+      setTimeout(() => { introOv.hidden = true; }, 700);
+    }
+    if (t >= 1) {
+      phase = 'explore';
+      dist = END_DIST;
+      distTarget = END_DIST;
+      mainHead.hidden = false;
+      toolbar.hidden = false;
+      loadNisar();
+    }
+  }
+
+  function setZoom(d) { distTarget = clamp(d, MIN_DIST, MAX_DIST); }
+
+  function addZoomControls() {
     const el = renderer.domElement;
 
-    el.addEventListener('pointerdown', e => {
-      if (!dragEnabled) return;
-      isDragging = true;
-      prevMouse = { x: e.clientX, y: e.clientY };
-      el.setPointerCapture(e.pointerId);
-    });
-
-    el.addEventListener('pointermove', e => {
-      if (!isDragging || !dragEnabled) return;
-      const dx = e.clientX - prevMouse.x;
-      const dy = e.clientY - prevMouse.y;
-      prevMouse = { x: e.clientX, y: e.clientY };
-      targetRotY += dx * 0.005;
-      targetRotX += dy * 0.005;
-      targetRotX = Math.max(-Math.PI / 2.5, Math.min(Math.PI / 2.5, targetRotX));
-    });
-
-    el.addEventListener('pointerup', () => { isDragging = false; });
-    el.addEventListener('pointercancel', () => { isDragging = false; });
-
     el.addEventListener('wheel', e => {
-      if (!dragEnabled) return;
       e.preventDefault();
-      const z = camera.position.z + e.deltaY * 0.003;
-      camera.position.z = Math.max(1.3, Math.min(5, z));
+      if (phase !== 'explore') return;
+      setZoom(distTarget * Math.exp(e.deltaY * 0.0012));
     }, { passive: false });
+
+    const pointers = new Map();
+    let pinch = null;
+    const pinchDist = () => {
+      const [a, b] = [...pointers.values()];
+      return Math.hypot(a.x - b.x, a.y - b.y) || 1;
+    };
+    el.addEventListener('pointerdown', e => {
+      pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (pointers.size === 2) pinch = { d: pinchDist(), z: distTarget };
+    });
+    el.addEventListener('pointermove', e => {
+      if (!pointers.has(e.pointerId)) return;
+      pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (pointers.size === 2 && pinch && phase === 'explore') setZoom(pinch.z * pinch.d / pinchDist());
+    });
+    const release = e => {
+      pointers.delete(e.pointerId);
+      if (pointers.size < 2) pinch = null;
+    };
+    el.addEventListener('pointerup', release);
+    el.addEventListener('pointercancel', release);
+
+    window.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeHistory();
+      const inField = e.target && e.target.tagName === 'INPUT';
+      if (phase !== 'explore' || inField) return;
+      if (e.key === '+' || e.key === '=') setZoom(distTarget / 1.18);
+      if (e.key === '-' || e.key === '_') setZoom(distTarget * 1.18);
+    });
   }
 
   /* ════════════════════════════════════════════════════════════
-     3. OPENING ANIMATION
+     3. NISAR DATA (ASF search API) AND HISTORY TIMELINE
   ════════════════════════════════════════════════════════════ */
-  // We need the globe initially positioned facing lon=0, lat=0
-  // (centre of spin). Target is Caspian (lon=51, lat=42).
-  // Globe's internal rotation: rotY rotates in longitude, rotX in latitude.
-
-  // lon=51 → rotY = 51 * π/180
-  // lat=42 → rotX = -42 * π/180  (negative because +X tilts north down)
-  const TARGET_ROTY = -51 * Math.PI / 180;
-  const TARGET_ROTX = 42 * Math.PI / 180;
-
-  const TARGET_CAM_Z = 1.85;  // final zoomed-in z
-  const INITIAL_CAM_Z = camera ? camera.position.z : 4;
-
-  let animDone = false;
-
-  function runOpeningAnimation() {
-    const startTime = performance.now();
-    let phase = 'spin';  // spin → zoom
-
-    // Disable drag
-    dragEnabled = false;
-
-    // Globe starts at rotY=0, rotX=0
-    globeMesh.rotation.set(0, 0, 0);
-
-    function tick(now) {
-      const elapsed = now - startTime;
-
-      if (phase === 'spin') {
-        // Spin 360° over ANIM_DURATION*0.55, ease-in-out
-        const t = Math.min(1, elapsed / (ANIM_DURATION * 0.55));
-        const e = easeInOut(t);
-        globeMesh.rotation.y = e * Math.PI * 2;
-        atmosphereMesh.rotation.y = globeMesh.rotation.y;
-
-        if (t >= 1) {
-          phase = 'zoom';
-        }
-        requestAnimationFrame(tick);
-
-      } else if (phase === 'zoom') {
-        // Zoom-in + rotate to Caspian over remaining time
-        const zoomStart = ANIM_DURATION * 0.45;
-        const zoomElapsed = elapsed - zoomStart;
-        const zoomDur = ANIM_DURATION * 0.65;
-        const t = Math.max(0, Math.min(1, zoomElapsed / zoomDur));
-        const e = easeInOut(t);
-
-        globeMesh.rotation.y = Math.PI * 2 + TARGET_ROTY * e;   // continue spin→target
-        globeMesh.rotation.x = TARGET_ROTX * e;
-        atmosphereMesh.rotation.set(globeMesh.rotation.x, globeMesh.rotation.y, 0);
-
-        // Camera zoom in
-        camera.position.z = lerp(4, TARGET_CAM_Z, e);
-
-        if (t >= 1) {
-          // Animation done
-          phase = 'done';
-          globeMesh.rotation.y = Math.PI * 2 + TARGET_ROTY;
-          globeMesh.rotation.x = TARGET_ROTX;
-          targetRotY = globeMesh.rotation.y;
-          targetRotX = globeMesh.rotation.x;
-          camera.position.z = TARGET_CAM_Z;
-
-          // Reveal Caspian outline
-          if (caspianLine) {
-            caspianLine.visible = true;
-            caspianLine._fill.visible = true;
-          }
-
-          // Fade out intro overlay
-          introOv.classList.add('fade-out');
-          setTimeout(() => {
-            introOv.style.display = 'none';
-            mainHead.hidden = false;
-            timeline.hidden = false;
-            dragEnabled = true;
-            animDone = true;
-            loadNisarDates();
-          }, 800);
-          return;
-        }
-        requestAnimationFrame(tick);
-      }
-    }
-    requestAnimationFrame(tick);
-  }
-
-  /* ── Easing helpers ─── */
-  function easeInOut(t) {
-    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-  }
-  function lerp(a, b, t) { return a + (b - a) * t; }
-
-  /* ════════════════════════════════════════════════════════════
-     4. NISAR DATA (ASF API)
-  ════════════════════════════════════════════════════════════ */
-  let nisarItems = [];   // sorted by date asc
+  let days = [];                // one entry per acquisition day, ascending
+  let currentIdx = -1;
+  let nisarState = 'idle';      // idle, loading, ready, empty, error
   let playTimer = null;
   let isPlaying = false;
 
-  async function loadNisarDates() {
-    setStatus('Searching ASF archive for Caspian Sea NISAR products…');
-    nisarPanel.hidden = true;
+  const firstBrowse = p => {
+    if (Array.isArray(p.browse)) return p.browse.find(Boolean) || null;
+    return typeof p.browse === 'string' ? p.browse : null;
+  };
+  const dayMs = iso => Date.parse(iso.slice(0, 10) + 'T00:00:00Z');
+  const fmtDate = ms => new Date(ms).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
 
-    const wkt = encodeURIComponent(`POINT(${CASPIAN_LON.toFixed(3)} ${CASPIAN_LAT.toFixed(3)})`);
-    const url = `${ASF_BASE}?dataset=NISAR&processingLevel=GCOV,GUNW&intersectsWith=${wkt}&maxResults=100&output=geojson`;
+  function groupByDay(features) {
+    const map = new Map();
+    for (const p of features) {
+      const st = String(p.startTime || '');
+      if (st.length < 10) continue;
+      const key = st.slice(0, 10);
+      if (!map.has(key)) map.set(key, []);
+      map.get(key).push(p);
+    }
+    return [...map.entries()]
+      .sort((a, b) => (a[0] < b[0] ? -1 : 1))
+      .map(([date, items]) => ({
+        date,
+        ms: dayMs(date),
+        items,
+        pick: items.find(firstBrowse) || items[0],
+        levels: [...new Set(items.map(i => i.processingLevel).filter(Boolean))]
+      }));
+  }
 
-    let items = [];
+  async function loadNisar() {
+    if (nisarState === 'loading' || nisarState === 'ready') return;
+    nisarState = 'loading';
+    renderPanelState();
+
+    const b = CASPIAN_BBOX;
+    const wkt = `POLYGON((${b.w} ${b.s},${b.e} ${b.s},${b.e} ${b.n},${b.w} ${b.n},${b.w} ${b.s}))`;
+    const url = `${ASF_BASE}?dataset=NISAR&processingLevel=GCOV,GUNW&intersectsWith=${encodeURIComponent(wkt)}&maxResults=250&output=geojson`;
+
     try {
       const ac = new AbortController();
-      const tid = setTimeout(() => ac.abort(), 14000);
+      const id = setTimeout(() => ac.abort(), 15000);
       const res = await fetch(url, { signal: ac.signal });
-      clearTimeout(tid);
-      if (res.ok) {
-        const json = await res.json();
-        items = (json.features || []).map(f => f.properties);
-      }
+      clearTimeout(id);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const json = await res.json();
+      days = groupByDay((json.features || []).map(f => f.properties || {}));
+      nisarState = days.length ? 'ready' : 'empty';
     } catch (e) {
-      // Network / CORS – use demo placeholders
-      items = [];
+      days = [];
+      nisarState = 'error';
     }
 
-    // Sort ascending by startTime
-    items.sort((a, b) => String(a.startTime).localeCompare(String(b.startTime)));
-
-    if (!items.length) {
-      // Demo placeholder data so the UI is still visible
-      items = buildDemoItems();
-      setStatus('No live NISAR products found — showing demo dates');
+    if (nisarState === 'ready') {
+      buildTimeline();
+      selectDay(days.length - 1);
+      setStatus(`${days.length} NISAR acquisition dates found over the Caspian Sea`, 4000);
     } else {
-      setStatus(`${items.length} NISAR products found for Caspian Sea`);
+      renderPanelState();
+      dateBadge.textContent = 'None';
+      dateRange.disabled = true;
+      playBtn.disabled = true;
     }
-
-    nisarItems = items;
-    buildSlider();
-    selectDate(nisarItems.length - 1);  // show newest by default
-    nisarPanel.hidden = false;
-    setTimeout(() => setStatus(''), 3000);
   }
 
-  function buildDemoItems() {
-    // Synthetic placeholder dates for display when API returns nothing
-    const base = new Date('2025-08-15');
-    const out = [];
-    for (let i = 0; i < 24; i++) {
-      const d = new Date(base);
-      d.setDate(d.getDate() + i * 15);
-      out.push({
-        startTime: d.toISOString().slice(0, 10),
-        processingLevel: Math.random() > 0.5 ? 'GCOV' : 'GUNW',
-        browse: null,
-        url: VERTEX_URL,
-        sceneName: `DEMO-CASPIAN-${String(i + 1).padStart(3, '0')}`
-      });
-    }
-    return out;
+  function setEmpty(icon, title, body) {
+    emptyIcon.className = 'ph ' + icon;
+    emptyTitle.textContent = title;
+    emptyBody.textContent = body;
+    nisarImg.removeAttribute('src');
+    nisarImg.hidden = true;
+    nisarNoImg.hidden = false;
   }
 
-  /* ── Build slider ─── */
-  function buildSlider() {
-    const n = nisarItems.length;
-    if (!n) return;
+  function renderPanelState() {
+    if (nisarState === 'loading') {
+      nisarDL.textContent = 'Searching';
+      nisarType.textContent = 'ASF archive';
+      setEmpty('ph-circle-notch', 'Searching the ASF archive', 'Looking for NISAR products over the Caspian Sea.');
+    } else if (nisarState === 'empty') {
+      nisarDL.textContent = 'None found';
+      nisarType.textContent = 'No product';
+      setEmpty('ph-magnifying-glass', 'No NISAR products found', 'The archive has no GCOV or GUNW products for this area yet. Check back after the next data release.');
+    } else if (nisarState === 'error') {
+      nisarDL.textContent = 'Unavailable';
+      nisarType.textContent = 'No product';
+      setEmpty('ph-warning', 'Could not reach the ASF archive', 'The search failed or was blocked by the browser. Reload the page to try again.');
+    }
+  }
+
+  function buildTimeline() {
+    const t0 = days[0].ms;
+    const span = Math.max(1, (days[days.length - 1].ms - t0) / DAY_MS);
+    days.forEach(d => { d.offset = (d.ms - t0) / DAY_MS; });
 
     dateRange.min = 0;
-    dateRange.max = n - 1;
-    dateRange.value = n - 1;
+    dateRange.max = span;
+    dateRange.step = 1;
+    dateRange.disabled = days.length < 2;
+    playBtn.disabled = days.length < 2;
 
-    // Tick labels: first, last, and ~5 evenly spaced
-    tickLbls.innerHTML = '';
-    const positions = new Set();
-    positions.add(0);
-    positions.add(n - 1);
-    const step = Math.max(1, Math.floor(n / 6));
-    for (let i = step; i < n - 1; i += step) positions.add(i);
-
-    positions.forEach(i => {
-      const pct = i / (n - 1) * 100;
-      const span = document.createElement('span');
-      span.style.left = `${pct}%`;
-      span.textContent = String(nisarItems[i].startTime || '').slice(0, 7);  // YYYY-MM
-      tickLbls.appendChild(span);
+    tickMarks.replaceChildren();
+    days.forEach(d => {
+      const t = document.createElement('span');
+      t.className = 'tick';
+      t.style.setProperty('--p', (d.offset / span).toFixed(5));
+      tickMarks.appendChild(t);
+      d.el = t;
     });
+    buildLabels(span);
+  }
 
-    // Slider fill gradient update
-    updateSliderFill();
+  function buildLabels(span) {
+    tickLabels.replaceChildren();
+    const t0 = days[0].ms;
+    const t1 = days[days.length - 1].ms;
+    const longSpan = span > 540;
+    const marks = [];
+    const cur = new Date(Date.UTC(new Date(t0).getUTCFullYear(), new Date(t0).getUTCMonth() + 1, 1));
+    while (cur.getTime() <= t1) {
+      const jan = cur.getUTCMonth() === 0;
+      if (!longSpan || jan) {
+        marks.push({
+          ms: cur.getTime(),
+          text: longSpan
+            ? String(cur.getUTCFullYear())
+            : cur.toLocaleDateString('en-GB', jan ? { month: 'short', year: 'numeric', timeZone: 'UTC' } : { month: 'short', timeZone: 'UTC' })
+        });
+      }
+      cur.setUTCMonth(cur.getUTCMonth() + 1);
+    }
+    let use = marks;
+    if (marks.length > 6) {
+      const k = Math.ceil(marks.length / 6);
+      use = marks.filter((_, i) => i % k === 0);
+    }
+    if (!use.length) {
+      use = days.length > 1
+        ? [{ ms: t0, text: fmtDate(t0) }, { ms: t1, text: fmtDate(t1) }]
+        : [{ ms: t0, text: fmtDate(t0) }];
+    }
+    for (const m of use) {
+      const s = document.createElement('span');
+      s.textContent = m.text;
+      s.style.setProperty('--p', t1 > t0 ? ((m.ms - t0) / (t1 - t0)).toFixed(5) : '0');
+      tickLabels.appendChild(s);
+    }
+  }
 
-    dateRange.addEventListener('input', () => {
-      updateSliderFill();
-      selectDate(+dateRange.value);
+  function selectDay(idx) {
+    if (!days.length) return;
+    idx = clamp(idx, 0, days.length - 1);
+    currentIdx = idx;
+    const d = days[idx];
+    dateRange.value = d.offset;
+
+    days.forEach((x, i) => x.el && x.el.classList.toggle('is-selected', i === idx));
+
+    dateBadge.textContent = fmtDate(d.ms);
+    nisarDL.textContent = fmtDate(d.ms);
+    nisarType.textContent = `${d.levels.join(', ') || 'NISAR'} (${d.items.length})`;
+
+    const p = d.pick;
+    const name = p.granuleName || p.sceneName || p.fileID;
+    nisarLink.href = name ? `${VERTEX_URL}#/?granule=${encodeURIComponent(name)}` : VERTEX_URL;
+
+    const url = firstBrowse(p);
+    if (!url) {
+      setEmpty('ph-image', 'No browse image for this date', 'This product has no preview. Open it in ASF Vertex to see its footprint, or pick another date.');
+      return;
+    }
+    nisarNoImg.hidden = true;
+    nisarImg.hidden = false;
+    nisarImg.onerror = () => setEmpty('ph-image', 'The preview did not load', 'The archive may require an Earthdata login for this preview. Open it in ASF Vertex.');
+    nisarImg.src = url;
+  }
+
+  dateRange.addEventListener('input', () => {
+    if (!days.length) return;
+    const v = +dateRange.value;
+    let best = 0, bd = Infinity;
+    days.forEach((d, i) => {
+      const dd = Math.abs(d.offset - v);
+      if (dd < bd) { bd = dd; best = i; }
     });
-  }
-
-  function updateSliderFill() {
-    const pct = dateRange.max > 0
-      ? ((+dateRange.value - +dateRange.min) / (+dateRange.max - +dateRange.min)) * 100
-      : 0;
-    dateRange.style.setProperty('--pct', `${pct}%`);
-    dateRange.style.background =
-      `linear-gradient(to right, #4fc3f7 ${pct}%, rgba(79,195,247,0.2) ${pct}%)`;
-  }
-
-  function selectDate(idx) {
-    if (!nisarItems.length) return;
-    idx = Math.max(0, Math.min(nisarItems.length - 1, idx));
-    dateRange.value = idx;
-    updateSliderFill();
-
-    const item = nisarItems[idx];
-    const dateStr = String(item.startTime || '').slice(0, 10);
-    dateBadge.textContent = dateStr;
-    nisarDL.textContent = dateStr;
-    nisarType.textContent = item.processingLevel || '—';
-
-    // Update link
-    if (item.url && item.url !== VERTEX_URL) {
-      nisarLink.href = item.url;
-    } else {
-      nisarLink.href = VERTEX_URL;
-    }
-
-    // Browse image
-    const browseUrl = item.browse && item.browse[0];
-    if (browseUrl) {
-      nisarImg.classList.add('loading');
-      nisarImg.style.display = 'block';
-      nisarNoImg.classList.remove('visible');
-      nisarImg.onload = () => nisarImg.classList.remove('loading');
-      nisarImg.onerror = () => {
-        nisarImg.style.display = 'none';
-        nisarNoImg.classList.add('visible');
-      };
-      nisarImg.src = browseUrl;
-    } else {
-      nisarImg.src = '';
-      nisarImg.style.display = 'none';
-      nisarNoImg.classList.add('visible');
-    }
-  }
-
-  /* ── Play / Pause ─── */
-  playBtn.addEventListener('click', () => {
-    if (isPlaying) {
-      stopPlay();
-    } else {
-      startPlay();
-    }
+    selectDay(best);          // snaps the thumb to the nearest real acquisition
   });
 
+  /* ── Open / close the history bar (button at the top) ── */
+  function openHistory() {
+    timeline.hidden = false;
+    nisarPanel.hidden = false;
+    historyBtn.setAttribute('aria-expanded', 'true');
+    historyBtn.classList.add('is-active');
+    if (nisarState === 'idle') loadNisar(); else if (nisarState !== 'ready') renderPanelState();
+  }
+  function closeHistory() {
+    stopPlay();
+    timeline.hidden = true;
+    nisarPanel.hidden = true;
+    historyBtn.setAttribute('aria-expanded', 'false');
+    historyBtn.classList.remove('is-active');
+  }
+  historyBtn.addEventListener('click', () => (timeline.hidden ? openHistory() : closeHistory()));
+  historyClose.addEventListener('click', closeHistory);
+
+  /* ── Play / pause through the acquisition dates ── */
+  playBtn.addEventListener('click', () => (isPlaying ? stopPlay() : startPlay()));
   function startPlay() {
+    if (days.length < 2) return;
     isPlaying = true;
     playIcon.hidden = true;
     pauseIcon.hidden = false;
@@ -635,77 +729,50 @@
   }
   function stepPlay() {
     if (!isPlaying) return;
-    let next = +dateRange.value + 1;
-    if (next > +dateRange.max) next = 0;
-    selectDate(next);
-    playTimer = setTimeout(stepPlay, PLAY_SPEED);
+    selectDay((currentIdx + 1) % days.length);
+    playTimer = setTimeout(stepPlay, PLAY_MS);
   }
 
   /* ════════════════════════════════════════════════════════════
-     5. MAIN RENDER LOOP
+     4. LOOP, RESIZE, BOOT
   ════════════════════════════════════════════════════════════ */
-  let caspianGlowPhase = 0;
-
-  function renderLoop(t) {
-    requestAnimationFrame(renderLoop);
-
-    // Stars + sun
-    drawStars(t);
-
-    // Smooth globe rotation (damped)
-    if (animDone) {
-      globeMesh.rotation.y += (targetRotY - globeMesh.rotation.y) * 0.08;
-      globeMesh.rotation.x += (targetRotX - globeMesh.rotation.x) * 0.08;
-      atmosphereMesh.rotation.set(globeMesh.rotation.x, globeMesh.rotation.y, 0);
+  function frame(now) {
+    requestAnimationFrame(frame);
+    updateSky();
+    if (phase === 'intro') {
+      stepIntro(now);
+    } else {
+      dist += (distTarget - dist) * 0.14;
+      placeCamera(CASPIAN.lon, CASPIAN.lat, dist);
     }
-
-    // Caspian outline pulsing glow
-    if (caspianLine && caspianLine.visible) {
-      caspianGlowPhase += 0.03;
-      caspianLine.material.opacity = 0.7 + 0.3 * Math.sin(caspianGlowPhase);
-    }
-
     renderer.render(scene, camera);
   }
 
-  /* ════════════════════════════════════════════════════════════
-     6. RESIZE
-  ════════════════════════════════════════════════════════════ */
-  function onResize() {
-    W = window.innerWidth;
-    H = window.innerHeight;
-    resizeStars();
-    if (renderer) {
-      renderer.setSize(W, H);
-      camera.aspect = W / H;
-      camera.updateProjectionMatrix();
-    }
-  }
-  window.addEventListener('resize', onResize);
+  window.addEventListener('resize', () => {
+    W = window.innerWidth; H = window.innerHeight;
+    if (!renderer) return;
+    renderer.setSize(W, H);
+    camera.aspect = W / H;
+    camera.updateProjectionMatrix();
+  });
 
-  /* ════════════════════════════════════════════════════════════
-     7. BOOT
-  ════════════════════════════════════════════════════════════ */
   function boot() {
-    resizeStars();
-    makeStars(2200);
-    makeBright(60);
-    updateSun();
-    setInterval(updateSun, 30000);  // refresh sun position every 30s
-
-    initThree();
-
-    // Begin renderLoop immediately so stars/globe appear
-    requestAnimationFrame(renderLoop);
-
-    // Short delay then kick off opening animation
-    setTimeout(runOpeningAnimation, 500);
-    setStatus('Preparing Caspian Sea view…');
+    try {
+      initScene();
+    } catch (e) {
+      setStatus('WebGL is not available in this browser.');
+      return;
+    }
+    addZoomControls();
+    updateSky();
+    placeCamera(0, 0, START_DIST);
+    loadStars();
+    loadMilkyWay();
+    setTimeout(() => { introStart = performance.now(); requestAnimationFrame(frame); }, 400);
   }
 
-  // Wait for THREE to be available
-  if (typeof THREE === 'undefined') {
-    window.addEventListener('load', boot);
+  if (typeof THREE === 'undefined' || !A) {
+    setStatus('Could not load the 3D libraries. Check your connection and reload.');
   } else {
     boot();
   }
