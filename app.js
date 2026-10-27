@@ -28,7 +28,6 @@
   const ASF_BASE = 'https://api.daac.asf.alaska.edu/services/search/param';
   const VERTEX_URL = 'https://search.asf.alaska.edu/';
 
-  const NIGHT_TEX = 'https://unpkg.com/three-globe@2.31.2/example/img/earth-night.jpg'; // city-light source texture
 
   const STAR_URLS = [
     'https://cdn.jsdelivr.net/gh/ofrohn/d3-celestial@master/data/stars.6.json',
@@ -100,8 +99,6 @@
     dayMap: { value: null },
     nightMap: { value: null },
     hasNight: { value: 1 },
-    cityMap: { value: null },
-    hasCity: { value: 0 },
     sunDir: { value: new THREE.Vector3(1, 0, 0) }
   };
   const atmUniforms = { sunDir: earthUniforms.sunDir };
@@ -144,11 +141,9 @@
     const width = 2048, height = 1024;
     const dayCanvas = document.createElement('canvas');
     const nightCanvas = document.createElement('canvas');
-    const cityCanvas = document.createElement('canvas');
-    [dayCanvas, nightCanvas, cityCanvas].forEach(c => { c.width = width; c.height = height; });
+    [dayCanvas, nightCanvas].forEach(c => { c.width = width; c.height = height; });
     const dayCtx = dayCanvas.getContext('2d');
     const nightCtx = nightCanvas.getContext('2d');
-    const cityCtx = cityCanvas.getContext('2d');
 
     const paintBase = (ctx, ocean, land, border, graticule) => {
       ctx.fillStyle = ocean;
@@ -170,7 +165,6 @@
 
     const hasCountries = paintBase(dayCtx, '#0A2660', '#2B5CB5', '#071A3A', true);
     paintBase(nightCtx, '#020812', '#07172B', '#0B3D91', false);
-    cityCtx.clearRect(0, 0, width, height);
     if (!hasCountries) {
       dayCtx.fillStyle = '#2B5CB5'; dayCtx.fillRect(0, 0, width, height);
       nightCtx.fillStyle = '#020812'; nightCtx.fillRect(0, 0, width, height);
@@ -179,50 +173,18 @@
 
     const dayTex = new THREE.CanvasTexture(dayCanvas);
     const nightTex = new THREE.CanvasTexture(nightCanvas);
-    const cityTex = new THREE.CanvasTexture(cityCanvas);
-    [dayTex, nightTex, cityTex].forEach(tex => {
+    [dayTex, nightTex].forEach(tex => {
       tex.colorSpace = THREE.SRGBColorSpace;
       tex.needsUpdate = true;
       tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
     });
 
-    // Turn NASA's night imagery into a transparent light-only layer.
-    const loader = new THREE.TextureLoader();
-    loader.setCrossOrigin('anonymous');
-    loader.load(NIGHT_TEX, tex => {
-      try {
-        const c = document.createElement('canvas'); c.width = width; c.height = height;
-        const cx = c.getContext('2d', { willReadFrequently: true });
-        cx.drawImage(tex.image, 0, 0, width, height);
-        const pixels = cx.getImageData(0, 0, width, height);
-        const data = pixels.data;
-        for (let i = 0; i < data.length; i += 4) {
-          const lum = Math.max(data[i], data[i + 1], data[i + 2]);
-          if (lum < 52) data[i + 3] = 0;
-          else {
-            data[i] = 220; data[i + 1] = 226; data[i + 2] = 235;
-            data[i + 3] = Math.round(clamp((lum - 42) / 150, 0, 0.92) * 255);
-          }
-        }
-        cx.putImageData(pixels, 0, 0);
-        cityTex.dispose();
-        earthUniforms.cityMap.value = new THREE.CanvasTexture(c);
-        earthUniforms.cityMap.value.colorSpace = THREE.SRGBColorSpace;
-        earthUniforms.cityMap.value.anisotropy = renderer.capabilities.getMaxAnisotropy();
-        earthUniforms.cityMap.value.needsUpdate = true;
-        earthUniforms.hasCity.value = 1;
-      } catch (err) {
-        setStatus('City lights could not be processed in this browser.', 7000);
-      }
-      tex.dispose();
-    }, undefined, () => setStatus('Night-light imagery is unavailable.', 7000));
     return { dayTex, nightTex };
   }
 
   function buildEarth() {
     earthUniforms.dayMap.value = placeholderTexture(10, 30, 70);
     earthUniforms.nightMap.value = placeholderTexture(0, 0, 0);
-    earthUniforms.cityMap.value = placeholderTexture(0, 0, 0);
     const textures = makeVectorEarthTextures();
     earthUniforms.dayMap.value = textures.dayTex;
     earthUniforms.nightMap.value = textures.nightTex;
@@ -236,8 +198,8 @@
           gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
         }`,
       fragmentShader: `
-        uniform sampler2D dayMap; uniform sampler2D nightMap; uniform sampler2D cityMap;
-        uniform float hasNight; uniform float hasCity; uniform vec3 sunDir;
+        uniform sampler2D dayMap; uniform sampler2D nightMap;
+        uniform float hasNight; uniform vec3 sunDir;
         varying vec3 vN; varying vec2 vUv; varying vec3 vP;
         void main() {
           vec3 n = normalize(vN);
@@ -246,9 +208,8 @@
           float dayMix = smoothstep(-0.10, 0.13, d);
           vec3 day = texture2D(dayMap, vUv).rgb;
           vec3 night = texture2D(nightMap, vUv).rgb;
-          vec4 cities = texture2D(cityMap, vUv);
           vec3 dayCol = day * (0.30 + 0.90 * max(d, 0.0));
-          vec3 nightCol = night * 0.92 + cities.rgb * cities.a * hasCity * 2.2;
+          vec3 nightCol = night;
           vec3 col = mix(nightCol, dayCol, dayMix);
           float twilight = smoothstep(-0.18, -0.02, d) * (1.0 - dayMix);
           col += vec3(0.04, 0.08, 0.16) * twilight;
