@@ -175,11 +175,15 @@
           vec3 n = normalize(vN);
           vec3 s = normalize(sunDir);
           float d = dot(n, s);
-          float dayMix = smoothstep(-0.10, 0.16, d);
+          // A broad twilight band keeps the terminator natural rather than hard.
+          float dayMix = smoothstep(-0.12, 0.14, d);
           vec3 day = texture2D(dayMap, vUv).rgb;
           vec3 night = texture2D(nightMap, vUv).rgb;
-          vec3 dayCol = day * (0.18 + 0.95 * max(d, 0.0));
-          vec3 nightCol = day * 0.035 + night * hasNight * 1.15;
+
+          // Preserve terrain detail on the day side while keeping the night
+          // side dark enough for NASA's real city-light texture to read clearly.
+          vec3 dayCol = day * (0.16 + 1.02 * max(d, 0.0));
+          vec3 nightCol = day * 0.022 + night * hasNight * 1.65;
           vec3 col = mix(nightCol, dayCol, dayMix);
           vec3 v = normalize(cameraPosition - vP);
           float rim = pow(1.0 - max(dot(n, v), 0.0), 3.0);
