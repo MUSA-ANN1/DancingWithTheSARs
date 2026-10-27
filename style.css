@@ -124,9 +124,12 @@ h1 {
   padding: var(--s3) var(--s4);
   padding-top: calc(var(--s3) + env(safe-area-inset-top, 0px));
   padding-left: calc(var(--s4) + env(safe-area-inset-left, 0px));
-  max-width: var(--measure);
+  width: min(100%, calc(var(--measure) + var(--s4) * 2));
   text-align: left;
   pointer-events: none;
+}
+.head .lede {
+  max-width: 48ch;
 }
 
 /* ---------- Shared panel look ---------- */
