@@ -1,1 +1,1 @@
-{"target_px":640,"caspian_bbox":[46.5,36.4,55.0,47.5],"max_frame_pairs":10,"regions":[{"name":"caspian-sea","label":"Caspian Sea basin-wide view","lon":50.7,"lat":41.8,"mode":"caspian","days":365}]}
+{"target_px":768,"caspian_bbox":[46.5,36.4,55,47.5],"max_frame_pairs":40,"regions":[{"name":"caspian-sea","label":"Caspian Sea basin-wide view","lon":50.7,"lat":41.8,"mode":"caspian","days":365}]}
