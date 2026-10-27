@@ -221,11 +221,8 @@
           vec3 col = mix(nightCol, dayCol, dayMix);
           float twilight = smoothstep(-0.18, -0.02, d) * (1.0 - dayMix);
           col += vec3(0.04, 0.08, 0.16) * twilight;
-          if (themeMode > 0.5 && themeMode < 1.5) {
-            col = day * 1.12; // Light: show the entire Earth without a night-side shadow.
-          } else if (themeMode >= 1.5) {
-            col = night; // Dark: keep the whole Earth on its night-side map.
-          }
+          // All modes use real day/night shading. Light and Dark modes
+          // reposition the sun so the Caspian is at local noon or midnight.
           vec3 v = normalize(cameraPosition - vP);
           float rim = pow(1.0 - max(dot(n, v), 0.0), 3.0);
           if (themeMode < 0.5) {
@@ -571,9 +568,17 @@
     sunGroupItems.glow.position.copy(sunGroupItems.disc.position);
     sunGroupItems.glow.scale.setScalar(r * 22);
 
-    // Sun direction in the Earth-fixed frame, used for day/night shading
+    // Sun direction in the Earth-fixed frame. Default follows the real Sun;
+    // Light forces local noon over the Caspian, Dark forces local midnight.
     const fixed = sunVec.clone().applyAxisAngle(Y_AXIS, -theta);
-    earthUniforms.sunDir.value.copy(fixed);
+    const theme = earthUniforms.themeMode.value;
+    if (theme > 0.5 && theme < 1.5) {
+      earthUniforms.sunDir.value.copy(sphToVec3(CASPIAN.lon * DEG, CASPIAN.lat * DEG, 1)).normalize();
+    } else if (theme >= 1.5) {
+      earthUniforms.sunDir.value.copy(sphToVec3(CASPIAN.lon * DEG, CASPIAN.lat * DEG, 1)).normalize().negate();
+    } else {
+      earthUniforms.sunDir.value.copy(fixed);
+    }
     moonLight.position.copy(fixed).multiplyScalar(50);
 
     const moon = A.moonEq(jd);
