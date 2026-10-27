@@ -261,7 +261,9 @@
   }
 
   function buildCaspianHighlight() {
-    // Approximate Caspian shoreline, ordered around the sea in lon/lat.
+    // Keep the sea fill, but draw its shoreline as spherical vector segments.
+    // The outline deliberately uses the same radius, color and depth behavior
+    // as buildCountryBorders(), so both kinds of borders share one visual style.
     const shore = [
       [47.0, 48.0], [49.4, 47.2], [51.8, 46.8], [53.5, 45.8],
       [53.9, 44.2], [53.2, 42.5], [52.8, 40.7], [52.1, 39.0],
@@ -269,9 +271,12 @@
       [48.0, 40.0], [47.3, 41.2], [46.7, 42.8], [47.0, 44.2],
       [48.0, 45.4], [48.2, 46.6]
     ];
+
     const seaShape = new THREE.Shape();
     seaShape.moveTo(shore[0][0], shore[0][1]);
-    for (let i = 1; i < shore.length; i++) seaShape.lineTo(shore[i][0], shore[i][1]);
+    for (let i = 1; i < shore.length; i++) {
+      seaShape.lineTo(shore[i][0], shore[i][1]);
+    }
     seaShape.closePath();
 
     const fillGeometry = new THREE.ShapeGeometry(seaShape, 2);
@@ -284,14 +289,13 @@
     }
     positions.needsUpdate = true;
     fillGeometry.computeVertexNormals();
+
     const fill = new THREE.Mesh(
       fillGeometry,
       new THREE.MeshBasicMaterial({
         color: 0x00E5FF,
-        transparent: false,
-        opacity: 1.0,
-        depthWrite: false,
         side: THREE.DoubleSide,
+        depthWrite: false,
         polygonOffset: true,
         polygonOffsetFactor: -2
       })
@@ -300,13 +304,33 @@
     fill.material.depthTest = false;
     scene.add(fill);
 
-    const outlinePoints = shore.map(([lon, lat]) => sphToVec3(lon * DEG, lat * DEG, 1.009));
-    const outlineGeometry = new THREE.BufferGeometry().setFromPoints(outlinePoints);
-    const outline = new THREE.LineLoop(
-      outlineGeometry,
-      new THREE.LineBasicMaterial({ color: 0x071A3A, transparent: false, opacity: 1.0, depthTest: true, depthWrite: false })
+    // Match the country-border vector treatment: short spherical line segments,
+    // a fine dark stroke, and depth testing so the far side does not bleed through.
+    const borderPositions = [];
+    for (let i = 0; i < shore.length; i++) {
+      const a = shore[i];
+      const b = shore[(i + 1) % shore.length];
+      const p1 = sphToVec3(a[0] * DEG, a[1] * DEG, 1.003);
+      const p2 = sphToVec3(b[0] * DEG, b[1] * DEG, 1.003);
+      borderPositions.push(p1.x, p1.y, p1.z, p2.x, p2.y, p2.z);
+    }
+
+    const borderGeometry = new THREE.BufferGeometry();
+    borderGeometry.setAttribute(
+      'position',
+      new THREE.Float32BufferAttribute(borderPositions, 3)
     );
-    outline.renderOrder = 11;
+    const outline = new THREE.LineSegments(
+      borderGeometry,
+      new THREE.LineBasicMaterial({
+        color: 0x071A3A,
+        transparent: true,
+        opacity: 0.88,
+        depthTest: true,
+        depthWrite: false
+      })
+    );
+    outline.renderOrder = 4;
     scene.add(outline);
   }
 
