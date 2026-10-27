@@ -218,7 +218,41 @@
       tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
     });
 
-    return { dayTex, nightTex };
+    return { dayTex, nightTex, dayCanvas, nightCanvas };
+  }
+
+  async function loadInlandLakes(dayCanvas, nightCanvas, dayTex, nightTex) {
+    // Natural Earth lake polygons, rendered subtly over both Earth textures.
+    // Fill is only slightly lighter than the corresponding outline palette.
+    const url = 'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_10m_lakes.geojson';
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Lake data request failed');
+      const geojson = await response.json();
+      const width = dayCanvas.width, height = dayCanvas.height;
+      const projection = d3.geoEquirectangular()
+        .scale(width / (2 * Math.PI)).translate([width / 2, height / 2]);
+      const paintLakes = (canvas, fill, stroke) => {
+        const ctx = canvas.getContext('2d');
+        const path = d3.geoPath(projection, ctx);
+        ctx.save();
+        ctx.beginPath();
+        path(geojson);
+        ctx.fillStyle = fill;
+        ctx.fill();
+        ctx.strokeStyle = stroke;
+        ctx.lineWidth = 1.4;
+        ctx.stroke();
+        ctx.restore();
+      };
+      paintLakes(dayCanvas, '#0B2B68', '#12365F');
+      paintLakes(nightCanvas, '#0D1F38', '#10479C');
+      dayTex.needsUpdate = true;
+      nightTex.needsUpdate = true;
+    } catch (error) {
+      // The main globe remains usable if the optional lake layer is unavailable.
+      console.warn('Inland lake layer could not be loaded:', error);
+    }
   }
 
   function buildEarth() {
