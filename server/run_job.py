@@ -14,6 +14,7 @@ from collections import defaultdict
 from pathlib import Path
 import numpy as np
 import nisar_lib as L
+import caspian_mosaic
 
 HERE = Path(__file__).resolve().parent
 OUT = Path(os.environ.get("OUT_DIR", "/opt/nisar/out"))
@@ -221,7 +222,11 @@ def main():
     state = json.loads(STATE.read_text()) if STATE.exists() else {}
     for r in cfg["regions"]:
         if a.region and r["name"] != a.region: continue
-        try: run_region(r, session, a.force, state, target)
+        try:
+            if r.get("mode") == "caspian":
+                caspian_mosaic.run(r, session, state, a.force, target, cfg, OUT, TMP, finish, log)
+            else:
+                run_region(r, session, a.force, state, target)
         except Exception as e:
             log(r["name"], "FAILED:", e); errors.append(dict(name=r["name"], error=str(e)[:300]))
         STATE.write_text(json.dumps(state))
