@@ -28,9 +28,7 @@
   const ASF_BASE = 'https://api.daac.asf.alaska.edu/services/search/param';
   const VERTEX_URL = 'https://search.asf.alaska.edu/';
 
-  const IMG = 'https://unpkg.com/three-globe@2.31.2/example/img/';
-  const DAY_TEX = IMG + 'earth-blue-marble.jpg';     // NASA Blue Marble
-  const NIGHT_TEX = IMG + 'earth-night.jpg';
+  const NIGHT_TEX = 'https://unpkg.com/three-globe@2.31.2/example/img/earth-night.jpg'; // city-light source texture
 
   const STAR_URLS = [
     'https://cdn.jsdelivr.net/gh/ofrohn/d3-celestial@master/data/stars.6.json',
