@@ -173,6 +173,37 @@
 
     const hasCountries = paintBase(dayCtx, '#0A2660', '#2B5CB5', '#071A3A', true);
     paintBase(nightCtx, '#020812', '#07172B', '#0B3D91', false);
+
+    // Add inland lakes above the country fills. Their fills stay very dark,
+    // just slightly lighter than the outline, so they read as water without
+    // competing with the highlighted Caspian Sea.
+    const lakeDataUrl = 'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_10m_lakes.geojson';
+    fetch(lakeDataUrl)
+      .then(response => {
+        if (!response.ok) throw new Error('Lake data unavailable');
+        return response.json();
+      })
+      .then(geojson => {
+        const projection = d3.geoEquirectangular()
+          .scale(width / (2 * Math.PI)).translate([width / 2, height / 2]);
+        const drawLakes = (ctx, fill, stroke) => {
+          const path = d3.geoPath(projection, ctx);
+          ctx.save();
+          ctx.beginPath();
+          path(geojson);
+          ctx.fillStyle = fill;
+          ctx.fill();
+          ctx.strokeStyle = stroke;
+          ctx.lineWidth = 1.4;
+          ctx.stroke();
+          ctx.restore();
+        };
+        drawLakes(dayCtx, '#10284A', '#071A3A');
+        drawLakes(nightCtx, '#0A1B30', '#0B3D91');
+        if (earthUniforms.dayMap.value) earthUniforms.dayMap.value.needsUpdate = true;\n        if (earthUniforms.nightMap.value) earthUniforms.nightMap.value.needsUpdate = true;
+      })
+      .catch(() => { /* The globe remains usable if the optional lake layer fails. */ });
+
     if (!hasCountries) {
       dayCtx.fillStyle = '#2B5CB5'; dayCtx.fillRect(0, 0, width, height);
       nightCtx.fillStyle = '#020812'; nightCtx.fillRect(0, 0, width, height);
