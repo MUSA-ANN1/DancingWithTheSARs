@@ -1,7 +1,4 @@
-/* Real-time astronomy helpers (no DOM, no THREE).
-   Low-precision formulas from the Astronomical Almanac / Meeus.
-   Sun: about 0.01 degree. Moon: about 0.3 degree. GMST: about 1 second.
-   All angles in radians unless the name says Deg. */
+
 (function (root) {
   'use strict';
 
@@ -12,8 +9,6 @@
     return ms / 86400000 + 2440587.5;
   }
 
-  /* Greenwich Mean Sidereal Time: the right ascension that is on the
-     Greenwich meridian right now. */
   function gmst(jd) {
     const d = jd - 2451545.0;
     const deg = 280.46061837 + 360.98564736629 * d;
@@ -24,7 +19,6 @@
     return (23.439 - 0.0000004 * d) * DEG;
   }
 
-  /* Sun: right ascension and declination of date. */
   function sunEq(jd) {
     const n = jd - 2451545.0;
     const L = 280.460 + 0.9856474 * n;
@@ -34,19 +28,18 @@
     return {
       ra: Math.atan2(Math.cos(eps) * Math.sin(lam), Math.cos(lam)),
       dec: Math.asin(Math.sin(eps) * Math.sin(lam)),
-      // Earth-Sun distance in AU, used for the Sun's apparent size
+
       au: 1.00014 - 0.01671 * Math.cos(g) - 0.00014 * Math.cos(2 * g)
     };
   }
 
-  /* Moon: right ascension, declination, distance in Earth radii. */
   function moonEq(jd) {
     const d = jd - 2451545.0;
-    const Lm = 218.316 + 13.176396 * d;     // mean longitude
-    const Mm = (134.963 + 13.064993 * d) * DEG; // Moon mean anomaly
-    const Ms = (357.529 + 0.98560028 * d) * DEG; // Sun mean anomaly
-    const D = (297.850 + 12.190749 * d) * DEG;  // mean elongation
-    const F = (93.272 + 13.229350 * d) * DEG;   // argument of latitude
+    const Lm = 218.316 + 13.176396 * d;
+    const Mm = (134.963 + 13.064993 * d) * DEG;
+    const Ms = (357.529 + 0.98560028 * d) * DEG;
+    const D = (297.850 + 12.190749 * d) * DEG;
+    const F = (93.272 + 13.229350 * d) * DEG;
 
     const lam = (Lm
       + 6.289 * Math.sin(Mm)
@@ -75,7 +68,6 @@
     };
   }
 
-  /* Longitude (degrees east) where the Sun is directly overhead. */
   function subsolarLonDeg(jd) {
     let lon = (sunEq(jd).ra - gmst(jd)) / DEG;
     lon = ((lon + 540) % 360) - 180;
