@@ -60,15 +60,10 @@ def run(r, session, state, force, target, cfg, out, tmp, finish, log):
         after=np.divide(sums[1],counts[1],out=np.full(shape,np.nan,np.float32),where=counts[1]>0)
         common=np.isfinite(before)&np.isfinite(after); n=int(common.sum())
         if n<1000: raise RuntimeError(f'Only {n} common pixels across Caspian mosaic; refusing misleading comparison.')
-        threshold_before=L.otsu(before[common]); threshold_after=L.otsu(after[common])
-        if threshold_before is None or threshold_after is None: raise RuntimeError('Insufficient common pixels for shoreline classification.')
-        w0=(before<threshold_before)&common; w1=(after<threshold_after)&common; retreat=w0&~w1; advance=~w0&w1&common
-        stats={'common_coverage_pct':round(100*n/before.size,2),'before_coverage_pct':round(100*int(np.isfinite(before).sum())/before.size,2),'after_coverage_pct':round(100*int(np.isfinite(after).sum())/after.size,2),'water_before_pct_of_common':round(100*int(w0.sum())/n,2),'water_after_pct_of_common':round(100*int(w1.sum())/n,2),'retreat_pct_of_common':round(100*int(retreat.sum())/n,3),'advance_pct_of_common':round(100*int(advance.sum())/n,3),'threshold_db':[round(threshold_before,1),round(threshold_after,1)]}
-        rd.mkdir(parents=True,exist_ok=True); L.quant_png(before,*DB_RANGE,rd/'before.png'); L.quant_png(after,*DB_RANGE,rd/'after.png'); L.overlay_png(retreat,advance,rd/'change.png')
-
-        # Use Natural Earth 1:10m lake polygons instead of the hand-drawn outline.
-        # This is reference geography only; it does not fill or replace NISAR observations.
+        # Rasterize Natural Earth 1:10m Caspian polygon as reference geography.
+        # This mask defines a coastal search zone only; it never fills NISAR observations.
         import io, zipfile, requests, shapefile
+        from scipy.ndimage import binary_erosion, distance_transform_edt
         ne_url = 'https://naciscdn.org/naturalearth/10m/physical/ne_10m_lakes.zip'
         cache = tmp / 'ne_10m_lakes.zip'
         if not cache.exists():
@@ -82,7 +77,6 @@ def run(r, session, state, force, target, cfg, out, tmp, finish, log):
                 return io.BytesIO(zf.read(stem + ext))
             sf = shapefile.Reader(shp=read_member('.shp'), shx=read_member('.shx'), dbf=read_member('.dbf'))
             fields = [f[0].lower() for f in sf.fields[1:]]
-            name_idx = next((i for i, name in enumerate(fields) if name in ('name','name_en','name_long')), None)
             features = []
             for sr in sf.iterShapeRecords():
                 attrs = dict(zip(fields, sr.record))
@@ -91,28 +85,100 @@ def run(r, session, state, force, target, cfg, out, tmp, finish, log):
                     features.append(sr.shape)
             if not features:
                 raise RuntimeError('Natural Earth 10m lakes download did not contain a Caspian Sea feature.')
-            outline=Image.new('RGBA',(width,height),(0,0,0,0)); draw=ImageDraw.Draw(outline)
-            sea_mask=Image.new('1',(width,height),0); mask_draw=ImageDraw.Draw(sea_mask)
+
+            sea_mask_img = Image.new('1', (width, height), 0)
+            mask_draw = ImageDraw.Draw(sea_mask_img)
+            outline = Image.new('RGBA', (width, height), (0, 0, 0, 0))
+            outline_draw = ImageDraw.Draw(outline)
             def project_ring(points):
-                return [((lon-west)/(east-west)*(width-1),(north-lat)/(north-south)*(height-1))
-                        for lon,lat in points if west-1 <= lon <= east+1 and south-1 <= lat <= north+1]
+                # Clamp to the output extent so rings crossing the bbox remain closed.
+                return [
+                    (max(0, min(width - 1, (lon - west) / (east - west) * (width - 1))),
+                     max(0, min(height - 1, (north - lat) / (north - south) * (height - 1))))
+                    for lon, lat in points
+                ]
             for feature in features:
                 pts = feature.points
                 parts = list(feature.parts) + [len(pts)]
-                for i in range(len(parts)-1):
-                    ring = pts[parts[i]:parts[i+1]]
+                for i in range(len(parts) - 1):
+                    ring = pts[parts[i]:parts[i + 1]]
                     if len(ring) < 3:
                         continue
                     xy = project_ring(ring)
-                    if len(xy) >= 3:
-                        draw.polygon(xy, fill=(14,67,110,220), outline=(105,205,230,255), width=2)
-                        mask_draw.polygon(xy, fill=1)
-        pix=np.asarray(outline).copy()
+                    mask_draw.polygon(xy, fill=1)
+                    outline_draw.line(xy + [xy[0]], fill=(105, 205, 230, 255), width=2)
+            reference_water = np.asarray(sea_mask_img, dtype=bool)
 
-        sea_mask=Image.new('1',(width,height),0); ImageDraw.Draw(sea_mask).polygon(xy,fill=1)
-        sm=np.asarray(sea_mask,dtype=bool); covered=sm&common
-        pix[covered]=[205,220,225,255]
-        Image.fromarray(pix,'RGBA').save(rd/'coverage.png',optimize=True)
+        # Define a 15-pixel coastal search band around the reference shoreline.
+        # At this basin-wide grid resolution, this is a screening band, not a precise
+        # geodetic buffer. The reference polygon is not treated as observed water.
+        interior = binary_erosion(reference_water, iterations=1)
+        shoreline_edge = reference_water ^ interior
+        distance_px = distance_transform_edt(~shoreline_edge)
+        coastal_zone = distance_px <= 15.0
+        coast_common = common & coastal_zone
+        if int(coast_common.sum()) < 100:
+            raise RuntimeError('Too few common NISAR pixels inside the reference coastal zone.')
+
+        threshold_before = L.otsu(before[coast_common])
+        threshold_after = L.otsu(after[coast_common])
+        if threshold_before is None or threshold_after is None:
+            raise RuntimeError('Insufficient coastal-zone backscatter samples for water classification.')
+
+        # Darker backscatter is treated as likely water. This is exploratory, so
+        # require threshold margin and a meaningful temporal difference.
+        water_before = (before < threshold_before) & common
+        water_after = (after < threshold_after) & common
+        margin_db = 2.0
+        change_db = 3.0
+        confident = (common & coastal_zone &
+                     (np.abs(before - threshold_before) >= margin_db) &
+                     (np.abs(after - threshold_after) >= margin_db) &
+                     (np.abs(after - before) >= change_db))
+        retreat = water_before & ~water_after & confident
+        advance = ~water_before & water_after & confident
+
+        # Separate water-classification layers, shoreline-change candidates,
+        # and actual NISAR observation coverage. No-data remains transparent.
+        def mask_png(mask, path, rgba):
+            rgba_img = np.zeros(mask.shape + (4,), dtype=np.uint8)
+            rgba_img[mask] = rgba
+            Image.fromarray(rgba_img, 'RGBA').save(path, optimize=True)
+        rd.mkdir(parents=True, exist_ok=True)
+        L.quant_png(before, *DB_RANGE, rd/'before.png')
+        L.quant_png(after, *DB_RANGE, rd/'after.png')
+        mask_png(water_before & common, rd/'water_before.png', (20, 125, 220, 210))
+        mask_png(water_after & common, rd/'water_after.png', (20, 125, 220, 210))
+        L.overlay_png(retreat, advance, rd/'change.png')
+
+        # Coverage colors: common observations in both dates, single-date coverage
+        # separately. Transparent pixels have no usable observation on either date.
+        cov = np.zeros((height, width, 4), dtype=np.uint8)
+        only_before = np.isfinite(before) & ~np.isfinite(after)
+        only_after = np.isfinite(after) & ~np.isfinite(before)
+        cov[common] = [205, 220, 225, 255]
+        cov[only_before] = [245, 174, 66, 255]
+        cov[only_after] = [83, 153, 235, 255]
+        Image.fromarray(cov, 'RGBA').save(rd/'coverage.png', optimize=True)
+        outline.save(rd/'reference.png', optimize=True)
+
+        ncoast = int(coast_common.sum())
+        nconf = int(confident.sum())
+        stats = {
+            'common_coverage_pct': round(100*n/before.size, 2),
+            'before_coverage_pct': round(100*int(np.isfinite(before).sum())/before.size, 2),
+            'after_coverage_pct': round(100*int(np.isfinite(after).sum())/after.size, 2),
+            'coastal_zone_common_pixels': ncoast,
+            'coastal_zone_coverage_pct_of_grid': round(100*ncoast/before.size, 2),
+            'confident_coastal_pixels': nconf,
+            'retreat_candidate_pixels': int(retreat.sum()),
+            'advance_candidate_pixels': int(advance.sum()),
+            'retreat_pct_of_confident_coastal': round(100*int(retreat.sum())/max(1,nconf), 3),
+            'advance_pct_of_confident_coastal': round(100*int(advance.sum())/max(1,nconf), 3),
+            'threshold_db': [round(threshold_before, 1), round(threshold_after, 1)],
+            'confidence_rules': {'threshold_margin_db': margin_db, 'minimum_temporal_difference_db': change_db,
+                                 'coastal_band_pixels': 15}
+        }
         evidence=['Mosaic assembled from matching repeat NISAR track/direction/frame pairs.','Transparent pixels are unobserved; changes are calculated only where both dates have valid pixels.','Automatic backscatter threshold is exploratory; wind, waves and radar geometry can mimic shoreline change.',f'Processed {len(pairs)} frame pairs; tile dates range from {min(dates_seen)} to {max(dates_seen)}.']
         meta=finish(r,{'type':'mosaic','mode':'shore','before':min(dates_seen),'after':max(dates_seen),'bbox':bbox,'size':[width,height],'pol':'HHHH preferred; HVHV fallback','unit':'dB','range':list(DB_RANGE),'threshold':[round(threshold_before,1),round(threshold_after,1)],'stats':stats,'category':'Basin-wide shoreline-change screening','confidence':'exploratory radar-only','evidence':evidence,'scenes':scenes,'frame_pairs':len(pairs),'images':{'before':'before.png','after':'after.png','change':'change.png','coverage':'coverage.png'}},rd)
         meta['elapsed_s']=round(time.monotonic()-started_at,1); (rd/'meta.json').write_text(json.dumps(meta,indent=1)); state[r['name']]=signature; log(r['name'],'mosaic complete',stats)
