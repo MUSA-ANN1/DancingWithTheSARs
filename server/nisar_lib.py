@@ -62,7 +62,6 @@ def load(path, mode, target=512, step=None, pols=None):
         y = g["yCoordinates"][:arr.shape[0] * step].reshape(-1, step).mean(1)
         return dict(a=arr, coh=coh, pol=pol, x=x, y=y, epsg=epsg_of(g), step=step)
 
-
 def crop_pair_to_region(A, B, x, y, epsg, lon, lat, half_width_km=35):
     """Crop aligned rasters to a square around the requested lon/lat.
 
@@ -83,7 +82,7 @@ def crop_pair_to_region(A, B, x, y, epsg, lon, lat, half_width_km=35):
         )
     c0, c1 = int(cols[0]), int(cols[-1]) + 1
     r0, r1 = int(rows[0]), int(rows[-1]) + 1
-    # Prevent silently accepting a crop that only clips the edge of the target.
+
     if x.min() > cx or x.max() < cx or y.min() > cy or y.max() < cy:
         raise RuntimeError(f"NISAR overlap does not contain target center ({lon}, {lat}).")
     return A[r0:r1, c0:c1], B[r0:r1, c0:c1], x[c0:c1], y[r0:r1]
@@ -115,7 +114,6 @@ def otsu(v, lo=-35.0, hi=5.0, bins=160):
     with np.errstate(all="ignore"): sb = (m[-1] * w - m) ** 2 / (w * (1 - w))
     return float(c[np.nanargmax(sb)])
 
-# ---- small PNGs the browser can read ----
 def quant_png(a, lo, hi, path):
     """RGBA: R=G=B=v (1..255), alpha 255 where valid, 0 = no data. value = lo + (v-1)/254*(hi-lo)."""
     ok = np.isfinite(a); v = np.zeros(a.shape, np.uint8)
@@ -126,7 +124,6 @@ def overlay_png(loss, gain, path):
     img = np.zeros(loss.shape + (4,), np.uint8); img[loss] = RED; img[gain] = BLUE
     Image.fromarray(img, "RGBA").save(path, optimize=True)
 
-# ---- name the cause: radar + real event catalogs ----
 def usgs(bb, d1, d2):
     import requests
     r = requests.get("https://earthquake.usgs.gov/fdsnws/event/1/query", timeout=30, params=dict(
