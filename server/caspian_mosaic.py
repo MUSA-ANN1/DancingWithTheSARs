@@ -127,8 +127,8 @@ def run(r, session, state, force, target, cfg, out, tmp, finish, log):
 
         # Darker backscatter is treated as likely water. This is exploratory, so
         # require threshold margin and a meaningful temporal difference.
-        water_before = (before < threshold_before) & common
-        water_after = (after < threshold_after) & common
+        water_before = (before < threshold_before) & np.isfinite(before)
+        water_after = (after < threshold_after) & np.isfinite(after)
         margin_db = 2.0
         change_db = 3.0
         confident = (common & coastal_zone &
