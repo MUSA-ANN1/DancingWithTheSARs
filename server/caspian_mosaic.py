@@ -147,8 +147,8 @@ def run(r, session, state, force, target, cfg, out, tmp, finish, log):
         rd.mkdir(parents=True, exist_ok=True)
         L.quant_png(before, *DB_RANGE, rd/'before.png')
         L.quant_png(after, *DB_RANGE, rd/'after.png')
-        mask_png(water_before & common, rd/'water_before.png', (20, 125, 220, 210))
-        mask_png(water_after & common, rd/'water_after.png', (20, 125, 220, 210))
+        mask_png(water_before, rd/'water_before.png', (20, 125, 220, 210))
+        mask_png(water_after, rd/'water_after.png', (20, 125, 220, 210))
         L.overlay_png(retreat, advance, rd/'change.png')
 
         # Coverage colors: common observations in both dates, single-date coverage
@@ -179,8 +179,8 @@ def run(r, session, state, force, target, cfg, out, tmp, finish, log):
             'confidence_rules': {'threshold_margin_db': margin_db, 'minimum_temporal_difference_db': change_db,
                                  'coastal_band_pixels': 15}
         }
-        evidence=['Mosaic assembled from matching repeat NISAR track/direction/frame pairs.','Transparent pixels are unobserved; changes are calculated only where both dates have valid pixels.','Automatic backscatter threshold is exploratory; wind, waves and radar geometry can mimic shoreline change.',f'Processed {len(pairs)} frame pairs; tile dates range from {min(dates_seen)} to {max(dates_seen)}.']
-        meta=finish(r,{'type':'mosaic','mode':'shore','before':min(dates_seen),'after':max(dates_seen),'bbox':bbox,'size':[width,height],'pol':'HHHH preferred; HVHV fallback','unit':'dB','range':list(DB_RANGE),'threshold':[round(threshold_before,1),round(threshold_after,1)],'stats':stats,'category':'Basin-wide shoreline-change screening','confidence':'exploratory radar-only','evidence':evidence,'scenes':scenes,'frame_pairs':len(pairs),'images':{'before':'before.png','after':'after.png','change':'change.png','coverage':'coverage.png'}},rd)
+        evidence=['Mosaic assembled from matching repeat NISAR track/direction/frame pairs.','Shoreline-change candidates are restricted to a 15-pixel band around the Natural Earth reference shoreline.','Candidate pixels require a 2 dB margin from both date-specific thresholds and at least 3 dB temporal backscatter difference.','Water classification is exploratory; wind, waves, vegetation, soil moisture and radar geometry can mimic shoreline change.','coverage.png shows valid NISAR observation availability, not the shoreline. reference.png is Natural Earth reference geography, not an observation.',f'Processed {len(pairs)} frame pairs; tile dates range from {min(dates_seen)} to {max(dates_seen)}.']
+        meta=finish(r,{'type':'mosaic','mode':'shore','before':min(dates_seen),'after':max(dates_seen),'bbox':bbox,'size':[width,height],'pol':'HHHH preferred; HVHV fallback','unit':'dB','range':list(DB_RANGE),'threshold':[round(threshold_before,1),round(threshold_after,1)],'stats':stats,'category':'Coastal-zone shoreline-change screening','confidence':'exploratory; threshold and temporal-difference filters applied','evidence':evidence,'scenes':scenes,'frame_pairs':len(pairs),'images':{'before':'before.png','after':'after.png','water_before':'water_before.png','water_after':'water_after.png','change':'change.png','coverage':'coverage.png','reference':'reference.png'}},rd)
         meta['elapsed_s']=round(time.monotonic()-started_at,1); (rd/'meta.json').write_text(json.dumps(meta,indent=1)); state[r['name']]=signature; log(r['name'],'mosaic complete',stats)
     finally:
         pass
