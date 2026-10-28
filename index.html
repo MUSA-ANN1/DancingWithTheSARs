@@ -3,20 +3,19 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Dancing with the SARs: Caspian Sea</title>
+<title>Hyperia</title>
 <meta name="description" content="Explore real NISAR radar observations of surface change over the Caspian Sea.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600&display=swap">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon.png?v=hyperia-1">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div id="app">
 
-  <!-- Three.js scene: Earth, real stars, Milky Way, Sun, Moon -->
   <div id="globe-container"></div>
 
-  <!-- Intro overlay, shown during the opening animation -->
   <div id="intro-overlay">
     <div id="intro-text">
       <p class="eyebrow">NASA Space Apps Challenge 2026</p>
@@ -25,14 +24,12 @@
     </div>
   </div>
 
-  <!-- Top-left header, visible after the intro -->
   <div class="head" id="main-head" hidden>
     <p class="eyebrow">NASA Space Apps Challenge 2026</p>
     <h1>Dancing with the SARs</h1>
     <p class="lede">NISAR radar surface change over the Caspian Sea.</p>
   </div>
 
-  <!-- Top toolbar: the history button opens the date bar -->
   <div id="toolbar" hidden>
     <button id="history-btn" type="button" aria-expanded="false" aria-controls="timeline">
       <i class="ph ph-clock-counter-clockwise" aria-hidden="true"></i>
@@ -62,7 +59,6 @@
     </fieldset>
   </section>
 
-  <!-- Date bar, hidden until the history button is pressed -->
   <div id="timeline" role="group" aria-label="Historical imagery dates" hidden>
     <button id="play-btn" type="button" aria-label="Play or pause the date sequence">
       <i id="play-icon" class="ph ph-play" aria-hidden="true"></i>
@@ -81,7 +77,6 @@
     </button>
   </div>
 
-  <!-- NISAR image panel, bottom right, shown with the date bar -->
   <div id="nisar-panel" hidden>
     <div id="nisar-img-wrap">
       <img id="nisar-img" alt="NISAR browse image" referrerpolicy="no-referrer" hidden>
@@ -101,20 +96,16 @@
     </a>
   </div>
 
-  <!-- Status -->
   <div id="status-bar" role="status" hidden>
     <span id="status-msg"></span>
   </div>
 
 </div>
 
-<!-- Phosphor icons, regular weight, pinned version -->
 <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
 
-<!-- Three.js r158 (global build) -->
 <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
 
-<!-- Real-time Sun, Moon and sidereal time -->
 <script src="vendor/d3.min.js"></script>
 <script src="vendor/topojson-client.min.js"></script>
 <script src="world.js"></script>
@@ -122,6 +113,6 @@
 <script src="astro.js"></script>
 <script src="caspian-coastline.js?v=d746d94d"></script>
 
-<script src="app.js?v=water-borders-1"></script>
+<script src="app.js?v=hyperia-1"></script>
 </body>
 </html>
