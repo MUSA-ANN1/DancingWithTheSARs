@@ -192,37 +192,62 @@
   }
 
   async function loadInlandLakes(dayCanvas, nightCanvas, dayTex, nightTex) {
-    // Natural Earth lake polygons, rendered subtly over both Earth textures.
-    // Fill is only slightly lighter than the corresponding outline palette.
-    const url = 'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_10m_lakes.geojson';
-    try {
+    // Natural Earth water overlays. The base map already colors all ocean,
+    // while these polygons add subtle marine-area fills and finer shore outlines.
+    const sources = {
+      lakes: 'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_10m_lakes.geojson',
+      marine: 'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_10m_geography_marine_polys.geojson',
+      coastline: 'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_10m_coastline.geojson'
+    };
+    const fetchGeoJSON = async (url, label) => {
       const response = await fetch(url);
-      if (!response.ok) throw new Error('Lake data request failed');
-      const geojson = await response.json();
-      const width = dayCanvas.width, height = dayCanvas.height;
-      const projection = d3.geoEquirectangular()
-        .scale(width / (2 * Math.PI)).translate([width / 2, height / 2]);
-      const paintLakes = (canvas, fill, stroke) => {
-        const ctx = canvas.getContext('2d');
-        const path = d3.geoPath(projection, ctx);
-        ctx.save();
-        ctx.beginPath();
-        path(geojson);
+      if (!response.ok) throw new Error(label + ' data request failed (' + response.status + ')');
+      return response.json();
+    };
+    const width = dayCanvas.width, height = dayCanvas.height;
+    const projection = d3.geoEquirectangular()
+      .scale(width / (2 * Math.PI)).translate([width / 2, height / 2]);
+    const paintGeoJSON = (canvas, geojson, fill, stroke, lineWidth, fillPolygons = true) => {
+      const ctx = canvas.getContext('2d');
+      const path = d3.geoPath(projection, ctx);
+      ctx.save();
+      ctx.beginPath();
+      path(geojson);
+      if (fillPolygons && fill) {
         ctx.fillStyle = fill;
         ctx.fill();
+      }
+      if (stroke) {
         ctx.strokeStyle = stroke;
-        ctx.lineWidth = 1.4;
+        ctx.lineWidth = lineWidth;
         ctx.stroke();
-        ctx.restore();
-      };
-      paintLakes(dayCanvas, '#0B2B68', '#12365F');
-      paintLakes(nightCanvas, '#0D1F38', '#10479C');
-      dayTex.needsUpdate = true;
-      nightTex.needsUpdate = true;
-    } catch (error) {
-      // The main globe remains usable if the optional lake layer is unavailable.
-      console.warn('Inland lake layer could not be loaded:', error);
+      }
+      ctx.restore();
+    };
+
+    // Load layers independently: one unavailable source should not disable the others.
+    const [lakes, marine, coastline] = await Promise.all([
+      fetchGeoJSON(sources.lakes, 'Lake').catch(error => { console.warn('Lake layer unavailable:', error); return null; }),
+      fetchGeoJSON(sources.marine, 'Marine-area').catch(error => { console.warn('Marine-area layer unavailable:', error); return null; }),
+      fetchGeoJSON(sources.coastline, 'Coastline').catch(error => { console.warn('Coastline layer unavailable:', error); return null; })
+    ]);
+
+    if (marine) {
+      // Marine polygons identify named seas/bays; subdued fills stay close to the ocean base.
+      paintGeoJSON(dayCanvas, marine, '#0B2863', '#123B78', 1.0, true);
+      paintGeoJSON(nightCanvas, marine, '#031020', '#104080', 1.0, true);
     }
+    if (lakes) {
+      paintGeoJSON(dayCanvas, lakes, '#0B2B68', '#12365F', 1.4, true);
+      paintGeoJSON(nightCanvas, lakes, '#0D1F38', '#10479C', 1.4, true);
+    }
+    if (coastline) {
+      // Fine shoreline edge, slightly brighter than the existing country borders.
+      paintGeoJSON(dayCanvas, coastline, null, 'rgba(35, 83, 145, 0.72)', 1.0, false);
+      paintGeoJSON(nightCanvas, coastline, null, 'rgba(18, 76, 156, 0.68)', 1.0, false);
+    }
+    dayTex.needsUpdate = true;
+    nightTex.needsUpdate = true;
   }
 
   function buildEarth() {
