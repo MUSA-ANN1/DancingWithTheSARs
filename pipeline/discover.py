@@ -21,7 +21,6 @@ COLLECTIONS = {
     "GUNW": "NISAR_L2_GUNW_PROVISIONAL_V1",
 }
 
-
 def parse_bbox(value: str):
     parts = tuple(float(v.strip()) for v in value.split(","))
     if len(parts) != 4:
@@ -30,7 +29,6 @@ def parse_bbox(value: str):
     if not (-180 <= west < east <= 180 and -90 <= south < north <= 90):
         raise ValueError("bbox must be west,south,east,north in valid longitude/latitude ranges")
     return parts
-
 
 def granule_fields(item):
     """Extract stable fields while tolerating variations in CMR metadata."""
@@ -46,7 +44,6 @@ def granule_fields(item):
         "collection": umm.get("CollectionReference", {}).get("ShortName"),
         "spatial_extent_metadata_present": bool(spatial),
     }
-
 
 def main():
     parser = argparse.ArgumentParser()
@@ -99,7 +96,6 @@ def main():
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(inventory, indent=2), encoding="utf-8")
     LOG.info("Wrote inventory to %s", out_path)
-
 
 if __name__ == "__main__":
     main()
