@@ -115,10 +115,37 @@ def otsu(v, lo=-35.0, hi=5.0, bins=160):
     return float(c[np.nanargmax(sb)])
 
 def quant_png(a, lo, hi, path):
-    """RGBA: R=G=B=v (1..255), alpha 255 where valid, 0 = no data. value = lo + (v-1)/254*(hi-lo)."""
-    ok = np.isfinite(a); v = np.zeros(a.shape, np.uint8)
-    v[ok] = (np.clip((a[ok] - lo) / (hi - lo), 0, 1) * 254 + 1).astype(np.uint8)
-    Image.fromarray(np.dstack([v, v, v, np.where(ok, 255, 0).astype(np.uint8)]), "RGBA").save(path, optimize=True)
+    """Render a grayscale raster, closing only tiny display gaps; source data is untouched."""
+    ok = np.isfinite(a)
+    v = np.zeros(a.shape, np.float32)
+    v[ok] = np.clip((a[ok] - lo) / (hi - lo), 0, 1) * 254 + 1
+
+    # Cosmetic-only gap repair: fill at most two iterations of isolated 1-pixel
+    # holes surrounded by at least 6 of 8 valid neighbors. Large missing swaths
+    # remain transparent, and the scientific arrays used for statistics/change
+    # detection are never modified.
+    for _ in range(2):
+        padded_ok = np.pad(ok, 1, mode="constant", constant_values=False)
+        padded_v = np.pad(v, 1, mode="constant", constant_values=0)
+        neighbor_count = np.zeros(ok.shape, np.uint8)
+        neighbor_sum = np.zeros(ok.shape, np.float32)
+        for dy in range(3):
+            for dx in range(3):
+                if dx == 1 and dy == 1:
+                    continue
+                mask = padded_ok[dy:dy + ok.shape[0], dx:dx + ok.shape[1]]
+                vals = padded_v[dy:dy + ok.shape[0], dx:dx + ok.shape[1]]
+                neighbor_count += mask
+                neighbor_sum += vals * mask
+        fill = (~ok) & (neighbor_count >= 6)
+        if not fill.any():
+            break
+        v[fill] = neighbor_sum[fill] / neighbor_count[fill]
+        ok[fill] = True
+
+    pixels = np.clip(v, 0, 255).astype(np.uint8)
+    rgba = np.dstack([pixels, pixels, pixels, np.where(ok, 255, 0).astype(np.uint8)])
+    Image.fromarray(rgba, "RGBA").save(path, optimize=True)
 
 def overlay_png(loss, gain, path):
     img = np.zeros(loss.shape + (4,), np.uint8); img[loss] = RED; img[gain] = BLUE
