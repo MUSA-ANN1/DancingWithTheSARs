@@ -54,8 +54,7 @@ def run(r, session, state, force, target, cfg, out, tmp, finish, log):
                     reproject(source=db,destination=tile,src_transform=src_transform,src_crs=f"EPSG:{p['epsg']}",src_nodata=np.nan,dst_transform=dst_transform,dst_crs='EPSG:4326',dst_nodata=np.nan,resampling=Resampling.bilinear)
                     valid=np.isfinite(tile); sums[idx]+=np.where(valid,tile,0); counts[idx]+=valid.astype(np.uint16)
                 finally:
-                    # GCOV granules are large; release each downloaded HDF5 immediately
-                    # after it has been mosaicked instead of keeping dozens on disk.
+
                     shutil.rmtree(folder,ignore_errors=True)
         before=np.divide(sums[0],counts[0],out=np.full(shape,np.nan,np.float32),where=counts[0]>0)
         after=np.divide(sums[1],counts[1],out=np.full(shape,np.nan,np.float32),where=counts[1]>0)
@@ -66,15 +65,13 @@ def run(r, session, state, force, target, cfg, out, tmp, finish, log):
         w0=(before<threshold_before)&common; w1=(after<threshold_after)&common; retreat=w0&~w1; advance=~w0&w1&common
         stats={'common_coverage_pct':round(100*n/before.size,2),'before_coverage_pct':round(100*int(np.isfinite(before).sum())/before.size,2),'after_coverage_pct':round(100*int(np.isfinite(after).sum())/after.size,2),'water_before_pct_of_common':round(100*int(w0.sum())/n,2),'water_after_pct_of_common':round(100*int(w1.sum())/n,2),'retreat_pct_of_common':round(100*int(retreat.sum())/n,3),'advance_pct_of_common':round(100*int(advance.sum())/n,3),'threshold_db':[round(threshold_before,1),round(threshold_after,1)]}
         rd.mkdir(parents=True,exist_ok=True); L.quant_png(before,*DB_RANGE,rd/'before.png'); L.quant_png(after,*DB_RANGE,rd/'after.png'); L.overlay_png(retreat,advance,rd/'change.png')
-        # Reference layer: show the full geographic Caspian outline independently of
-        # NISAR coverage. Gray pixels indicate common NISAR observations; blue sea
-        # fill is reference geography only and must not be interpreted as measured data.
+
         shore=[(47.0,48.0),(49.4,47.2),(51.8,46.8),(53.5,45.8),(53.9,44.2),(53.2,42.5),(52.8,40.7),(52.1,39.0),(51.5,37.8),(50.1,36.7),(49.0,37.2),(48.5,38.6),(48.0,40.0),(47.3,41.2),(46.7,42.8),(47.0,44.2),(48.0,45.4),(48.2,46.6)]
         outline=Image.new('RGBA',(width,height),(0,0,0,0)); draw=ImageDraw.Draw(outline)
         xy=[((lon-west)/(east-west)*(width-1),(north-lat)/(north-south)*(height-1)) for lon,lat in shore]
         draw.polygon(xy,fill=(14,67,110,220),outline=(105,205,230,255),width=2)
         pix=np.asarray(outline).copy()
-        # Encode actual common coverage as a neutral overlay, only inside the reference sea.
+
         sea_mask=Image.new('1',(width,height),0); ImageDraw.Draw(sea_mask).polygon(xy,fill=1)
         sm=np.asarray(sea_mask,dtype=bool); covered=sm&common
         pix[covered]=[205,220,225,255]
