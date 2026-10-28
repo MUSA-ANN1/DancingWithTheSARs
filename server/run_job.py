@@ -3,10 +3,10 @@
 Server job: find the newest real NISAR passes for each region, shrink them, write small
 PNG + JSON files into OUT_DIR. publish.sh then pushes OUT_DIR to the GitHub `data` branch.
 
-  python run_job.py                       # all regions in config.json
-  python run_job.py --region venezuela    # one region
-  python run_job.py --force               # redo even if nothing new
-  python run_job.py --local A.h5 B.h5 --mode shore   # or gcov / gunw
+  python run_job.py
+  python run_job.py --region venezuela
+  python run_job.py --force
+  python run_job.py --local A.h5 B.h5 --mode shore
   python run_job.py --local A.h5 B.h5 --mode gcov --name test --label Test --lon 0 --lat 0
 """
 import argparse, datetime as dt, json, os, shutil, sys, tempfile, time
@@ -21,13 +21,11 @@ OUT = Path(os.environ.get("OUT_DIR", "/opt/nisar/out"))
 TMP = Path(os.environ.get("TMP_DIR", "/opt/nisar/tmp"))
 STATE = Path(os.environ.get("STATE_FILE", "/opt/nisar/state.json"))
 DB_RANGE, CM_RANGE = (-30.0, 0.0), (-20.0, 20.0)
-LEVEL_URL = "https://earth.gsfc.nasa.gov/gwm/timeseries/lake000270.10d.2.txt"   # NASA Global Water Monitor, Caspian Sea
+LEVEL_URL = "https://earth.gsfc.nasa.gov/gwm/timeseries/lake000270.10d.2.txt"
 ENCODING = "PNG RGBA: R=G=B=v, alpha 255 = valid, 0 = no data. value = lo + (v-1)/254*(hi-lo)"
 
 def log(*a): print(time.strftime("%H:%M:%S"), *a, flush=True)
 
-
-# ---------- Caspian water level: one small NASA text file ----------
 def parse_level(text):
     """Columns: mission, cycle, YYYYMMDD, ... col 15 = height above mean sea level (EGM2008, m); 9999.99 = missing."""
     pts = []
@@ -40,7 +38,7 @@ def parse_level(text):
     pts.sort()
     by = defaultdict(list)
     for d, h in pts: by[d[:4]].append(h)
-    annual = {y: round(sum(v) / len(v), 2) for y, v in by.items() if len(v) >= 20}   # full years only
+    annual = {y: round(sum(v) / len(v), 2) for y, v in by.items() if len(v) >= 20}
     return dict(points=pts, annual_mean=annual)
 
 def fetch_level():
@@ -53,7 +51,6 @@ def fetch_level():
     OUT.mkdir(parents=True, exist_ok=True); (OUT / "level.json").write_text(json.dumps(d))
     log("level.json:", len(d["points"]), "points, last", d["points"][-1] if d["points"] else None)
 
-# ---------- choose passes ----------
 def name_of(p): return p.properties.get("sceneName") or p.properties.get("fileID")
 
 def pick_pair(products):
@@ -76,7 +73,6 @@ def search(r, level):
     return list(asf.search(dataset="NISAR", processingLevel=level, intersectsWith=f"POINT({r['lon']} {r['lat']})",
                            start=start.isoformat(), end=end.isoformat(), maxResults=200))
 
-# ---------- build outputs ----------
 def finish(r, meta, rd):
     meta.update(name=r["name"], label=r.get("label", r["name"]), lon=r["lon"], lat=r["lat"], encoding=ENCODING,
                 updated=dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"))
@@ -103,7 +99,7 @@ def write_gcov(r, f1, f2, scenes, target):
 
 def write_shore(r, f1, f2, scenes, target):
     """Caspian shoreline: split every date into water/land, then compare. Red = sea became land, blue = land became sea."""
-    pols = ("HHHH", "HVHV")                                     # HH separates calm water from land best
+    pols = ("HHHH", "HVHV")
     p = L.load(f1, "gcov", target, pols=pols); q = L.load(f2, "gcov", target, step=p["step"], pols=pols)
     A, B, x, y = L.overlap(p, q)
     A, B, x, y = L.crop_pair_to_region(A, B, x, y, p["epsg"], r["lon"], r["lat"])
@@ -116,7 +112,7 @@ def write_shore(r, f1, f2, scenes, target):
     ok = np.isfinite(a) & np.isfinite(b); W1, W2 = (a < t1) & ok, (b < t2) & ok
     retreat, advance = W1 & ~W2, ~W1 & W2 & ok
     n = max(int(ok.sum()), 1)
-    px = None if p["epsg"] == 4326 else abs(float(x[1] - x[0]) * float(y[1] - y[0])) / 1e6   # km2 per pixel
+    px = None if p["epsg"] == 4326 else abs(float(x[1] - x[0]) * float(y[1] - y[0])) / 1e6
     km = (lambda c: round(float(c) * px, 2)) if px else (lambda c: None)
     s = dict(water_before_pct=round(100 * W1.sum() / n, 2), water_after_pct=round(100 * W2.sum() / n, 2),
              retreat_pct=round(100 * retreat.sum() / n, 3), advance_pct=round(100 * advance.sum() / n, 3),
@@ -137,7 +133,7 @@ def write_shore(r, f1, f2, scenes, target):
 
 def write_gunw(r, f, scenes, target, d2, d1):
     p = L.load(f, "gunw", target)
-    d = p["a"] * L.WAVELENGTH_M / (4 * np.pi) * 100            # radians -> cm along line of sight
+    d = p["a"] * L.WAVELENGTH_M / (4 * np.pi) * 100
     if p["coh"] is not None: d[p["coh"] < 0.3] = np.nan
     d -= np.nanmedian(d)
     rd = OUT / "regions" / r["name"]; rd.mkdir(parents=True, exist_ok=True)
@@ -153,7 +149,6 @@ def write_gunw(r, f, scenes, target, d2, d1):
         category=cat, confidence=conf, evidence=ev, scenes=scenes,
         images=dict(diff="diff.png", change="change.png")), rd)
 
-# ---------- one region, from the real archive ----------
 def run_region(r, session, force, state, target):
     t0 = time.time(); mode = r.get("mode", "gcov")
     if mode in ("gcov", "shore"):
@@ -178,7 +173,7 @@ def run_region(r, session, force, state, target):
         elif mode == "shore": meta = write_shore(r, files[0], files[1], scenes, target)
         else:
             d2 = prods[0].properties["startTime"][:10]
-            d1 = (dt.date.fromisoformat(d2) - dt.timedelta(days=30)).isoformat()   # window for the USGS check
+            d1 = (dt.date.fromisoformat(d2) - dt.timedelta(days=30)).isoformat()
             meta = write_gunw(r, files[0], scenes, target, d2, d1)
         meta["download_s"], meta["compute_s"] = round(dl, 1), round(time.time() - t0 - dl, 1)
         (OUT / "regions" / r["name"] / "meta.json").write_text(json.dumps(meta, indent=1))
@@ -202,7 +197,7 @@ def main():
     cfg = json.loads((HERE / "config.json").read_text()); target = cfg.get("target_px", 512)
     OUT.mkdir(parents=True, exist_ok=True); TMP.mkdir(parents=True, exist_ok=True)
     errors = []
-    if a.local:                                                  # test with files you downloaded by hand
+    if a.local:
         r = dict(name=a.name, label=a.label or a.name, lon=a.lon, lat=a.lat, mode=a.mode)
         if a.mode == "gcov": write_gcov(r, a.local[0], a.local[1], [os.path.basename(f) for f in a.local], target)
         elif a.mode == "shore": write_shore(r, a.local[0], a.local[1], [os.path.basename(f) for f in a.local], target)
@@ -216,7 +211,7 @@ def main():
     tok = os.environ["EDL_TOKEN"].strip()
     session = asf.ASFSession()
     try: session.auth_with_token(tok)
-    except Exception as e:                                       # the pre-check can fail even for a valid token
+    except Exception as e:
         log("token pre-check failed (%s). Using the token directly; a real download will show if it is bad." % str(e)[:60])
         session.headers.update({"Authorization": "Bearer " + tok})
     state = json.loads(STATE.read_text()) if STATE.exists() else {}
