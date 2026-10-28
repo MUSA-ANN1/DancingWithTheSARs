@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Run once on a fresh Ubuntu 24.04 EC2 instance:  sudo bash setup.sh
+
 set -euo pipefail
 [ "$(id -u)" = 0 ] || { echo "Run with sudo."; exit 1; }
 RUN_USER="${SUDO_USER:-ubuntu}"
@@ -20,7 +20,7 @@ apt-get install -y -qq python3-venv python3-pip git ca-certificates
 echo "== 3/6 app files"
 mkdir -p "$APP/out" "$APP/tmp"
 cp "$SRC"/{run_job.py,nisar_lib.py,publish.sh,requirements.txt} "$APP/"
-[ -f "$APP/config.json" ] || cp "$SRC/config.json" "$APP/config.json"   # keeps your edits on re-run
+[ -f "$APP/config.json" ] || cp "$SRC/config.json" "$APP/config.json"
 chmod +x "$APP/publish.sh"
 chown -R "$RUN_USER":"$RUN_USER" "$APP"
 
