@@ -1,25 +1,19 @@
-/* Dancing with the SARs
-   Colour source: NASA brand palette.
-   NASA blue #0B3D91, NASA red #FC3D21, NASA gray #AEB0B5, white, black.
-   One accent: NASA red. See design/DESIGN-SYSTEM.md for the full rules. */
+
 
 :root {
-  /* Colour */
-  --space: #000000;
-  --surface: #051b41;          /* NASA blue at 45% brightness */
-  --line: #0b3d91;             /* NASA blue */
-  --text: #ffffff;
-  --muted: #aeb0b5;            /* NASA gray */
-  --accent: #fc3d21;           /* NASA red, the only accent */
 
-  /* One corner radius for every element */
+  --space: #000000;
+  --surface: #051b41;
+  --line: #0b3d91;
+  --text: #ffffff;
+  --muted: #aeb0b5;
+  --accent: #fc3d21;
+
   --radius: 4px;
 
-  /* Type: Barlow Condensed (display) + Inter (body) */
   --font-display: "Barlow Condensed", "Arial Narrow", sans-serif;
   --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
 
-  /* Type scale, ratio 1.25 from 16px */
   --step--1: 0.8rem;
   --step-0: 1rem;
   --step-1: 1.25rem;
@@ -28,7 +22,6 @@
   --step-4: 2.441rem;
   --step-5: 3.052rem;
 
-  /* Spacing, 8px base */
   --s1: 0.5rem;
   --s2: 1rem;
   --s3: 1.5rem;
@@ -36,7 +29,7 @@
 
   --measure: 70ch;
   --content-gutter: clamp(1rem, 3vw, 2rem);
-  --thumb: 1rem;               /* slider thumb width, used to align tick marks */
+  --thumb: 1rem;
   --toolbar-h: 2.75rem;
 }
 
@@ -77,8 +70,6 @@ button { font: inherit; color: inherit; }
 }
 #globe-container canvas { display: block; }
 
-/* ---------- Text ---------- */
-
 h1 {
   font-family: var(--font-display);
   font-weight: 700;
@@ -100,16 +91,14 @@ h1 {
   margin-top: var(--s1);
 }
 
-/* ---------- Intro (one orchestrated moment) ---------- */
-
 #intro-overlay {
   position: absolute;
   inset: 0;
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
   justify-content: flex-start;
-  padding: var(--s4);
-  padding-bottom: calc(var(--s4) + env(safe-area-inset-bottom, 0px));
+  padding: var(--s3) var(--s4);
+  padding-top: calc(var(--s3) + env(safe-area-inset-top, 0px));
   padding-left: calc(var(--s4) + env(safe-area-inset-left, 0px));
   pointer-events: none;
   transition: opacity 600ms linear;
@@ -117,8 +106,6 @@ h1 {
 #intro-overlay.fade-out { opacity: 0; }
 #intro-text { text-align: left; max-width: var(--measure); }
 #intro-text h1 { font-size: var(--step-5); }
-
-/* ---------- Header ---------- */
 
 .head {
   position: absolute;
@@ -135,8 +122,6 @@ h1 {
   max-width: 48ch;
 }
 
-/* ---------- Shared panel look ---------- */
-
 #nisar-panel,
 #timeline,
 #status-bar,
@@ -145,8 +130,6 @@ h1 {
   border: 1px solid var(--line);
   border-radius: var(--radius);
 }
-
-/* ---------- Toolbar and history button ---------- */
 
 #toolbar {
   position: absolute;
@@ -168,8 +151,6 @@ h1 {
 }
 #history-btn .ph { font-size: var(--step-1); }
 #history-btn.is-active { border-color: var(--accent); }
-
-/* ---------- Date bar (opens under the toolbar) ---------- */
 
 #timeline {
   position: absolute;
@@ -298,8 +279,6 @@ h1 {
   cursor: pointer;
 }
 
-/* ---------- NISAR image panel ---------- */
-
 #nisar-panel {
   position: absolute;
   right: calc(var(--s3) + env(safe-area-inset-right, 0px));
@@ -327,7 +306,6 @@ h1 {
   object-fit: cover;
 }
 
-/* Empty states say what happened and what to do next */
 #nisar-no-img {
   padding: var(--s3) var(--s2);
   text-align: left;
@@ -370,8 +348,6 @@ h1 {
   text-underline-offset: 3px;
 }
 
-/* ---------- Status ---------- */
-
 #status-bar {
   position: absolute;
   left: calc(var(--s3) + env(safe-area-inset-left, 0px));
@@ -384,14 +360,10 @@ h1 {
   pointer-events: none;
 }
 
-/* ---------- Keyboard focus ---------- */
-
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
-
-/* ---------- Small screens ---------- */
 
 @media (max-width: 40rem) {
   h1 { font-size: var(--step-3); }
@@ -414,8 +386,6 @@ h1 {
   * { transition: none !important; animation: none !important; }
 }
 
-
-/* ---------- Burger menu and Earth theme settings ---------- */
 #toolbar {
   display: flex;
   align-items: flex-start;
