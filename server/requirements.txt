@@ -6,3 +6,4 @@ pyproj
 rasterio
 requests
 pyshp
+scipy
