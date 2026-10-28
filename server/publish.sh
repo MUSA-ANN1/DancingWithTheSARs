@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Push OUT_DIR to the `data` branch as ONE commit (force-push), so the repo never grows from history.
+
 set -euo pipefail
 OUT="${OUT_DIR:-/opt/nisar/out}"
 : "${GITHUB_REPO:?set GITHUB_REPO, e.g. MUSA-ANN1/DancingWithTheSARs}"
