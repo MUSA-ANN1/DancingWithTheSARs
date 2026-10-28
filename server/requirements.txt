@@ -5,3 +5,4 @@ pillow
 pyproj
 rasterio
 requests
+pyshp
