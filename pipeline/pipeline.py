@@ -24,7 +24,6 @@ from rasterio.enums import Resampling as RioResampling
 LOG = logging.getLogger("nisar-pipeline")
 COLLECTION = "NISAR_L2_GCOV_PROVISIONAL_V1"
 
-
 def parse_args():
     p = argparse.ArgumentParser()
     p.add_argument("--bbox", required=True, help="west,south,east,north in decimal degrees")
@@ -36,7 +35,6 @@ def parse_args():
                    help="Downsample large rasters to bound memory use")
     return p.parse_args()
 
-
 def parse_bbox(value: str):
     values = tuple(float(v.strip()) for v in value.split(","))
     if len(values) != 4:
@@ -45,7 +43,6 @@ def parse_bbox(value: str):
     if not (-180 <= west < east <= 180 and -90 <= south < north <= 90):
         raise ValueError("Invalid bbox coordinate order/range")
     return values
-
 
 def find_raster_subdataset(h5_path: Path):
     """Return a georeferenced HH/VV subdataset if GDAL exposes one."""
@@ -69,7 +66,6 @@ def find_raster_subdataset(h5_path: Path):
             continue
     return None
 
-
 def read_resampled(path: str, max_pixels: int):
     with rasterio.open(path) as src:
         scale = min(1.0, (max_pixels / max(1, src.width * src.height)) ** 0.5)
@@ -80,7 +76,6 @@ def read_resampled(path: str, max_pixels: int):
         profile = src.profile.copy()
         profile.update(width=width, height=height, transform=transform, count=1, dtype="float32")
         return data, profile
-
 
 def align_to_reference(data, src_profile, ref_profile):
     out = np.full((ref_profile["height"], ref_profile["width"]), np.nan, dtype="float32")
@@ -96,7 +91,6 @@ def align_to_reference(data, src_profile, ref_profile):
         dst_nodata=np.nan,
     )
     return out
-
 
 def main():
     args = parse_args()
@@ -158,7 +152,6 @@ def main():
     if int(valid.sum()) < 100:
         raise SystemExit("Too few overlapping valid pixels; choose another pair/ROI.")
 
-    # Valid only when the selected layers are positive linear backscatter/power.
     change = np.full(a.shape, np.nan, dtype="float32")
     change[valid] = np.abs(10.0 * np.log10(a[valid]) - 10.0 * np.log10(b_aligned[valid]))
 
@@ -214,7 +207,6 @@ def main():
     }
     (out_dir / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
     LOG.info("Done. Outputs: %s, %s, %s", tif_path, preview_path, out_dir / "manifest.json")
-
 
 if __name__ == "__main__":
     main()
