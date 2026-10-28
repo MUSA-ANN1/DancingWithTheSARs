@@ -35,22 +35,28 @@ def run(r, session, state, force, target, cfg, out, tmp, finish, log):
     width=max(512,int(target*(east-west)/(north-south))); height=int(target); shape=(height,width)
     dst_transform=from_origin(west,north,(east-west)/width,(north-south)/height)
     sums=[np.zeros(shape,np.float32),np.zeros(shape,np.float32)]; counts=[np.zeros(shape,np.uint16),np.zeros(shape,np.uint16)]
-    temps=[]; scenes=[]; dates_seen=[]; started_at=time.monotonic()
+    scenes=[]; dates_seen=[]; started_at=time.monotonic()
     try:
         for d0,d1,key,p0,p1 in pairs:
             dates_seen.extend([d0,d1]); scenes.extend([name_of(p0),name_of(p1)])
             for idx,product in enumerate((p0,p1)):
-                folder=Path(tempfile.mkdtemp(dir=tmp)); temps.append(folder); product.download(path=str(folder),session=session)
-                found=list(folder.glob('*.h5'))
-                if not found: raise RuntimeError('Downloaded granule missing HDF5: '+str(name_of(product)))
-                p=L.load(found[0],'gcov',target=target,pols=('HHHH','HVHV'))
-                db=np.full(p['a'].shape,np.nan,np.float32); good=np.isfinite(p['a'])&(p['a']>0); db[good]=10*np.log10(p['a'][good])
-                if len(p['x'])<2 or len(p['y'])<2: continue
-                dx=float(np.median(np.diff(p['x']))); dy=float(np.median(np.diff(p['y'])))
-                src_transform=rasterio.Affine(dx,0,float(p['x'][0])-dx/2,0,dy,float(p['y'][0])-dy/2)
-                tile=np.full(shape,np.nan,np.float32)
-                reproject(source=db,destination=tile,src_transform=src_transform,src_crs=f"EPSG:{p['epsg']}",src_nodata=np.nan,dst_transform=dst_transform,dst_crs='EPSG:4326',dst_nodata=np.nan,resampling=Resampling.bilinear)
-                valid=np.isfinite(tile); sums[idx]+=np.where(valid,tile,0); counts[idx]+=valid.astype(np.uint16)
+                folder=Path(tempfile.mkdtemp(dir=tmp))
+                try:
+                    product.download(path=str(folder),session=session)
+                    found=list(folder.glob('*.h5'))
+                    if not found: raise RuntimeError('Downloaded granule missing HDF5: '+str(name_of(product)))
+                    p=L.load(found[0],'gcov',target=target,pols=('HHHH','HVHV'))
+                    db=np.full(p['a'].shape,np.nan,np.float32); good=np.isfinite(p['a'])&(p['a']>0); db[good]=10*np.log10(p['a'][good])
+                    if len(p['x'])<2 or len(p['y'])<2: continue
+                    dx=float(np.median(np.diff(p['x']))); dy=float(np.median(np.diff(p['y'])))
+                    src_transform=rasterio.Affine(dx,0,float(p['x'][0])-dx/2,0,dy,float(p['y'][0])-dy/2)
+                    tile=np.full(shape,np.nan,np.float32)
+                    reproject(source=db,destination=tile,src_transform=src_transform,src_crs=f"EPSG:{p['epsg']}",src_nodata=np.nan,dst_transform=dst_transform,dst_crs='EPSG:4326',dst_nodata=np.nan,resampling=Resampling.bilinear)
+                    valid=np.isfinite(tile); sums[idx]+=np.where(valid,tile,0); counts[idx]+=valid.astype(np.uint16)
+                finally:
+                    # GCOV granules are large; release each downloaded HDF5 immediately
+                    # after it has been mosaicked instead of keeping dozens on disk.
+                    shutil.rmtree(folder,ignore_errors=True)
         before=np.divide(sums[0],counts[0],out=np.full(shape,np.nan,np.float32),where=counts[0]>0)
         after=np.divide(sums[1],counts[1],out=np.full(shape,np.nan,np.float32),where=counts[1]>0)
         common=np.isfinite(before)&np.isfinite(after); n=int(common.sum())
@@ -77,4 +83,4 @@ def run(r, session, state, force, target, cfg, out, tmp, finish, log):
         meta=finish(r,{'type':'mosaic','mode':'shore','before':min(dates_seen),'after':max(dates_seen),'bbox':bbox,'size':[width,height],'pol':'HHHH preferred; HVHV fallback','unit':'dB','range':list(DB_RANGE),'threshold':[round(threshold_before,1),round(threshold_after,1)],'stats':stats,'category':'Basin-wide shoreline-change screening','confidence':'exploratory radar-only','evidence':evidence,'scenes':scenes,'frame_pairs':len(pairs),'images':{'before':'before.png','after':'after.png','change':'change.png','coverage':'coverage.png'}},rd)
         meta['elapsed_s']=round(time.monotonic()-started_at,1); (rd/'meta.json').write_text(json.dumps(meta,indent=1)); state[r['name']]=signature; log(r['name'],'mosaic complete',stats)
     finally:
-        for folder in temps: shutil.rmtree(folder,ignore_errors=True)
+        pass
