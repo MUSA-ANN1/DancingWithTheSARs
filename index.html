@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dancing with the SARs: NISAR radar change maps</title>
+<meta name="description" content="Low-bandwidth change maps from NISAR radar, built for the NASA Space Apps Challenge 2026.">
+<meta name="theme-color" content="#14181b">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="hero.css">
+</head>
+<body>
+
+<header class="wrap bar">
+  <a class="bar__name" href="#top">Dancing with the SARs</a>
+  <nav aria-label="Page sections">
+    <span class="bar__links">
+      <a href="#problem">Our problem</a>
+      <a href="#why">Why we chose it</a>
+      <a href="#solution">How we solve it</a>
+      <a href="#about">About us</a>
+    </span>
+    <a href="https://www.spaceappschallenge.org/2026/find-a-team/hyperia/"
+   aria-label="Source code on GitHub"
+   target="_blank"
+   rel="noopener noreferrer">
+    <img src="favicon.png"
+         alt="Hyperia"
+         class="hyperia-icon">
+</a>
+  </nav>
+</header>
+
+<main id="top">
+
+  <section class="wrap hero" aria-labelledby="hero-title">
+    <h1 id="hero-title">Dancing with the SARs</h1>
+    <p class="hero__lead">See where the land and the water changed, using NISAR radar, in a form light enough for a slow mobile connection.</p>
+    <p class="hero__note">A NASA Space Apps Challenge 2026 project. The globe currently shows the Caspian Sea.</p>
+
+    <figure class="shot">
+      <div class="shot__frame">
+        <img src="assets/globe.png" width="1600" height="900" alt="The 3D globe centred on the Caspian Sea, with the date slider at the bottom." onerror="this.closest('.shot').classList.add('is-empty')">
+        <div class="shot__empty">
+          <i class="ph ph-image" aria-hidden="true"></i>
+          <strong>Globe screenshot not added yet</strong>
+          <p>Save a screenshot of the globe as <code>assets/globe.png</code> and it appears here.</p>
+        </div>
+      </div>
+      <figcaption>The globe view. Press the button at the bottom right to open it.</figcaption>
+    </figure>
+  </section>
+
+  <section class="wrap insight" id="problem" aria-labelledby="problem-title">
+    <h2 id="problem-title">What is our problem</h2>
+    <div class="insight__body">
+      <p>The Caspian Sea is experiencing a significant long-term decline in water levels, causing its coastline to gradually retreat. This is particularly concerning for the eastern coast of Turkmenistan, where the retreat of the sea threatens coastal ecosystems, wetlands, biodiversity, and human activities.</p>
+      <p>Despite the growing impact of this environmental change, monitoring its extent and understanding how the coastline evolves over time remain challenging. There is a need for accessible, reliable, and satellite-based monitoring tools that can visualize these changes and help people understand their environmental consequences.</p>
+      <p>Our goal is to address this problem by using Earth observation data to monitor, analyze, and visualize the retreat of the Caspian Sea along Turkmenistan's coastline over time.</p>
+    </div>
+  </section>
+
+  <section class="wrap insight" id="why" aria-labelledby="why-title">
+    <h2 id="why-title">Why we chose it</h2>
+    <div class="insight__body">
+      <h3>Radar works when cameras do not</h3>
+      <p>Cloud, haze and night block optical satellites. Radar is not affected, so the same place can be compared reliably across dates.</p>
+      <h3>The data is public but out of reach</h3>
+      <p>NASA publishes NISAR products through Earthdata and ASF DAAC. The gap is not access to the data. It is turning it into something a person can read in seconds.</p>
+      <h3>We can check it against places we know</h3>
+      <p>Turkmenistan has a Caspian coastline. Starting there lets us judge whether a flagged change matches what is on the ground.</p>
+    </div>
+  </section>
+
+  <section class="wrap insight" id="solution" aria-labelledby="solution-title">
+    <h2 id="solution-title">How we solve it</h2>
+    <div class="insight__body">
+      <p>The heavy work happens on a server, not on your phone.</p>
+      <ol class="steps">
+        <li><div><strong>Find the data</strong><span>Search NASA Earthdata for NISAR products over a chosen area and date range.</span></div></li>
+        <li><div><strong>Download on the server</strong><span>Fetch a capped number of products, so the device in your hand never has to.</span></div></li>
+        <li><div><strong>Pair two observations</strong><span>Align two images of the same place taken on different dates.</span></div></li>
+        <li><div><strong>Measure the change</strong><span>Calculate the absolute change in radar backscatter on a log scale.</span></div></li>
+        <li>
+  <div>
+    <strong>Export and publish calculated results</strong>
+    <span>
+      Export the processed results as a compressed GeoTIFF, a lightweight PNG preview, and a JSON manifest. Automatically upload the generated data to the project's GitHub repository under the dedicated <code>data</code> branch. The globe loads the manifest and preview first for faster visualization.
+    </span>
+  </div>
+</li>
+      </ol>
+
+      <figure class="shot">
+        <div class="shot__frame">
+          <img src="assets/nisar-panel.png" width="1600" height="900" alt="The NISAR browse image panel next to the date slider, showing the acquisition date and product type." onerror="this.closest('.shot').classList.add('is-empty')">
+          <div class="shot__empty">
+            <i class="ph ph-image" aria-hidden="true"></i>
+            <strong>Panel screenshot not added yet</strong>
+            <p>Save a screenshot of the image panel and slider as <code>assets/nisar-panel.png</code>.</p>
+          </div>
+        </div>
+        <figcaption>The browse image panel and date slider.</figcaption>
+      </figure>
+
+    </div>
+  </section>
+
+  <section class="wrap insight" id="about" aria-labelledby="about-title">
+    <h2 id="about-title">About us</h2>
+    <div class="insight__body">
+      <p>We are Hyperia, a team competing in the NASA Space Apps Challenge in Ashgabat on 17 November 2026. We chose the challenge called Dancing with the SARs.</p>
+
+      <h3>The team</h3>
+      <ul class="facts">
+        <li><strong>Alyhan Bayryyev</strong><span>Team leader</span></li>
+        <li><strong>Musa Annagulyyev</strong><span>Team member</span></li>
+        <li><strong>Sanjar Osmanov</strong><span>Team member</span></li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+
+<footer class="wrap foot">
+  <p>Data: NASA NISAR, distributed by <a href="https://nisar-docs.asf.alaska.edu/">ASF DAAC</a>.</p>
+  <p><a href="https://github.com/MUSA-ANN1/DancingWithTheSARs">Source code on GitHub</a></p>
+</footer>
+
+<a class="enter" href="globe.html">
+  <i class="ph ph-globe-hemisphere-west" aria-hidden="true"></i>
+  Open the globe
+  <i class="ph ph-arrow-right" aria-hidden="true"></i>
+</a>
+
+</body>
+</html>
