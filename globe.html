@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hyperia</title>
+<meta name="description" content="Explore real NISAR radar observations of surface change over the Caspian Sea.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600&display=swap">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon.png?v=hyperia-1">
+<link rel="stylesheet" href="globe.css">
+</head>
+<body>
+<div id="app">
+
+  <div id="globe-container"></div>
+
+  <div id="intro-overlay">
+    <div id="intro-text">
+      <p class="eyebrow">NASA Space Apps Challenge 2026</p>
+      <h1>Dancing with the SARs</h1>
+      <p class="lede">NISAR radar surface change over the Caspian Sea.</p>
+    </div>
+  </div>
+
+  <div class="head" id="main-head" hidden>
+    <p class="eyebrow">NASA Space Apps Challenge 2026</p>
+    <h1>Dancing with the SARs</h1>
+    <p class="lede">NISAR radar surface change over the Caspian Sea.</p>
+  </div>
+
+  <div id="toolbar" hidden>
+    <button id="history-btn" type="button" aria-expanded="false" aria-controls="timeline">
+      <i class="ph ph-clock-counter-clockwise" aria-hidden="true"></i>
+      <span>Historical imagery</span>
+    </button>
+    <button id="menu-btn" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="menu-panel">
+      <i class="ph ph-list" aria-hidden="true"></i>
+    </button>
+    <div id="menu-panel" role="menu" hidden>
+      <button id="settings-btn" type="button" role="menuitem" aria-expanded="false" aria-controls="settings-panel">
+        <i class="ph ph-sliders-horizontal" aria-hidden="true"></i>
+        <span>Settings</span>
+      </button>
+    </div>
+  </div>
+
+  <section id="settings-panel" aria-labelledby="settings-title" hidden>
+    <div class="settings-heading">
+      <h2 id="settings-title">Settings</h2>
+      <button id="settings-close" type="button" aria-label="Close settings"><i class="ph ph-x" aria-hidden="true"></i></button>
+    </div>
+    <fieldset>
+      <legend>Earth theme</legend>
+      <label><input type="radio" name="earth-theme" value="default" checked><span><strong>Default</strong><small>Real Sun and day/night shadows</small></span></label>
+      <label><input type="radio" name="earth-theme" value="light"><span><strong>Light</strong><small>Entire Earth stays illuminated</small></span></label>
+      <label><input type="radio" name="earth-theme" value="dark"><span><strong>Dark</strong><small>Entire Earth stays on the night side</small></span></label>
+    </fieldset>
+  </section>
+
+  <div id="timeline" role="group" aria-label="Historical imagery dates" hidden>
+    <button id="play-btn" type="button" aria-label="Play or pause the date sequence">
+      <i id="play-icon" class="ph ph-play" aria-hidden="true"></i>
+      <i id="pause-icon" class="ph ph-pause" aria-hidden="true" hidden></i>
+    </button>
+    <div id="slider-wrap">
+      <div id="tick-labels"></div>
+      <div id="track">
+        <div id="tick-marks"></div>
+        <input type="range" id="date-range" min="0" max="0" value="0" step="1" aria-label="Observation date">
+      </div>
+    </div>
+    <div id="current-date-badge">None</div>
+    <button id="history-close" type="button" aria-label="Close historical imagery">
+      <i class="ph ph-x" aria-hidden="true"></i>
+    </button>
+  </div>
+
+  <div id="nisar-panel" hidden>
+    <div id="nisar-img-wrap">
+      <img id="nisar-img" alt="NISAR browse image" referrerpolicy="no-referrer" hidden>
+      <div id="nisar-no-img">
+        <i id="nisar-empty-icon" class="ph ph-image" aria-hidden="true"></i>
+        <p id="nisar-empty-title" class="empty-title">No browse image for this date</p>
+        <p id="nisar-empty-body" class="empty-body">NISAR does not image every place every day. Drag the date bar to the nearest marked date.</p>
+      </div>
+    </div>
+    <div id="nisar-meta">
+      <span id="nisar-date-label">None selected</span>
+      <span id="nisar-type">No product</span>
+    </div>
+    <a id="nisar-link" href="https://search.asf.alaska.edu/" target="_blank" rel="noopener">
+      <span>Open in ASF Vertex</span>
+      <i class="ph ph-arrow-up-right" aria-hidden="true"></i>
+    </a>
+  </div>
+
+  <div id="status-bar" role="status" hidden>
+    <span id="status-msg"></span>
+  </div>
+
+</div>
+
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+
+<script src="vendor/d3.min.js"></script>
+<script src="vendor/topojson-client.min.js"></script>
+<script src="world.js"></script>
+
+<script src="astro.js"></script>
+<script src="caspian-coastline.js?v=d746d94d"></script>
+
+<script src="app.js?v=hyperia-1"></script>
+</body>
+</html>
