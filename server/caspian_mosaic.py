@@ -34,7 +34,12 @@ def run(r, session, state, force, target, cfg, out, tmp, finish, log):
     if not force and state.get(r['name'])==signature and (rd/'meta.json').exists(): return log(r['name'],'nothing new, skipped')
     width=max(512,int(target*(east-west)/(north-south))); height=int(target); shape=(height,width)
     dst_transform=from_origin(west,north,(east-west)/width,(north-south)/height)
-    sums=[np.zeros(shape,np.float32),np.zeros(shape,np.float32)]; counts=[np.zeros(shape,np.uint16),np.zeros(shape,np.uint16)]
+    # Blend overlapping granules instead of exposing hard tile boundaries.
+    # Each scene is robustly radiometrically aligned to the existing mosaic in
+    # its overlap, then feather-weighted so scene edges do not form visible seams.
+    sums=[np.zeros(shape,np.float64),np.zeros(shape,np.float64)]
+    weights=[np.zeros(shape,np.float32),np.zeros(shape,np.float32)]
+    from scipy.ndimage import distance_transform_edt
     scenes=[]; dates_seen=[]; started_at=time.monotonic()
     try:
         for d0,d1,key,p0,p1 in pairs:
@@ -52,12 +57,35 @@ def run(r, session, state, force, target, cfg, out, tmp, finish, log):
                     src_transform=rasterio.Affine(dx,0,float(p['x'][0])-dx/2,0,dy,float(p['y'][0])-dy/2)
                     tile=np.full(shape,np.nan,np.float32)
                     reproject(source=db,destination=tile,src_transform=src_transform,src_crs=f"EPSG:{p['epsg']}",src_nodata=np.nan,dst_transform=dst_transform,dst_crs='EPSG:4326',dst_nodata=np.nan,resampling=Resampling.bilinear)
-                    valid=np.isfinite(tile); sums[idx]+=np.where(valid,tile,0); counts[idx]+=valid.astype(np.uint16)
+                    valid=np.isfinite(tile)
+                    if not valid.any():
+                        continue
+                    existing_valid = weights[idx] > 0
+                    overlap_mask = valid & existing_valid
+                    if int(overlap_mask.sum()) >= 100:
+                        existing = np.divide(
+                            sums[idx], weights[idx],
+                            out=np.zeros(shape, np.float64),
+                            where=existing_valid
+                        )
+                        # Correct scene-to-scene radiometric offsets only where
+                        # both scenes observe the same ground; reject extreme fits.
+                        offset = float(np.median(existing[overlap_mask] - tile[overlap_mask]))
+                        offset = float(np.clip(offset, -8.0, 8.0))
+                    else:
+                        offset = 0.0
+                    adjusted = tile.astype(np.float32, copy=False) + offset
+                    # Distance-to-edge feathering suppresses sharp tile outlines.
+                    edge_distance = distance_transform_edt(valid)
+                    feather = np.clip(edge_distance / 32.0, 0.05, 1.0).astype(np.float32)
+                    sums[idx] += np.where(valid, adjusted * feather, 0.0)
+                    weights[idx] += feather
+
                 finally:
 
                     shutil.rmtree(folder,ignore_errors=True)
-        before=np.divide(sums[0],counts[0],out=np.full(shape,np.nan,np.float32),where=counts[0]>0)
-        after=np.divide(sums[1],counts[1],out=np.full(shape,np.nan,np.float32),where=counts[1]>0)
+        before=np.divide(sums[0],weights[0],out=np.full(shape,np.nan,np.float32),where=weights[0]>0)
+        after=np.divide(sums[1],weights[1],out=np.full(shape,np.nan,np.float32),where=weights[1]>0)
         common=np.isfinite(before)&np.isfinite(after); n=int(common.sum())
         if n<1000: raise RuntimeError(f'Only {n} common pixels across Caspian mosaic; refusing misleading comparison.')
         # Rasterize Natural Earth 1:10m Caspian polygon as reference geography.
@@ -131,7 +159,9 @@ def run(r, session, state, force, target, cfg, out, tmp, finish, log):
         water_after = (after < threshold_after) & np.isfinite(after)
         margin_db = 2.0
         change_db = 3.0
-        confident = (common & coastal_zone &
+        # Keep the published change layer on the Caspian-water side only:
+        # land pixels remain transparent, even inside the coastal screening band.
+        confident = (common & coastal_zone & reference_water &
                      (np.abs(before - threshold_before) >= margin_db) &
                      (np.abs(after - threshold_after) >= margin_db) &
                      (np.abs(after - before) >= change_db))
@@ -179,7 +209,7 @@ def run(r, session, state, force, target, cfg, out, tmp, finish, log):
             'confidence_rules': {'threshold_margin_db': margin_db, 'minimum_temporal_difference_db': change_db,
                                  'coastal_band_pixels': 15}
         }
-        evidence=['Mosaic assembled from matching repeat NISAR track/direction/frame pairs.','Shoreline-change candidates are restricted to a 15-pixel band around the Natural Earth reference shoreline.','Candidate pixels require a 2 dB margin from both date-specific thresholds and at least 3 dB temporal backscatter difference.','Water classification is exploratory; wind, waves, vegetation, soil moisture and radar geometry can mimic shoreline change.','coverage.png shows valid NISAR observation availability, not the shoreline. reference.png is Natural Earth reference geography, not an observation.',f'Processed {len(pairs)} frame pairs; tile dates range from {min(dates_seen)} to {max(dates_seen)}.']
+        evidence=['Mosaic assembled from matching repeat NISAR track/direction/frame pairs. Overlapping scenes are median-offset aligned and edge-feather blended to reduce tile seams.','The change layer is masked to the Natural Earth Caspian-water polygon; land pixels are transparent.','Shoreline-change candidates are restricted to a 15-pixel band around the Natural Earth reference shoreline.','Candidate pixels require a 2 dB margin from both date-specific thresholds and at least 3 dB temporal backscatter difference.','Water classification is exploratory; wind, waves, vegetation, soil moisture and radar geometry can mimic shoreline change.','coverage.png shows valid NISAR observation availability, not the shoreline. reference.png is Natural Earth reference geography, not an observation.',f'Processed {len(pairs)} frame pairs; tile dates range from {min(dates_seen)} to {max(dates_seen)}.']
         meta=finish(r,{'type':'mosaic','mode':'shore','before':min(dates_seen),'after':max(dates_seen),'bbox':bbox,'size':[width,height],'pol':'HHHH preferred; HVHV fallback','unit':'dB','range':list(DB_RANGE),'threshold':[round(threshold_before,1),round(threshold_after,1)],'stats':stats,'category':'Coastal-zone shoreline-change screening','confidence':'exploratory; threshold and temporal-difference filters applied','evidence':evidence,'scenes':scenes,'frame_pairs':len(pairs),'images':{'before':'before.png','after':'after.png','water_before':'water_before.png','water_after':'water_after.png','change':'change.png','coverage':'coverage.png','reference':'reference.png'}},rd)
         meta['elapsed_s']=round(time.monotonic()-started_at,1); (rd/'meta.json').write_text(json.dumps(meta,indent=1)); state[r['name']]=signature; log(r['name'],'mosaic complete',stats)
     finally:
