@@ -92,6 +92,9 @@ def run(r, session, state, force, target, cfg, out, tmp, finish, log):
         # Natural Earth's lakes layer does not reliably include the Caspian Sea;
         # the land layer traces its shoreline as the boundary between land and water.
         import io, zipfile, requests, shapefile
+        from shapely.geometry import shape as shapely_shape, box
+        from shapely import make_valid
+        from rasterio.features import rasterize
         from scipy.ndimage import binary_erosion, distance_transform_edt
         ne_url = 'https://naciscdn.org/naturalearth/10m/physical/ne_10m_land.zip'
         cache = tmp / 'ne_10m_land.zip'
@@ -99,43 +102,56 @@ def run(r, session, state, force, target, cfg, out, tmp, finish, log):
             response = requests.get(ne_url, timeout=90)
             response.raise_for_status()
             cache.write_bytes(response.content)
+
+        # Clip real polygon geometries to the processing extent before rasterizing.
+        # Do not clamp individual vertices: that distorts large polygons and can
+        # accidentally paint most/all of the Caspian as land.
+        extent = box(west, south, east, north)
+        land_geometries = []
         with zipfile.ZipFile(cache) as zf:
             shp_name = next(n for n in zf.namelist() if n.lower().endswith('.shp'))
             stem = shp_name[:-4]
             def read_member(ext):
                 return io.BytesIO(zf.read(stem + ext))
             sf = shapefile.Reader(shp=read_member('.shp'), shx=read_member('.shx'), dbf=read_member('.dbf'))
-
-            land_mask_img = Image.new('1', (width, height), 0)
-            land_draw = ImageDraw.Draw(land_mask_img)
-            def project_ring(points):
-                return [
-                    (max(0, min(width - 1, (lon - west) / (east - west) * (width - 1))),
-                     max(0, min(height - 1, (north - lat) / (north - south) * (height - 1))))
-                    for lon, lat in points
-                ]
             for feature in sf.iterShapes():
-                pts = feature.points
-                parts = list(feature.parts) + [len(pts)]
-                for i in range(len(parts) - 1):
-                    ring = pts[parts[i]:parts[i + 1]]
-                    if len(ring) >= 3:
-                        land_draw.polygon(project_ring(ring), fill=1)
+                try:
+                    geom = shapely_shape(feature.__geo_interface__)
+                    if not geom.is_valid:
+                        geom = make_valid(geom)
+                    if not geom.is_empty and geom.intersects(extent):
+                        clipped = geom.intersection(extent)
+                        if not clipped.is_empty:
+                            land_geometries.append((clipped, 1))
+                except Exception:
+                    continue
 
-            # The configured processing extent is the Caspian basin. Inverting
-            # land therefore isolates its water surface without depending on a
-            # missing/renamed Caspian lake record.
-            land_mask = np.asarray(land_mask_img, dtype=bool)
-            reference_water = ~land_mask
-            if int(reference_water.sum()) < 1000:
-                raise RuntimeError('Natural Earth land polygons produced an implausibly small Caspian water mask.')
+        if not land_geometries:
+            raise RuntimeError('Natural Earth land polygons did not intersect the configured Caspian extent.')
 
-            # Draw only the reference-water boundary for map context.
-            edge = reference_water ^ binary_erosion(reference_water, iterations=1)
-            outline = Image.new('RGBA', (width, height), (0, 0, 0, 0))
-            outline_pixels = np.zeros((height, width, 4), dtype=np.uint8)
-            outline_pixels[edge] = (105, 205, 230, 255)
-            outline = Image.fromarray(outline_pixels, 'RGBA')
+        land_mask = rasterize(
+            land_geometries,
+            out_shape=shape,
+            transform=dst_transform,
+            fill=0,
+            all_touched=False,
+            dtype='uint8'
+        ).astype(bool)
+
+        # Invert clipped land polygons: the remaining basin pixels are water.
+        reference_water = ~land_mask
+        water_pixels = int(reference_water.sum())
+        if water_pixels < 1000 or water_pixels > int(reference_water.size * 0.90):
+            raise RuntimeError(
+                f'Natural Earth Caspian water mask failed sanity check: '
+                f'{water_pixels}/{reference_water.size} water pixels.'
+            )
+
+        # Draw only the reference-water boundary for map context.
+        edge = reference_water ^ binary_erosion(reference_water, iterations=1)
+        outline_pixels = np.zeros((height, width, 4), dtype=np.uint8)
+        outline_pixels[edge] = (105, 205, 230, 255)
+        outline = Image.fromarray(outline_pixels, 'RGBA')
 
         # Define a 15-pixel coastal search band around the reference shoreline.
         # At this basin-wide grid resolution, this is a screening band, not a precise
