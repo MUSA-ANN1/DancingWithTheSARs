@@ -88,12 +88,13 @@ def run(r, session, state, force, target, cfg, out, tmp, finish, log):
         after=np.divide(sums[1],weights[1],out=np.full(shape,np.nan,np.float32),where=weights[1]>0)
         common=np.isfinite(before)&np.isfinite(after); n=int(common.sum())
         if n<1000: raise RuntimeError(f'Only {n} common pixels across Caspian mosaic; refusing misleading comparison.')
-        # Rasterize Natural Earth 1:10m Caspian polygon as reference geography.
-        # This mask defines a coastal search zone only; it never fills NISAR observations.
+        # Build the Caspian water reference from Natural Earth land polygons.
+        # Natural Earth's lakes layer does not reliably include the Caspian Sea;
+        # the land layer traces its shoreline as the boundary between land and water.
         import io, zipfile, requests, shapefile
         from scipy.ndimage import binary_erosion, distance_transform_edt
-        ne_url = 'https://naciscdn.org/naturalearth/10m/physical/ne_10m_lakes.zip'
-        cache = tmp / 'ne_10m_lakes.zip'
+        ne_url = 'https://naciscdn.org/naturalearth/10m/physical/ne_10m_land.zip'
+        cache = tmp / 'ne_10m_land.zip'
         if not cache.exists():
             response = requests.get(ne_url, timeout=90)
             response.raise_for_status()
@@ -104,38 +105,37 @@ def run(r, session, state, force, target, cfg, out, tmp, finish, log):
             def read_member(ext):
                 return io.BytesIO(zf.read(stem + ext))
             sf = shapefile.Reader(shp=read_member('.shp'), shx=read_member('.shx'), dbf=read_member('.dbf'))
-            fields = [f[0].lower() for f in sf.fields[1:]]
-            features = []
-            for sr in sf.iterShapeRecords():
-                attrs = dict(zip(fields, sr.record))
-                label = ' '.join(str(v) for v in attrs.values() if v is not None).lower()
-                if 'caspian' in label:
-                    features.append(sr.shape)
-            if not features:
-                raise RuntimeError('Natural Earth 10m lakes download did not contain a Caspian Sea feature.')
 
-            sea_mask_img = Image.new('1', (width, height), 0)
-            mask_draw = ImageDraw.Draw(sea_mask_img)
-            outline = Image.new('RGBA', (width, height), (0, 0, 0, 0))
-            outline_draw = ImageDraw.Draw(outline)
+            land_mask_img = Image.new('1', (width, height), 0)
+            land_draw = ImageDraw.Draw(land_mask_img)
             def project_ring(points):
-                # Clamp to the output extent so rings crossing the bbox remain closed.
                 return [
                     (max(0, min(width - 1, (lon - west) / (east - west) * (width - 1))),
                      max(0, min(height - 1, (north - lat) / (north - south) * (height - 1))))
                     for lon, lat in points
                 ]
-            for feature in features:
+            for feature in sf.iterShapes():
                 pts = feature.points
                 parts = list(feature.parts) + [len(pts)]
                 for i in range(len(parts) - 1):
                     ring = pts[parts[i]:parts[i + 1]]
-                    if len(ring) < 3:
-                        continue
-                    xy = project_ring(ring)
-                    mask_draw.polygon(xy, fill=1)
-                    outline_draw.line(xy + [xy[0]], fill=(105, 205, 230, 255), width=2)
-            reference_water = np.asarray(sea_mask_img, dtype=bool)
+                    if len(ring) >= 3:
+                        land_draw.polygon(project_ring(ring), fill=1)
+
+            # The configured processing extent is the Caspian basin. Inverting
+            # land therefore isolates its water surface without depending on a
+            # missing/renamed Caspian lake record.
+            land_mask = np.asarray(land_mask_img, dtype=bool)
+            reference_water = ~land_mask
+            if int(reference_water.sum()) < 1000:
+                raise RuntimeError('Natural Earth land polygons produced an implausibly small Caspian water mask.')
+
+            # Draw only the reference-water boundary for map context.
+            edge = reference_water ^ binary_erosion(reference_water, iterations=1)
+            outline = Image.new('RGBA', (width, height), (0, 0, 0, 0))
+            outline_pixels = np.zeros((height, width, 4), dtype=np.uint8)
+            outline_pixels[edge] = (105, 205, 230, 255)
+            outline = Image.fromarray(outline_pixels, 'RGBA')
 
         # Define a 15-pixel coastal search band around the reference shoreline.
         # At this basin-wide grid resolution, this is a screening band, not a precise
