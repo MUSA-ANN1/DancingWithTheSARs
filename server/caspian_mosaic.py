@@ -40,17 +40,26 @@ def run(r, session, state, force, target, cfg, out, tmp, finish, log):
     sums=[np.zeros(shape,np.float64),np.zeros(shape,np.float64)]
     weights=[np.zeros(shape,np.float32),np.zeros(shape,np.float32)]
     from scipy.ndimage import distance_transform_edt
-    scenes=[]; dates_seen=[]; started_at=time.monotonic()
+    scenes=[]; dates_seen=[]; frame_pair_dates=[]; quality_masked_scenes=[]; reference_pol=None; started_at=time.monotonic()
     try:
         for d0,d1,key,p0,p1 in pairs:
             dates_seen.extend([d0,d1]); scenes.extend([name_of(p0),name_of(p1)])
+            frame_pair_dates.append({'before': d0, 'after': d1, 'track': key[0], 'direction': key[1], 'frame': key[2]})
             for idx,product in enumerate((p0,p1)):
                 folder=Path(tempfile.mkdtemp(dir=tmp))
                 try:
                     product.download(path=str(folder),session=session)
                     found=list(folder.glob('*.h5'))
                     if not found: raise RuntimeError('Downloaded granule missing HDF5: '+str(name_of(product)))
-                    p=L.load(found[0],'gcov',target=target,pols=('HHHH','HVHV'))
+                    requested_pols=(reference_pol,) if reference_pol else ('HHHH','HVHV')
+                    p=L.load(found[0],'gcov',target=target,pols=requested_pols,require_mask=True)
+                    if reference_pol is None:
+                        reference_pol=p['pol']
+                    elif p['pol'] != reference_pol:
+                        raise RuntimeError(f'Inconsistent polarization in mosaic: expected {reference_pol}, got {p["pol"]} in {name_of(product)}')
+                    if not p['quality_mask_used']:
+                        raise RuntimeError(f'Quality mask was not applied to {name_of(product)}')
+                    quality_masked_scenes.append(name_of(product))
                     db=np.full(p['a'].shape,np.nan,np.float32); good=np.isfinite(p['a'])&(p['a']>0); db[good]=10*np.log10(p['a'][good])
                     if len(p['x'])<2 or len(p['y'])<2: continue
                     dx=float(np.median(np.diff(p['x']))); dy=float(np.median(np.diff(p['y'])))
@@ -226,7 +235,7 @@ def run(r, session, state, force, target, cfg, out, tmp, finish, log):
                                  'coastal_band_pixels': 15}
         }
         evidence=['Mosaic assembled from matching repeat NISAR track/direction/frame pairs. Overlapping scenes are median-offset aligned and edge-feather blended to reduce tile seams.','The change layer is masked to the Natural Earth Caspian-water polygon; land pixels are transparent.','Shoreline-change candidates are restricted to a 15-pixel band around the Natural Earth reference shoreline.','Candidate pixels require a 2 dB margin from both date-specific thresholds and at least 3 dB temporal backscatter difference.','Water classification is exploratory; wind, waves, vegetation, soil moisture and radar geometry can mimic shoreline change.','coverage.png shows valid NISAR observation availability, not the shoreline. reference.png is Natural Earth reference geography, not an observation.',f'Processed {len(pairs)} frame pairs; tile dates range from {min(dates_seen)} to {max(dates_seen)}.']
-        meta=finish(r,{'type':'mosaic','mode':'shore','before':min(dates_seen),'after':max(dates_seen),'bbox':bbox,'size':[width,height],'pol':'HHHH preferred; HVHV fallback','unit':'dB','range':list(DB_RANGE),'threshold':[round(threshold_before,1),round(threshold_after,1)],'stats':stats,'category':'Coastal-zone shoreline-change screening','confidence':'exploratory; threshold and temporal-difference filters applied','evidence':evidence,'scenes':scenes,'frame_pairs':len(pairs),'images':{'before':'before.png','after':'after.png','water_before':'water_before.png','water_after':'water_after.png','change':'change.png','coverage':'coverage.png','reference':'reference.png'}},rd)
+        meta=finish(r,{'type':'mosaic','mode':'shore','before':min(dates_seen),'after':max(dates_seen),'bbox':bbox,'size':[width,height],'pol':reference_pol,'quality_mask':'Applied before downsampling; mask values 1..254 valid, 0 and 255 excluded','quality_masked_scene_count':len(quality_masked_scenes),'frame_pair_dates':frame_pair_dates,'unit':'dB','range':list(DB_RANGE),'threshold':[round(threshold_before,1),round(threshold_after,1)],'stats':stats,'category':'Coastal-zone shoreline-change screening','confidence':'exploratory; threshold and temporal-difference filters applied','evidence':evidence,'scenes':scenes,'frame_pairs':len(pairs),'images':{'before':'before.png','after':'after.png','water_before':'water_before.png','water_after':'water_after.png','change':'change.png','coverage':'coverage.png','reference':'reference.png'}},rd)
         meta['elapsed_s']=round(time.monotonic()-started_at,1); (rd/'meta.json').write_text(json.dumps(meta,indent=1)); state[r['name']]=signature; log(r['name'],'mosaic complete',stats)
     finally:
         pass
