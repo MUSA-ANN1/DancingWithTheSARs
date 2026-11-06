@@ -28,13 +28,21 @@ def epsg_of(g):
     d = g["projection"]; v = d.attrs.get("epsg_code", d[()])
     return int(np.asarray(v).reshape(-1)[0])
 
-def blockmean(ds, step, positive_only=False, budget=32e6):
-    """Average step x step blocks. Reads a few rows at a time so 1 GB of RAM is enough."""
+def blockmean(ds, step, positive_only=False, budget=32e6, mask_ds=None):
+    """Average blocks, excluding invalid GCOV mask samples before averaging."""
     R, C = ds.shape[0] // step * step, ds.shape[1] // step * step
+    if mask_ds is not None and tuple(mask_ds.shape) != tuple(ds.shape):
+        raise RuntimeError(f"GCOV mask shape {mask_ds.shape} does not match data shape {ds.shape}")
     rows = max(step, int(budget / (C * 4)) // step * step)
     out = []
     for r in range(0, R, rows):
-        a = ds[r:min(r + rows, R), :C].astype("float32")
+        end = min(r + rows, R)
+        a = ds[r:end, :C].astype("float32")
+        if mask_ds is not None:
+            # ASF GCOV mask convention: 1..254 are valid subswath samples;
+            # 0 is invalid and 255 is fill/outside the acquisition.
+            m = mask_ds[r:end, :C]
+            a[(m == 0) | (m == 255)] = np.nan
         if positive_only: a[a <= 0] = np.nan
         h = a.shape[0] // step * step
         with warnings.catch_warnings(), np.errstate(all="ignore"):
@@ -42,25 +50,32 @@ def blockmean(ds, step, positive_only=False, budget=32e6):
             out.append(np.nanmean(a[:h].reshape(h // step, step, C // step, step), axis=(1, 3)))
     return np.vstack(out)
 
-def load(path, mode, target=512, step=None, pols=None):
+def load(path, mode, target=512, step=None, pols=None, require_mask=False):
     with h5py.File(path, "r") as f:
         if mode == "gcov":
-            for pol in (pols or ("HVHV", "HHHH")):
-                h = find(f, pol)
-                if h: break
-            if not h: raise RuntimeError("No HHHH/HVHV in " + path)
-            ds, pol, sib = f[h[0]], pol, None
+            selected = None
+            for candidate in (pols or ("HVHV", "HHHH")):
+                h = find(f, candidate)
+                if h:
+                    selected = candidate
+                    break
+            if not h: raise RuntimeError("No requested GCOV polarization in " + path)
+            ds, pol, sib = f[h[0]], selected, None
         else:
             h = sorted(find(f, "unwrappedPhase"), key=lambda p: "/HH/" not in p)
             if not h: raise RuntimeError("No unwrappedPhase in " + path)
             ds = f[h[0]]; sib = ds.parent; pol = h[0].split("/")[-2]
-        step = step or max(1, math.ceil(max(ds.shape) / target))
-        arr = blockmean(ds, step, mode == "gcov")
-        coh = blockmean(sib["coherenceMagnitude"], step) if sib is not None and "coherenceMagnitude" in sib else None
         g = grid_group(f, h[0])
+        mask_ds = g.get("mask") if mode == "gcov" else None
+        if mode == "gcov" and require_mask and mask_ds is None:
+            raise RuntimeError("GCOV quality mask is missing; refusing unmasked scientific processing: " + path)
+        step = step or max(1, math.ceil(max(ds.shape) / target))
+        arr = blockmean(ds, step, mode == "gcov", mask_ds=mask_ds)
+        coh = blockmean(sib["coherenceMagnitude"], step) if sib is not None and "coherenceMagnitude" in sib else None
         x = g["xCoordinates"][:arr.shape[1] * step].reshape(-1, step).mean(1)
         y = g["yCoordinates"][:arr.shape[0] * step].reshape(-1, step).mean(1)
-        return dict(a=arr, coh=coh, pol=pol, x=x, y=y, epsg=epsg_of(g), step=step)
+        return dict(a=arr, coh=coh, pol=pol, x=x, y=y, epsg=epsg_of(g), step=step,
+                    quality_mask_used=mask_ds is not None)
 
 def crop_pair_to_region(A, B, x, y, epsg, lon, lat, half_width_km=35):
     """Crop aligned rasters to a square around the requested lon/lat.
