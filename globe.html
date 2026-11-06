@@ -67,24 +67,26 @@
     <div id="calendar-dates"></div>
   </aside>
 
-  <section id="nisar-panel" hidden>
+  <section id="nisar-panel" aria-label="NISAR comparison" hidden>
+    <div class="comparison-heading">Caspian Sea comparison</div>
+    <div class="comparison-switch" role="group" aria-label="Choose comparison image">
+      <button type="button" class="comparison-option is-active" data-image="before">Before</button>
+      <button type="button" class="comparison-option" data-image="after">After</button>
+    </div>
     <div id="nisar-img-wrap">
-      <img id="nisar-img" alt="NISAR browse image" referrerpolicy="no-referrer" hidden>
-      <div id="nisar-no-img">
+      <img id="nisar-img" alt="NISAR radar browse image" referrerpolicy="no-referrer" hidden>
+      <img id="comparison-img" alt="NISAR radar comparison image" src="https://raw.githubusercontent.com/MUSA-ANN1/DancingWithTheSARs/data/regions/caspian-sea/before.png">
+      <div id="nisar-no-img" hidden>
         <i id="nisar-empty-icon" class="ph ph-image" aria-hidden="true"></i>
         <p id="nisar-empty-title" class="empty-title">No browse image for this date</p>
-        <p id="nisar-empty-body" class="empty-body">NISAR does not image every place every day. Drag the date bar to the nearest marked date.</p>
+        <p id="nisar-empty-body" class="empty-body">NISAR does not image every place every day.</p>
       </div>
     </div>
-    <div id="nisar-meta">
-      <span id="nisar-date-label">None selected</span>
-      <span id="nisar-type">No product</span>
-    </div>
-    <a id="nisar-link" href="https://search.asf.alaska.edu/" target="_blank" rel="noopener">
-      <span>Open in ASF Vertex</span>
-      <i class="ph ph-arrow-up-right" aria-hidden="true"></i>
-    </a>
-  </div>
+    <div id="nisar-meta"><span id="nisar-date-label">None selected</span><span id="nisar-type">NISAR</span></div>
+    <p id="comparison-explanation">Radar observations over the Caspian Sea. Choose Before or After to compare the two acquisition mosaics.</p>
+    <a id="nisar-link" href="https://search.asf.alaska.edu/" target="_blank" rel="noopener"><span>Open in ASF Vertex</span><i class="ph ph-arrow-up-right" aria-hidden="true"></i></a>
+  </section>
+  <div id="change-legend" hidden><span class="change-swatch" aria-hidden="true"></span><span>Change</span></div>
 
   <div id="status-bar" role="status" hidden>
     <span id="status-msg"></span>
