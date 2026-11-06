@@ -55,6 +55,10 @@
   const tickLabels = $('#tick-labels');
   const tickMarks = $('#tick-marks');
   const nisarPanel = $('#nisar-panel');
+  const calendarDates = $('#calendar-dates');
+  const calendarStatus = $('#calendar-status');
+  const comparisonImg = $('#comparison-img');
+  const comparisonButtons = Array.from(document.querySelectorAll('.comparison-option'));
   const nisarImg = $('#nisar-img');
   const nisarNoImg = $('#nisar-no-img');
   const emptyIcon = $('#nisar-empty-icon');
@@ -838,12 +842,21 @@
     playBtn.disabled = days.length < 2;
 
     tickMarks.replaceChildren();
+    calendarDates.replaceChildren();
+    calendarStatus.textContent = `${days.length} available acquisition dates`;
     days.forEach(d => {
       const t = document.createElement('span');
       t.className = 'tick';
       t.style.setProperty('--p', (d.offset / span).toFixed(5));
       tickMarks.appendChild(t);
       d.el = t;
+      const item = document.createElement('button');
+      item.type = 'button';
+      item.className = 'calendar-date';
+      item.textContent = fmtDate(d.ms);
+      item.addEventListener('click', () => selectDay(days.indexOf(d)));
+      calendarDates.appendChild(item);
+      d.calendarEl = item;
     });
     buildLabels(span);
   }
@@ -892,7 +905,13 @@
     const d = days[idx];
     dateRange.value = d.offset;
 
-    days.forEach((x, i) => x.el && x.el.classList.toggle('is-selected', i === idx));
+    days.forEach((x, i) => {
+      if (x.el) x.el.classList.toggle('is-selected', i === idx);
+      if (x.calendarEl) {
+        x.calendarEl.classList.toggle('is-selected', i === idx);
+        x.calendarEl.setAttribute('aria-pressed', i === idx ? 'true' : 'false');
+      }
+    });
 
     dateBadge.textContent = fmtDate(d.ms);
     nisarDL.textContent = fmtDate(d.ms);
@@ -939,6 +958,11 @@
     historyBtn.classList.remove('is-active');
   }
   historyBtn.addEventListener('click', () => (timeline.hidden ? openHistory() : closeHistory()));
+  comparisonButtons.forEach(button => button.addEventListener('click', () => {
+    const side = button.dataset.image;
+    comparisonImg.src = `https://raw.githubusercontent.com/MUSA-ANN1/DancingWithTheSARs/data/regions/caspian-sea/${side}.png`;
+    comparisonButtons.forEach(item => item.classList.toggle('is-active', item === button));
+  }));
   historyClose.addEventListener('click', closeHistory);
 
   playBtn.addEventListener('click', () => (isPlaying ? stopPlay() : startPlay()));
