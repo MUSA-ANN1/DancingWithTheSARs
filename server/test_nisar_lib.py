@@ -15,16 +15,16 @@ class ArrayDataset:
 
 class GcovMaskTests(unittest.TestCase):
     def test_invalid_mask_values_are_excluded_before_averaging(self):
-        data = ArrayDataset([[1.0, 100.0, 3.0, 200.0]])
-        mask = ArrayDataset([[1, 0, 255, 2]])
+        data = ArrayDataset([[1.0, 100.0, 3.0, 200.0], [5.0, 300.0, 7.0, 400.0]])
+        mask = ArrayDataset([[1, 0, 255, 2], [1, 0, 255, 2]])
         result = L.blockmean(data, step=2, positive_only=True, mask_ds=mask)
         self.assertEqual(result.shape, (1, 2))
-        self.assertAlmostEqual(float(result[0, 0]), 1.0)
-        self.assertAlmostEqual(float(result[0, 1]), 200.0)
+        self.assertAlmostEqual(float(result[0, 0]), 3.0)
+        self.assertAlmostEqual(float(result[0, 1]), 300.0)
 
     def test_valid_mask_samples_are_averaged(self):
-        data = ArrayDataset([[2.0, 4.0, 6.0, 8.0]])
-        mask = ArrayDataset([[1, 2, 3, 254]])
+        data = ArrayDataset([[2.0, 4.0, 6.0, 8.0], [2.0, 4.0, 6.0, 8.0]])
+        mask = ArrayDataset([[1, 2, 3, 254], [1, 2, 3, 254]])
         result = L.blockmean(data, step=2, positive_only=True, mask_ds=mask)
         np.testing.assert_allclose(result, [[3.0, 7.0]])
 
@@ -35,8 +35,8 @@ class GcovMaskTests(unittest.TestCase):
             L.blockmean(data, step=1, mask_ds=mask)
 
     def test_positive_power_filter_still_excludes_nonpositive_values(self):
-        data = ArrayDataset([[0.0, -1.0, 2.0, 4.0]])
-        mask = ArrayDataset([[1, 1, 1, 1]])
+        data = ArrayDataset([[0.0, -1.0, 2.0, 4.0], [0.0, -1.0, 2.0, 4.0]])
+        mask = ArrayDataset([[1, 1, 1, 1], [1, 1, 1, 1]])
         result = L.blockmean(data, step=2, positive_only=True, mask_ds=mask)
         self.assertTrue(np.isnan(result[0, 0]))
         self.assertAlmostEqual(float(result[0, 1]), 3.0)
