@@ -47,26 +47,36 @@
   const themeInputs = Array.from(document.querySelectorAll('input[name="earth-theme"]'));
   const historyClose = $('#history-close');
   const timeline = $('#timeline');
-  const dateRange = $('#date-range');
-  const playBtn = $('#play-btn');
-  const playIcon = $('#play-icon');
-  const pauseIcon = $('#pause-icon');
-  const dateBadge = $('#current-date-badge');
-  const tickLabels = $('#tick-labels');
-  const tickMarks = $('#tick-marks');
   const nisarPanel = $('#nisar-panel');
-  const calendarDates = $('#calendar-dates');
-  const calendarStatus = $('#calendar-status');
-  const comparisonImg = $('#comparison-img');
+  const panelBody = $('#panel-body');
+  const panelToggle = $('#panel-toggle');
+  const compareImg = $('#compare-img');
   const comparisonButtons = Array.from(document.querySelectorAll('.comparison-option'));
-  const nisarImg = $('#nisar-img');
   const nisarNoImg = $('#nisar-no-img');
   const emptyIcon = $('#nisar-empty-icon');
   const emptyTitle = $('#nisar-empty-title');
   const emptyBody = $('#nisar-empty-body');
-  const nisarDL = $('#nisar-date-label');
-  const nisarType = $('#nisar-type');
+  const readoutLabel = $('#readout-label');
+  const readoutDate = $('#readout-date');
+  const factProduct = $('#fact-product');
+  const factArea = $('#fact-area');
+  const explanation = $('#comparison-explanation');
   const nisarLink = $('#nisar-link');
+  const calStatus = $('#calendar-status');
+  const calTitle = $('#cal-title');
+  const calGrid = $('#cal-grid');
+  const calPrev = $('#cal-prev');
+  const calNext = $('#cal-next');
+  const datePrev = $('#date-prev');
+  const dateNext = $('#date-next');
+  const dateList = $('#calendar-dates');
+  const calEmpty = $('#calendar-empty');
+  const calEmptyIcon = $('#calendar-empty-icon');
+  const calEmptyTitle = $('#calendar-empty-title');
+  const calEmptyBody = $('#calendar-empty-body');
+  const calParts = Array.from(document.querySelectorAll('.cal-month, .cal-weekdays, #cal-grid, .cal-jump, .list-title, #calendar-dates'));
+  const changeLegend = $('#change-legend');
+  const changeLabel = $('#change-label');
   const statusMsg = $('#status-msg');
   const statusBar = $('#status-bar');
 
@@ -343,7 +353,9 @@
     const fill = new THREE.Mesh(
       fillGeometry,
       new THREE.MeshBasicMaterial({
-        color: 0x00E5FF,
+        color: 0x0B3D91,
+        transparent: true,
+        opacity: 0.72,
         side: THREE.DoubleSide,
         depthWrite: false,
         polygonOffset: true,
@@ -643,9 +655,7 @@
       phase = 'explore';
       dist = END_DIST;
       distTarget = END_DIST;
-      mainHead.hidden = false;
-      toolbar.hidden = false;
-      loadNisar();
+      showMainUI();
     }
   }
 
@@ -678,6 +688,7 @@
   });
   settingsBtn.addEventListener('click', () => {
     closeMenu();
+    closeHistory();
     settingsPanel.hidden = !settingsPanel.hidden;
     settingsBtn.setAttribute('aria-expanded', String(!settingsPanel.hidden));
   });
@@ -737,19 +748,219 @@
     });
   }
 
+  /* ── Data: before/after mosaic from the data branch, dates from the ASF archive ── */
+  const DATA_BASE = 'https://raw.githubusercontent.com/MUSA-ANN1/DancingWithTheSARs/data/regions/caspian-sea/';
+  const ACCENT_RGB = [252, 61, 33];          // NASA red, the one accent colour
+
+  let meta = null;
+  let metaReady = Promise.resolve();
+  let mosaicSide = 'before';                 // 'before' | 'after' | null while one date is shown
   let days = [];
+  let dayByMs = new Map();
   let currentIdx = -1;
-  let nisarState = 'idle';
-  let playTimer = null;
-  let isPlaying = false;
+  let datesState = 'idle';                   // idle | loading | ready | error
+  let datesFromMosaic = false;
+  let calYear = new Date().getUTCFullYear();
+  let calMonth = new Date().getUTCMonth();
+  let imgToken = 0;
 
   const firstBrowse = p => {
     if (Array.isArray(p.browse)) return p.browse.find(Boolean) || null;
     return typeof p.browse === 'string' ? p.browse : null;
   };
-  const dayMs = iso => Date.parse(iso.slice(0, 10) + 'T00:00:00Z');
+  const dayMs = iso => Date.parse(String(iso).slice(0, 10) + 'T00:00:00Z');
   const fmtDate = ms => new Date(ms).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+  const fmtIso = iso => fmtDate(dayMs(iso));
+  const num = n => Number(n).toLocaleString('en-GB');
 
+  function fmtRange(a, b) {
+    if (!a) return 'No date yet';
+    if (!b || a === b) return fmtIso(a);
+    const da = new Date(dayMs(a)), db = new Date(dayMs(b));
+    const part = d => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' });
+    return da.getUTCFullYear() === db.getUTCFullYear()
+      ? `${part(da)} to ${part(db)} ${db.getUTCFullYear()}`
+      : `${fmtIso(a)} to ${fmtIso(b)}`;
+  }
+
+  function fmtArea(b) {
+    const f = v => Number(v).toFixed(1);
+    return `${f(b[0])} to ${f(b[2])}°E, ${f(b[1])} to ${f(b[3])}°N`;
+  }
+
+  /* ── Comparison panel ── */
+  function paintEmpty(icon, title, body) {
+    emptyIcon.className = 'ph ' + icon;
+    emptyTitle.textContent = title;
+    emptyBody.textContent = body;
+    compareImg.hidden = true;
+    nisarNoImg.hidden = false;
+  }
+  function setPanelEmpty(icon, title, body) {
+    imgToken++;
+    compareImg.removeAttribute('src');
+    paintEmpty(icon, title, body);
+  }
+  function setPanelImage(url, alt) {
+    const token = ++imgToken;
+    compareImg.alt = alt;
+    if (compareImg.hidden) paintEmpty('ph-circle-notch', 'Loading image', 'Fetching the radar preview.');
+    compareImg.onload = () => {
+      if (token !== imgToken) return;
+      nisarNoImg.hidden = true;
+      compareImg.hidden = false;
+    };
+    compareImg.onerror = () => {
+      if (token !== imgToken) return;
+      paintEmpty('ph-warning', 'This image did not load',
+        'The server may be updating or the preview may need a login. Open it in ASF Vertex, or pick another date.');
+    };
+    compareImg.src = url;
+  }
+
+  function setPanelCollapsed(collapsed) {
+    panelBody.hidden = collapsed;
+    panelToggle.setAttribute('aria-expanded', String(!collapsed));
+    panelToggle.setAttribute('aria-label', collapsed ? 'Expand comparison panel' : 'Collapse comparison panel');
+    panelToggle.querySelector('i').className = 'ph ' + (collapsed ? 'ph-caret-down' : 'ph-caret-up');
+  }
+  panelToggle.addEventListener('click', () => setPanelCollapsed(!panelBody.hidden));
+
+  function mosaicText() {
+    const base = 'NISAR radar backscatter over the Caspian basin, merged from repeat passes. Dark is smooth water, bright is rougher surface.';
+    if (!meta) return base;
+    const s = meta.stats || {};
+    const db = (s.confidence_rules && s.confidence_rules.minimum_temporal_difference_db) || 3;
+    const n = (s.retreat_candidate_pixels || 0) + (s.advance_candidate_pixels || 0);
+    const change = n > 0
+      ? ` Red marks ${num(n)} shoreline pixels that changed by ${db} dB or more.`
+      : ` No shoreline pixels changed by ${db} dB or more.`;
+    return base + change + ' Screening result, not a confirmed shoreline change.';
+  }
+
+  function showMosaic(side) {
+    mosaicSide = side;
+    currentIdx = -1;
+    comparisonButtons.forEach(b => {
+      const on = b.dataset.image === side;
+      b.classList.toggle('is-active', on);
+      b.setAttribute('aria-pressed', String(on));
+    });
+    readoutLabel.textContent = side === 'before' ? 'Before' : 'After';
+    nisarLink.href = VERTEX_URL;
+    explanation.textContent = mosaicText();
+    markSelection();
+
+    if (!meta) {
+      readoutDate.textContent = 'No date yet';
+      setPanelEmpty('ph-warning', 'Comparison not available',
+        'The processed radar mosaics could not be reached. Reload the page in a minute.');
+      return;
+    }
+    const win = side === 'before' ? meta.before_date_window : meta.after_date_window;
+    const one = side === 'before' ? meta.before : meta.after;
+    readoutDate.textContent = win ? fmtRange(win[0], win[1]) : fmtRange(one);
+    factProduct.textContent = ['GCOV', meta.pol].filter(Boolean).join(' ');
+    factArea.textContent = Array.isArray(meta.bbox) ? fmtArea(meta.bbox) : 'Caspian Sea basin';
+    const file = (meta.images && meta.images[side]) || side + '.png';
+    setPanelImage(DATA_BASE + file, `NISAR radar mosaic of the Caspian Sea, ${side} image`);
+  }
+  comparisonButtons.forEach(b => b.addEventListener('click', () => showMosaic(b.dataset.image)));
+
+  async function loadMeta() {
+    try {
+      const res = await fetch(DATA_BASE + 'meta.json');
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      meta = await res.json();
+    } catch (e) {
+      meta = null;
+      setStatus('Processed NISAR mosaics are unavailable right now.', 6000);
+    }
+  }
+
+  /* ── Change layer on the globe: the legend colour, drawn from change.png ── */
+  let changeMesh = null;
+
+  function loadChangeOverlay() {
+    if (!meta || !Array.isArray(meta.bbox) || changeMesh) return;
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      try { buildChangeOverlay(img); }
+      catch (e) { setStatus('The change layer could not be drawn.', 6000); }
+    };
+    img.onerror = () => setStatus('The change layer could not be loaded.', 6000);
+    img.src = DATA_BASE + ((meta.images && meta.images.change) || 'change.png');
+  }
+
+  function buildChangeOverlay(img) {
+    const w = img.naturalWidth, h = img.naturalHeight;
+    const src = document.createElement('canvas');
+    src.width = w; src.height = h;
+    const sx = src.getContext('2d', { willReadFrequently: true });
+    sx.drawImage(img, 0, 0);
+    const px = sx.getImageData(0, 0, w, h);
+    let changed = 0;
+    for (let i = 0; i < px.data.length; i += 4) {
+      const on = px.data[i + 3] > 0;
+      if (on) changed++;
+      // every pixel carries the accent colour so transparent edges never blend toward black
+      px.data[i] = ACCENT_RGB[0]; px.data[i + 1] = ACCENT_RGB[1]; px.data[i + 2] = ACCENT_RGB[2];
+      px.data[i + 3] = on ? 255 : 0;
+    }
+    sx.putImageData(px, 0, 0);
+
+    changeLegend.hidden = false;
+    changeLegend.classList.toggle('is-empty', changed === 0);
+    changeLabel.textContent = changed ? 'Change' : 'No change detected';
+    if (!changed) return;
+
+    // Grow each marked pixel by one so it stays visible at globe scale (about 1.6 km per pixel)
+    const out = document.createElement('canvas');
+    out.width = w; out.height = h;
+    const ox = out.getContext('2d');
+    for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) ox.drawImage(src, dx, dy);
+
+    const tex = new THREE.CanvasTexture(out);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+
+    // The mosaic grid is plain longitude/latitude, so it maps straight onto the bbox
+    const [west, south, east, north] = meta.bbox;
+    const nx = 96, ny = 128;
+    const pos = new Float32Array((nx + 1) * (ny + 1) * 3);
+    const uv = new Float32Array((nx + 1) * (ny + 1) * 2);
+    let k = 0, m = 0;
+    for (let j = 0; j <= ny; j++) {
+      const lat = north - (north - south) * (j / ny);
+      for (let i = 0; i <= nx; i++) {
+        const lon = west + (east - west) * (i / nx);
+        const p = sphToVec3(lon * DEG, lat * DEG, 1.009);
+        pos[k++] = p.x; pos[k++] = p.y; pos[k++] = p.z;
+        uv[m++] = i / nx; uv[m++] = 1 - j / ny;
+      }
+    }
+    const idx = [];
+    for (let j = 0; j < ny; j++) {
+      for (let i = 0; i < nx; i++) {
+        const a = j * (nx + 1) + i, b = a + 1, c = a + nx + 1, d = c + 1;
+        idx.push(a, c, b, b, c, d);
+      }
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    geo.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+    geo.setIndex(idx);
+    changeMesh = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({
+      map: tex, transparent: true, depthWrite: false, side: THREE.DoubleSide,
+      polygonOffset: true, polygonOffsetFactor: -4
+    }));
+    changeMesh.renderOrder = 12;
+    changeMesh.frustumCulled = false;
+    scene.add(changeMesh);
+  }
+
+  /* ── Available dates (ASF archive, falling back to the dates inside the mosaic) ── */
   function groupByDay(features) {
     const map = new Map();
     for (const p of features) {
@@ -770,15 +981,34 @@
       }));
   }
 
-  async function loadNisar() {
-    if (nisarState === 'loading' || nisarState === 'ready') return;
-    nisarState = 'loading';
-    renderPanelState();
+  function mosaicDays() {
+    if (!meta) return [];
+    const set = new Set([meta.before, meta.after].filter(Boolean));
+    (meta.frame_pair_dates || []).forEach(p => { if (p.before) set.add(p.before); if (p.after) set.add(p.after); });
+    return [...set].sort().map(date => ({ date, ms: dayMs(date), items: [], pick: null, levels: ['GCOV'] }));
+  }
+
+  function showCalendarState(kind, title, body) {
+    const empty = !!kind;
+    calParts.forEach(el => { el.hidden = empty; });
+    calEmpty.hidden = !empty;
+    if (!empty) return;
+    calEmptyIcon.className = 'ph ' + (kind === 'loading' ? 'ph-circle-notch' : kind === 'error' ? 'ph-warning' : 'ph-magnifying-glass');
+    calEmptyTitle.textContent = title;
+    calEmptyBody.textContent = body;
+  }
+
+  async function loadDates() {
+    if (datesState === 'loading' || datesState === 'ready') return;
+    datesState = 'loading';
+    calStatus.textContent = 'Searching the archive';
+    showCalendarState('loading', 'Searching the ASF archive', 'Looking for NISAR passes over the Caspian Sea.');
 
     const b = CASPIAN_BBOX;
     const wkt = `POLYGON((${b.w} ${b.s},${b.e} ${b.s},${b.e} ${b.n},${b.w} ${b.n},${b.w} ${b.s}))`;
-    const url = `${ASF_BASE}?dataset=NISAR&processingLevel=GCOV,GUNW&intersectsWith=${encodeURIComponent(wkt)}&maxResults=250&output=geojson`;
+    const url = `${ASF_BASE}?dataset=NISAR&processingLevel=GCOV,GUNW&intersectsWith=${encodeURIComponent(wkt)}&maxResults=500&output=geojson`;
 
+    let list = [];
     try {
       const ac = new AbortController();
       const id = setTimeout(() => ac.abort(), 15000);
@@ -786,115 +1016,121 @@
       clearTimeout(id);
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const json = await res.json();
-      days = groupByDay((json.features || []).map(f => f.properties || {}));
-      nisarState = days.length ? 'ready' : 'empty';
-    } catch (e) {
-      days = [];
-      nisarState = 'error';
+      list = groupByDay((json.features || []).map(f => f.properties || {}));
+    } catch (e) { list = []; }
+
+    datesFromMosaic = false;
+    if (!list.length) {
+      await metaReady;
+      list = mosaicDays();
+      datesFromMosaic = list.length > 0;
     }
 
-    if (nisarState === 'ready') {
-      buildTimeline();
-      selectDay(days.length - 1);
-      setStatus(`${days.length} NISAR acquisition dates found over the Caspian Sea`, 4000);
-    } else {
-      renderPanelState();
-      dateBadge.textContent = 'None';
-      dateRange.disabled = true;
-      playBtn.disabled = true;
+    if (!list.length) {
+      datesState = 'error';
+      calStatus.textContent = 'No dates available';
+      showCalendarState('error', 'Could not load any dates',
+        'The archive search failed or was blocked by the browser. Close this panel and open it again to retry.');
+      return;
     }
+
+    days = list;
+    dayByMs = new Map(days.map((d, i) => [d.ms, i]));
+    datesState = 'ready';
+    const last = days[days.length - 1];
+    calYear = new Date(last.ms).getUTCFullYear();
+    calMonth = new Date(last.ms).getUTCMonth();
+    calStatus.textContent = datesFromMosaic
+      ? `${days.length} dates from the latest mosaic. The archive search was unreachable.`
+      : `${days.length} dates with NISAR data, ${fmtDate(days[0].ms)} to ${fmtDate(last.ms)}`;
+    showCalendarState(null);
+    buildList();
+    renderCalendar();
+    markSelection();
   }
 
-  function setEmpty(icon, title, body) {
-    emptyIcon.className = 'ph ' + icon;
-    emptyTitle.textContent = title;
-    emptyBody.textContent = body;
-    nisarImg.removeAttribute('src');
-    nisarImg.hidden = true;
-    nisarNoImg.hidden = false;
-  }
-
-  function renderPanelState() {
-    if (nisarState === 'loading') {
-      nisarDL.textContent = 'Searching';
-      nisarType.textContent = 'ASF archive';
-      setEmpty('ph-circle-notch', 'Searching the ASF archive', 'Looking for NISAR products over the Caspian Sea.');
-    } else if (nisarState === 'empty') {
-      nisarDL.textContent = 'None found';
-      nisarType.textContent = 'No product';
-      setEmpty('ph-magnifying-glass', 'No NISAR products found', 'The archive has no GCOV or GUNW products for this area yet. Check back after the next data release.');
-    } else if (nisarState === 'error') {
-      nisarDL.textContent = 'Unavailable';
-      nisarType.textContent = 'No product';
-      setEmpty('ph-warning', 'Could not reach the ASF archive', 'The search failed or was blocked by the browser. Reload the page to try again.');
+  /* ── Calendar ── */
+  function renderCalendar() {
+    const first = new Date(Date.UTC(calYear, calMonth, 1));
+    calTitle.textContent = first.toLocaleDateString('en-GB', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+    const lead = (first.getUTCDay() + 6) % 7;                       // week starts on Monday
+    const count = new Date(Date.UTC(calYear, calMonth + 1, 0)).getUTCDate();
+    calGrid.replaceChildren();
+    for (let i = 0; i < lead; i++) {
+      const blank = document.createElement('span');
+      blank.className = 'cal-blank';
+      calGrid.appendChild(blank);
     }
-  }
-
-  function buildTimeline() {
-    const t0 = days[0].ms;
-    const span = Math.max(1, (days[days.length - 1].ms - t0) / DAY_MS);
-    days.forEach(d => { d.offset = (d.ms - t0) / DAY_MS; });
-
-    dateRange.min = 0;
-    dateRange.max = span;
-    dateRange.step = 1;
-    dateRange.disabled = days.length < 2;
-    playBtn.disabled = days.length < 2;
-
-    tickMarks.replaceChildren();
-    calendarDates.replaceChildren();
-    calendarStatus.textContent = `${days.length} available acquisition dates`;
-    days.forEach(d => {
-      const t = document.createElement('span');
-      t.className = 'tick';
-      t.style.setProperty('--p', (d.offset / span).toFixed(5));
-      tickMarks.appendChild(t);
-      d.el = t;
-      const item = document.createElement('button');
-      item.type = 'button';
-      item.className = 'calendar-date';
-      item.textContent = fmtDate(d.ms);
-      item.addEventListener('click', () => selectDay(days.indexOf(d)));
-      calendarDates.appendChild(item);
-      d.calendarEl = item;
-    });
-    buildLabels(span);
-  }
-
-  function buildLabels(span) {
-    tickLabels.replaceChildren();
-    const t0 = days[0].ms;
-    const t1 = days[days.length - 1].ms;
-    const longSpan = span > 540;
-    const marks = [];
-    const cur = new Date(Date.UTC(new Date(t0).getUTCFullYear(), new Date(t0).getUTCMonth() + 1, 1));
-    while (cur.getTime() <= t1) {
-      const jan = cur.getUTCMonth() === 0;
-      if (!longSpan || jan) {
-        marks.push({
-          ms: cur.getTime(),
-          text: longSpan
-            ? String(cur.getUTCFullYear())
-            : cur.toLocaleDateString('en-GB', jan ? { month: 'short', year: 'numeric', timeZone: 'UTC' } : { month: 'short', timeZone: 'UTC' })
-        });
+    for (let d = 1; d <= count; d++) {
+      const ms = Date.UTC(calYear, calMonth, d);
+      const idx = dayByMs.get(ms);
+      const cell = document.createElement('button');
+      cell.type = 'button';
+      cell.className = 'cal-day';
+      cell.textContent = String(d);
+      if (idx === undefined) {
+        cell.disabled = true;
+        cell.setAttribute('aria-label', `${fmtDate(ms)}, no data`);
+      } else {
+        cell.classList.add('has-data');
+        cell.setAttribute('aria-label', `${fmtDate(ms)}, NISAR data available`);
+        cell.setAttribute('aria-pressed', String(idx === currentIdx));
+        cell.addEventListener('click', () => selectDay(idx));
       }
-      cur.setUTCMonth(cur.getUTCMonth() + 1);
+      calGrid.appendChild(cell);
     }
-    let use = marks;
-    if (marks.length > 6) {
-      const k = Math.ceil(marks.length / 6);
-      use = marks.filter((_, i) => i % k === 0);
+    const firstMonth = new Date(days[0].ms), lastMonth = new Date(days[days.length - 1].ms);
+    const key = calYear * 12 + calMonth;
+    calPrev.disabled = key <= firstMonth.getUTCFullYear() * 12 + firstMonth.getUTCMonth();
+    calNext.disabled = key >= lastMonth.getUTCFullYear() * 12 + lastMonth.getUTCMonth();
+  }
+
+  function shiftMonth(delta) {
+    const d = new Date(Date.UTC(calYear, calMonth + delta, 1));
+    calYear = d.getUTCFullYear();
+    calMonth = d.getUTCMonth();
+    renderCalendar();
+  }
+  calPrev.addEventListener('click', () => shiftMonth(-1));
+  calNext.addEventListener('click', () => shiftMonth(1));
+
+  const inWindow = (iso, w) => !!w && iso >= w[0] && iso <= w[1];
+
+  function buildList() {
+    dateList.replaceChildren();
+    for (let i = days.length - 1; i >= 0; i--) {
+      const d = days[i];
+      const row = document.createElement('button');
+      row.type = 'button';
+      row.className = 'date-row';
+      row.dataset.idx = String(i);
+      const when = document.createElement('span');
+      when.textContent = fmtDate(d.ms);
+      const count = document.createElement('span');
+      count.className = 'count';
+      count.textContent = d.items.length ? `${d.items.length} ${d.items.length === 1 ? 'product' : 'products'}` : (d.levels[0] || 'GCOV');
+      row.append(when, count);
+      const tag = meta && (inWindow(d.date, meta.before_date_window) ? 'Used in the before image'
+        : inWindow(d.date, meta.after_date_window) ? 'Used in the after image' : '');
+      if (tag) {
+        const t = document.createElement('span');
+        t.className = 'tag';
+        t.textContent = tag;
+        row.appendChild(t);
+      }
+      row.addEventListener('click', () => selectDay(i));
+      dateList.appendChild(row);
     }
-    if (!use.length) {
-      use = days.length > 1
-        ? [{ ms: t0, text: fmtDate(t0) }, { ms: t1, text: fmtDate(t1) }]
-        : [{ ms: t0, text: fmtDate(t0) }];
-    }
-    for (const m of use) {
-      const s = document.createElement('span');
-      s.textContent = m.text;
-      s.style.setProperty('--p', t1 > t0 ? ((m.ms - t0) / (t1 - t0)).toFixed(5) : '0');
-      tickLabels.appendChild(s);
+  }
+
+  function markSelection() {
+    dateList.querySelectorAll('.date-row').forEach(row => {
+      row.setAttribute('aria-pressed', String(Number(row.dataset.idx) === currentIdx));
+    });
+    if (days.length) {
+      renderCalendar();
+      datePrev.disabled = currentIdx === 0;
+      dateNext.disabled = currentIdx === days.length - 1;
     }
   }
 
@@ -902,87 +1138,78 @@
     if (!days.length) return;
     idx = clamp(idx, 0, days.length - 1);
     currentIdx = idx;
+    mosaicSide = null;
     const d = days[idx];
-    dateRange.value = d.offset;
+    calYear = new Date(d.ms).getUTCFullYear();
+    calMonth = new Date(d.ms).getUTCMonth();
+    comparisonButtons.forEach(b => { b.classList.remove('is-active'); b.setAttribute('aria-pressed', 'false'); });
+    if (panelBody.hidden) setPanelCollapsed(false);
 
-    days.forEach((x, i) => {
-      if (x.el) x.el.classList.toggle('is-selected', i === idx);
-      if (x.calendarEl) {
-        x.calendarEl.classList.toggle('is-selected', i === idx);
-        x.calendarEl.setAttribute('aria-pressed', i === idx ? 'true' : 'false');
-      }
-    });
-
-    dateBadge.textContent = fmtDate(d.ms);
-    nisarDL.textContent = fmtDate(d.ms);
-    nisarType.textContent = `${d.levels.join(', ') || 'NISAR'} (${d.items.length})`;
+    readoutLabel.textContent = 'Single pass';
+    readoutDate.textContent = fmtDate(d.ms);
+    factProduct.textContent = (d.levels.join(', ') || 'GCOV') + (d.items.length ? ` (${d.items.length})` : '');
+    explanation.textContent = `One NISAR pass on ${fmtDate(d.ms)}, shown as the archive's own radar preview. The red change layer on the globe belongs to the before and after comparison, not to this pass.`;
 
     const p = d.pick;
-    const name = p.granuleName || p.sceneName || p.fileID;
+    const name = p && (p.granuleName || p.sceneName || p.fileID);
     nisarLink.href = name ? `${VERTEX_URL}#/?granule=${encodeURIComponent(name)}` : VERTEX_URL;
 
-    const url = firstBrowse(p);
+    const url = p && firstBrowse(p);
     if (!url) {
-      setEmpty('ph-image', 'No browse image for this date', 'This product has no preview. Open it in ASF Vertex to see its footprint, or pick another date.');
-      return;
+      setPanelEmpty('ph-image', 'No preview for this date',
+        'This product has no browse image. Open it in ASF Vertex to see its footprint, or pick another date.');
+    } else {
+      setPanelImage(url, `NISAR radar preview from ${fmtDate(d.ms)}`);
     }
-    nisarNoImg.hidden = true;
-    nisarImg.hidden = false;
-    nisarImg.onerror = () => setEmpty('ph-image', 'The preview did not load', 'The archive may require an Earthdata login for this preview. Open it in ASF Vertex.');
-    nisarImg.src = url;
+    markSelection();
+    const row = dateList.querySelector(`.date-row[data-idx="${idx}"]`);
+    if (row) row.scrollIntoView({ block: 'nearest' });
   }
 
-  dateRange.addEventListener('input', () => {
+  function stepDate(dir) {
     if (!days.length) return;
-    const v = +dateRange.value;
-    let best = 0, bd = Infinity;
-    days.forEach((d, i) => {
-      const dd = Math.abs(d.offset - v);
-      if (dd < bd) { bd = dd; best = i; }
-    });
-    selectDay(best);
+    const next = currentIdx < 0 ? days.length - 1 : currentIdx + dir;
+    if (next < 0 || next >= days.length) return;
+    selectDay(next);
+  }
+  datePrev.addEventListener('click', () => stepDate(-1));
+  dateNext.addEventListener('click', () => stepDate(1));
+  document.addEventListener('keydown', e => {
+    if (timeline.hidden || (e.target && e.target.tagName === 'INPUT')) return;
+    if (e.key === 'ArrowLeft') { e.preventDefault(); stepDate(-1); }
+    if (e.key === 'ArrowRight') { e.preventDefault(); stepDate(1); }
   });
 
+  /* ── Open and close the calendar (button under the menu button) ── */
   function openHistory() {
+    closeMenu();
+    closeSettings();
     timeline.hidden = false;
-    nisarPanel.hidden = false;
     historyBtn.setAttribute('aria-expanded', 'true');
-    historyBtn.classList.add('is-active');
-    if (nisarState === 'idle') loadNisar(); else if (nisarState !== 'ready') renderPanelState();
+    loadDates();
   }
   function closeHistory() {
-    stopPlay();
     timeline.hidden = true;
-    nisarPanel.hidden = true;
     historyBtn.setAttribute('aria-expanded', 'false');
-    historyBtn.classList.remove('is-active');
   }
   historyBtn.addEventListener('click', () => (timeline.hidden ? openHistory() : closeHistory()));
-  comparisonButtons.forEach(button => button.addEventListener('click', () => {
-    const side = button.dataset.image;
-    comparisonImg.src = `https://raw.githubusercontent.com/MUSA-ANN1/DancingWithTheSARs/data/regions/caspian-sea/${side}.png`;
-    comparisonButtons.forEach(item => item.classList.toggle('is-active', item === button));
-  }));
   historyClose.addEventListener('click', closeHistory);
 
-  playBtn.addEventListener('click', () => (isPlaying ? stopPlay() : startPlay()));
-  function startPlay() {
-    if (days.length < 2) return;
-    isPlaying = true;
-    playIcon.hidden = true;
-    pauseIcon.hidden = false;
-    stepPlay();
+  /* ── Start-up after the intro ── */
+  function showMainUI() {
+    mainHead.hidden = false;
+    toolbar.hidden = false;
+    nisarPanel.hidden = false;
+    if (window.matchMedia('(max-width: 40rem)').matches) setPanelCollapsed(true);
+    initData();
   }
-  function stopPlay() {
-    isPlaying = false;
-    playIcon.hidden = false;
-    pauseIcon.hidden = true;
-    clearTimeout(playTimer);
-  }
-  function stepPlay() {
-    if (!isPlaying) return;
-    selectDay((currentIdx + 1) % days.length);
-    playTimer = setTimeout(stepPlay, PLAY_MS);
+
+  async function initData() {
+    metaReady = loadMeta();
+    await metaReady;
+    showMosaic('before');
+    loadChangeOverlay();
+    loadDates();
   }
 
   function frame(now) {

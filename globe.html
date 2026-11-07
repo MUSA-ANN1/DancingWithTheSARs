@@ -16,6 +16,7 @@
 
   <div id="globe-container"></div>
 
+  <!-- Intro: same position as the header so the title never jumps -->
   <div id="intro-overlay">
     <div id="intro-text">
       <p class="eyebrow">NASA Space Apps Challenge 2026</p>
@@ -24,17 +25,67 @@
     </div>
   </div>
 
-  <div class="head" id="main-head" hidden>
-    <p class="eyebrow">NASA Space Apps Challenge 2026</p>
-    <h1>Dancing with the SARs</h1>
-    <p class="lede">NISAR radar surface change over the Caspian Sea.</p>
+  <!-- Left rail: title, then the before/after panel under it -->
+  <div id="left-rail">
+    <div class="head" id="main-head" hidden>
+      <p class="eyebrow">NASA Space Apps Challenge 2026</p>
+      <h1>Dancing with the SARs</h1>
+      <p class="lede">NISAR radar surface change over the Caspian Sea.</p>
+    </div>
+
+    <section id="nisar-panel" aria-labelledby="panel-title" hidden>
+      <header class="panel-head">
+        <div>
+          <p class="kicker">NISAR L-band radar</p>
+          <h2 id="panel-title">Caspian Sea comparison</h2>
+        </div>
+        <button id="panel-toggle" class="icon-btn" type="button" aria-expanded="true" aria-controls="panel-body" aria-label="Collapse comparison panel">
+          <i class="ph ph-caret-up" aria-hidden="true"></i>
+        </button>
+      </header>
+
+      <div id="panel-body">
+        <figure id="compare-figure">
+          <img id="compare-img" alt="" referrerpolicy="no-referrer" hidden>
+          <div id="nisar-no-img">
+            <i id="nisar-empty-icon" class="ph ph-image" aria-hidden="true"></i>
+            <p id="nisar-empty-title" class="empty-title">Loading comparison</p>
+            <p id="nisar-empty-body" class="empty-body">Fetching the latest radar mosaics.</p>
+          </div>
+          <div class="compare-bar">
+            <div class="comparison-switch" role="group" aria-label="Choose comparison image">
+              <button type="button" class="comparison-option is-active" data-image="before" aria-pressed="true">Before</button>
+              <button type="button" class="comparison-option" data-image="after" aria-pressed="false">After</button>
+            </div>
+          </div>
+        </figure>
+
+        <div class="readout">
+          <p id="readout-label" class="readout-label">Before</p>
+          <p id="readout-date" class="readout-date">No date yet</p>
+        </div>
+
+        <dl class="facts">
+          <div><dt>Product</dt><dd id="fact-product">GCOV</dd></div>
+          <div><dt>Area</dt><dd id="fact-area">Caspian Sea basin</dd></div>
+        </dl>
+
+        <p id="comparison-explanation">Radar observations over the Caspian Sea. Choose Before or After to compare the two acquisition mosaics.</p>
+
+        <a id="nisar-link" href="https://search.asf.alaska.edu/" target="_blank" rel="noopener">
+          <span>Open in ASF Vertex</span>
+          <i class="ph ph-arrow-up-right" aria-hidden="true"></i>
+        </a>
+      </div>
+    </section>
   </div>
 
+  <!-- Top right: menu button, then historical imagery button, same size, icons only -->
   <div id="toolbar" hidden>
-    <button id="menu-btn" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="menu-panel">
+    <button id="menu-btn" class="tool-btn" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="menu-panel">
       <i class="ph ph-list" aria-hidden="true"></i>
     </button>
-    <button id="history-btn" type="button" aria-label="Open historical imagery" aria-expanded="false" aria-controls="timeline">
+    <button id="history-btn" class="tool-btn" type="button" aria-label="Open historical imagery" aria-expanded="false" aria-controls="timeline">
       <i class="ph ph-calendar-blank" aria-hidden="true"></i>
     </button>
     <div id="menu-panel" role="menu" hidden>
@@ -46,9 +97,9 @@
   </div>
 
   <section id="settings-panel" aria-labelledby="settings-title" hidden>
-    <div class="settings-heading">
+    <div class="panel-head">
       <h2 id="settings-title">Settings</h2>
-      <button id="settings-close" type="button" aria-label="Close settings"><i class="ph ph-x" aria-hidden="true"></i></button>
+      <button id="settings-close" class="icon-btn" type="button" aria-label="Close settings"><i class="ph ph-x" aria-hidden="true"></i></button>
     </div>
     <fieldset>
       <legend>Earth theme</legend>
@@ -58,36 +109,46 @@
     </fieldset>
   </section>
 
-  <aside id="timeline" aria-label="Historical imagery calendar" hidden>
-    <div class="calendar-heading">
-      <h2>Historical imagery</h2>
-      <button id="history-close" type="button" aria-label="Close historical imagery"><i class="ph ph-x" aria-hidden="true"></i></button>
-    </div>
-    <div id="calendar-status">Loading available dates…</div>
-    <div id="calendar-dates"></div>
-    <div hidden><button id="play-btn" type="button"><i id="play-icon"></i><i id="pause-icon" hidden></i></button><div id="slider-wrap"><div id="tick-labels"></div><div id="track"><div id="tick-marks"></div><input type="range" id="date-range" min="0" max="0" value="0" step="1"></div></div><div id="current-date-badge">None</div></div>
-  </aside>
+  <!-- Calendar: opens under the buttons and runs to the bottom -->
+  <aside id="timeline" aria-labelledby="calendar-title" hidden>
+    <header class="panel-head">
+      <div>
+        <h2 id="calendar-title">Historical imagery</h2>
+        <p id="calendar-status">Searching the archive</p>
+      </div>
+      <button id="history-close" class="icon-btn" type="button" aria-label="Close historical imagery"><i class="ph ph-x" aria-hidden="true"></i></button>
+    </header>
 
-  <section id="nisar-panel" aria-label="NISAR comparison" hidden>
-    <div class="comparison-heading">Caspian Sea comparison</div>
-    <div class="comparison-switch" role="group" aria-label="Choose comparison image">
-      <button type="button" class="comparison-option is-active" data-image="before">Before</button>
-      <button type="button" class="comparison-option" data-image="after">After</button>
-    </div>
-    <div id="nisar-img-wrap">
-      <img id="nisar-img" alt="NISAR radar browse image" referrerpolicy="no-referrer" hidden>
-      <img id="comparison-img" alt="NISAR radar comparison image" src="https://raw.githubusercontent.com/MUSA-ANN1/DancingWithTheSARs/data/regions/caspian-sea/before.png">
-      <div id="nisar-no-img" hidden>
-        <i id="nisar-empty-icon" class="ph ph-image" aria-hidden="true"></i>
-        <p id="nisar-empty-title" class="empty-title">No browse image for this date</p>
-        <p id="nisar-empty-body" class="empty-body">NISAR does not image every place every day.</p>
+    <div id="calendar-body">
+      <div class="cal-month">
+        <button id="cal-prev" class="icon-btn" type="button" aria-label="Previous month"><i class="ph ph-caret-left" aria-hidden="true"></i></button>
+        <h3 id="cal-title">Month</h3>
+        <button id="cal-next" class="icon-btn" type="button" aria-label="Next month"><i class="ph ph-caret-right" aria-hidden="true"></i></button>
+      </div>
+      <div class="cal-weekdays" aria-hidden="true"><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span></div>
+      <div id="cal-grid" role="group" aria-label="Days with NISAR data are enabled"></div>
+
+      <div class="cal-jump">
+        <button id="date-prev" class="text-btn" type="button"><i class="ph ph-arrow-left" aria-hidden="true"></i><span>Earlier</span></button>
+        <button id="date-next" class="text-btn" type="button"><span>Later</span><i class="ph ph-arrow-right" aria-hidden="true"></i></button>
+      </div>
+
+      <h3 class="list-title">All dates</h3>
+      <div id="calendar-dates"></div>
+
+      <div id="calendar-empty" hidden>
+        <i id="calendar-empty-icon" class="ph ph-magnifying-glass" aria-hidden="true"></i>
+        <p id="calendar-empty-title" class="empty-title">No dates found</p>
+        <p id="calendar-empty-body" class="empty-body">The archive returned nothing for this area.</p>
       </div>
     </div>
-    <div id="nisar-meta"><span id="nisar-date-label">None selected</span><span id="nisar-type">NISAR</span></div>
-    <p id="comparison-explanation">Radar observations over the Caspian Sea. Choose Before or After to compare the two acquisition mosaics.</p>
-    <a id="nisar-link" href="https://search.asf.alaska.edu/" target="_blank" rel="noopener"><span>Open in ASF Vertex</span><i class="ph ph-arrow-up-right" aria-hidden="true"></i></a>
-  </section>
-  <div id="change-legend" hidden><span class="change-swatch" aria-hidden="true"></span><span>Change</span></div>
+  </aside>
+
+  <!-- Bottom left: colour key. The same colour marks change on the map -->
+  <div id="change-legend" hidden>
+    <span class="change-swatch" aria-hidden="true"></span>
+    <span id="change-label">Change</span>
+  </div>
 
   <div id="status-bar" role="status" hidden>
     <span id="status-msg"></span>
@@ -106,6 +167,6 @@
 <script src="astro.js"></script>
 <script src="caspian-coastline.js?v=d746d94d"></script>
 
-<script src="app.js?v=hyperia-1"></script>
+<script src="app.js?v=hyperia-2"></script>
 </body>
 </html>
