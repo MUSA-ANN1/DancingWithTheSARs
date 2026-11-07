@@ -98,7 +98,7 @@ h1 {
   top: 0;
   bottom: 0;
   left: 0;
-  width: min(21rem, calc(100vw - var(--gutter) * 2));
+  width: min(calc(21rem + var(--gutter) * 2), 100%);
   display: flex;
   flex-direction: column;
   gap: var(--s3);
@@ -152,7 +152,7 @@ h3 { font-size: var(--step--1); font-weight: 600; color: var(--muted); }
   padding: var(--s2);
   gap: var(--s2);
 }
-#panel-body { display: flex; flex-direction: column; gap: var(--s2); min-height: 0; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
+#panel-body { display: flex; flex: 1 1 auto; flex-direction: column; gap: var(--s2); min-height: 0; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
 
 #compare-figure {
   position: relative;
