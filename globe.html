@@ -88,12 +88,36 @@
     <button id="history-btn" class="tool-btn" type="button" aria-label="Open historical imagery" aria-expanded="false" aria-controls="timeline">
       <i class="ph ph-calendar-blank" aria-hidden="true"></i>
     </button>
-    <div id="menu-panel" role="menu" hidden>
-      <button id="settings-btn" type="button" role="menuitem" aria-expanded="false" aria-controls="settings-panel">
-        <i class="ph ph-sliders-horizontal" aria-hidden="true"></i>
-        <span>Settings</span>
+    <nav id="menu-panel" aria-label="Main menu" hidden>
+      <div class="menu-heading">
+        <span class="menu-eyebrow">HYPERIA · NISAR</span>
+        <strong>Explore the Caspian</strong>
+      </div>
+      <div class="menu-section-label">WORKSPACE</div>
+      <button id="settings-btn" class="menu-item" type="button" aria-expanded="false" aria-controls="settings-panel">
+        <span class="menu-icon"><i class="ph ph-sliders-horizontal" aria-hidden="true"></i></span>
+        <span class="menu-copy"><strong>Settings</strong><small>Earth display and appearance</small></span>
+        <i class="ph ph-caret-right menu-arrow" aria-hidden="true"></i>
       </button>
-    </div>
+      <button id="menu-history-btn" class="menu-item" type="button">
+        <span class="menu-icon"><i class="ph ph-calendar-blank" aria-hidden="true"></i></span>
+        <span class="menu-copy"><strong>Historical imagery</strong><small>Browse available observation dates</small></span>
+        <i class="ph ph-caret-right menu-arrow" aria-hidden="true"></i>
+      </button>
+      <div class="menu-divider"></div>
+      <div class="menu-section-label">PROJECT</div>
+      <a class="menu-item menu-link" href="https://github.com/MUSA-ANN1/DancingWithTheSARs" target="_blank" rel="noopener">
+        <span class="menu-icon"><i class="ph ph-github-logo" aria-hidden="true"></i></span>
+        <span class="menu-copy"><strong>GitHub repository</strong><small>Source code and documentation</small></span>
+        <i class="ph ph-arrow-up-right menu-arrow" aria-hidden="true"></i>
+      </a>
+      <a class="menu-item menu-link" href="https://github.com/MUSA-ANN1/DancingWithTheSARs/tree/data/regions/caspian-sea" target="_blank" rel="noopener">
+        <span class="menu-icon"><i class="ph ph-database" aria-hidden="true"></i></span>
+        <span class="menu-copy"><strong>Processed data</strong><small>GitHub Actions outputs</small></span>
+        <i class="ph ph-arrow-up-right menu-arrow" aria-hidden="true"></i>
+      </a>
+      <div class="menu-footer"><span class="menu-status-dot"></span> Processed data · GitHub</div>
+    </nav>
   </div>
 
   <section id="settings-panel" aria-labelledby="settings-title" hidden>
