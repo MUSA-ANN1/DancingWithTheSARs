@@ -240,23 +240,58 @@ h3 { font-size: var(--step--1); font-weight: 600; color: var(--muted); }
   position: absolute;
   top: 0;
   right: calc(var(--tool) + var(--s1));
-  width: 12rem;
-  padding: var(--s1);
+  display: grid;
+  gap: 0.25rem;
+  width: min(19rem, calc(100vw - var(--tool) - var(--gutter) * 2 - var(--s2)));
+  padding: 0.65rem;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
+  -webkit-backdrop-filter: blur(22px) saturate(145%);
+  backdrop-filter: blur(22px) saturate(145%);
+  box-shadow: 0 18px 55px rgb(0 0 0 / 22%), 0 2px 8px rgb(0 0 0 / 10%);
+  transform-origin: top right;
 }
-#settings-btn {
+#menu-panel:not([hidden]) { animation: menu-enter 220ms cubic-bezier(.2,.8,.2,1) both; }
+@keyframes menu-enter {
+  from { opacity: 0; transform: translateY(-8px) scale(.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.menu-heading { display: grid; gap: 0.2rem; padding: 0.8rem 0.8rem 0.95rem; }
+.menu-eyebrow, .menu-section-label { color: var(--muted); font-size: 0.62rem; font-weight: 700; letter-spacing: .13em; }
+.menu-heading strong { font-family: var(--font-display); font-size: 1.05rem; letter-spacing: -.02em; }
+.menu-section-label { padding: 0.35rem 0.8rem 0.15rem; }
+.menu-item {
   display: flex;
   align-items: center;
-  gap: var(--s1);
+  gap: 0.75rem;
   width: 100%;
-  padding: var(--s1) 0.75rem;
+  min-height: 3.45rem;
+  padding: 0.55rem 0.7rem;
+  color: var(--text);
   background: transparent;
-  border: 0;
-  border-radius: var(--radius);
-  font-size: var(--step--1);
-  font-weight: 500;
+  border: 1px solid transparent;
+  border-radius: calc(var(--radius) * .8);
   text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 160ms ease, border-color 160ms ease, transform 160ms ease;
 }
-#settings-btn .ph { font-size: var(--step-1); }
+.menu-item:hover, .menu-item:focus-visible {
+  background: color-mix(in srgb, var(--accent) 9%, var(--surface));
+  border-color: color-mix(in srgb, var(--accent) 28%, var(--line));
+}
+.menu-item:active { transform: scale(.985); }
+.menu-icon { display: grid; place-items: center; flex: none; width: 2.25rem; height: 2.25rem; border: 1px solid var(--line); border-radius: .7rem; background: color-mix(in srgb, var(--surface) 70%, var(--line)); font-size: 1.15rem; }
+.menu-copy { display: grid; flex: 1; gap: .12rem; min-width: 0; }
+.menu-copy strong { font-size: .83rem; font-weight: 650; }
+.menu-copy small { color: var(--muted); font-size: .7rem; line-height: 1.35; }
+.menu-arrow { color: var(--muted); font-size: .9rem; }
+.menu-divider { height: 1px; margin: .35rem .7rem; background: var(--line); }
+.menu-footer { display: flex; align-items: center; gap: .5rem; padding: .65rem .8rem .35rem; color: var(--muted); font-size: .68rem; }
+.menu-status-dot { width: .42rem; height: .42rem; border-radius: 50%; background: #35b779; box-shadow: 0 0 0 3px rgb(53 183 121 / 14%); }
+#menu-btn { transition: transform 180ms ease, border-color 180ms ease, background 180ms ease; }
+#menu-btn[aria-expanded="true"] { transform: rotate(90deg); background: color-mix(in srgb, var(--accent) 10%, var(--surface)); }
+#settings-panel:not([hidden]) { animation: menu-enter 200ms cubic-bezier(.2,.8,.2,1) both; }
 
 #settings-panel {
   position: absolute;
