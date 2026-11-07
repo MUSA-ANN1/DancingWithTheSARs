@@ -971,7 +971,7 @@
       if (pair.after) set.add(String(pair.after).slice(0, 10));
     });
     return [...set]
-      .filter(date => /^\\d{4}-\\d{2}-\\d{2}$/.test(date) && Number.isFinite(dayMs(date)))
+      .filter(date => /^\d{4}-\d{2}-\d{2}$/.test(date) && Number.isFinite(dayMs(date)))
       .sort()
       .map(date => ({ date, ms: dayMs(date), items: [], pick: null, levels: ['GCOV'] }));
   }
