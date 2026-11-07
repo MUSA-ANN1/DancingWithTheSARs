@@ -838,17 +838,21 @@
     return base + change + ' Screening result, not a confirmed shoreline change.';
   }
 
-  function showMosaic(side) {
+  function showMosaic(side, selectedDate = null) {
     mosaicSide = side;
-    currentIdx = -1;
+    currentIdx = selectedDate ? currentIdx : -1;
     comparisonButtons.forEach(b => {
-      const on = b.dataset.image === side;
+      const on = b.dataset.image === side && !selectedDate;
       b.classList.toggle('is-active', on);
       b.setAttribute('aria-pressed', String(on));
     });
-    readoutLabel.textContent = side === 'before' ? 'Before' : 'After';
-    nisarLink.href = VERTEX_URL;
-    explanation.textContent = mosaicText();
+    readoutLabel.textContent = selectedDate
+      ? `GitHub processed · ${side === 'before' ? 'Before' : 'After'}`
+      : (side === 'before' ? 'Before' : 'After');
+    nisarLink.href = 'https://github.com/MUSA-ANN1/DancingWithTheSARs/tree/data/regions/caspian-sea';
+    explanation.textContent = selectedDate
+      ? `Calendar selection: ${fmtIso(selectedDate)}. The panel continues to show the GitHub-processed ${side} composite; individual raw ASF browse images are not displayed.`
+      : mosaicText();
     markSelection();
 
     if (!meta) {
@@ -860,10 +864,10 @@
     const win = side === 'before' ? meta.before_date_window : meta.after_date_window;
     const one = side === 'before' ? meta.before : meta.after;
     readoutDate.textContent = win ? fmtRange(win[0], win[1]) : fmtRange(one);
-    factProduct.textContent = ['GCOV', meta.pol].filter(Boolean).join(' ');
+    factProduct.textContent = ['GitHub processed GCOV', meta.pol].filter(Boolean).join(' · ');
     factArea.textContent = Array.isArray(meta.bbox) ? fmtArea(meta.bbox) : 'Caspian Sea basin';
     const file = (meta.images && meta.images[side]) || side + '.png';
-    setPanelImage(DATA_BASE + file, `NISAR radar mosaic of the Caspian Sea, ${side} image`);
+    setPanelImage(DATA_BASE + file, `GitHub-processed NISAR radar mosaic of the Caspian Sea, ${side} composite`);
   }
   comparisonButtons.forEach(b => b.addEventListener('click', () => showMosaic(b.dataset.image)));
 
@@ -1110,8 +1114,8 @@
       count.className = 'count';
       count.textContent = d.items.length ? `${d.items.length} ${d.items.length === 1 ? 'product' : 'products'}` : (d.levels[0] || 'GCOV');
       row.append(when, count);
-      const tag = meta && (inWindow(d.date, meta.before_date_window) ? 'Used in the before image'
-        : inWindow(d.date, meta.after_date_window) ? 'Used in the after image' : '');
+      const tag = meta && (inWindow(d.date, meta.before_date_window) ? 'Nearest processed window: before'
+        : inWindow(d.date, meta.after_date_window) ? 'Nearest processed window: after' : 'Opens nearest GitHub composite');
       if (tag) {
         const t = document.createElement('span');
         t.className = 'tag';
@@ -1145,22 +1149,17 @@
     comparisonButtons.forEach(b => { b.classList.remove('is-active'); b.setAttribute('aria-pressed', 'false'); });
     if (panelBody.hidden) setPanelCollapsed(false);
 
-    readoutLabel.textContent = 'Single pass';
-    readoutDate.textContent = fmtDate(d.ms);
-    factProduct.textContent = (d.levels.join(', ') || 'GCOV') + (d.items.length ? ` (${d.items.length})` : '');
-    explanation.textContent = `One NISAR pass on ${fmtDate(d.ms)}, shown as the archive's own radar preview. The red change layer on the globe belongs to the before and after comparison, not to this pass.`;
-
-    const p = d.pick;
-    const name = p && (p.granuleName || p.sceneName || p.fileID);
-    nisarLink.href = name ? `${VERTEX_URL}#/?granule=${encodeURIComponent(name)}` : VERTEX_URL;
-
-    const url = p && firstBrowse(p);
-    if (!url) {
-      setPanelEmpty('ph-image', 'No preview for this date',
-        'This product has no browse image. Open it in ASF Vertex to see its footprint, or pick another date.');
-    } else {
-      setPanelImage(url, `NISAR radar preview from ${fmtDate(d.ms)}`);
-    }
+    // Calendar dates are archive metadata only. The comparison panel always uses
+    // processed files published by the GitHub Actions pipeline, never ASF browse images.
+    const distanceToWindow = (date, window) => {
+      if (!window || window.length < 2) return Number.POSITIVE_INFINITY;
+      if (date >= window[0] && date <= window[1]) return 0;
+      return Math.min(Math.abs(dayMs(date) - dayMs(window[0])), Math.abs(dayMs(date) - dayMs(window[1])));
+    };
+    const beforeDistance = distanceToWindow(d.date, meta && meta.before_date_window);
+    const afterDistance = distanceToWindow(d.date, meta && meta.after_date_window);
+    const side = beforeDistance <= afterDistance ? 'before' : 'after';
+    showMosaic(side, d.date);
     markSelection();
     const row = dateList.querySelector(`.date-row[data-idx="${idx}"]`);
     if (row) row.scrollIntoView({ block: 'nearest' });
