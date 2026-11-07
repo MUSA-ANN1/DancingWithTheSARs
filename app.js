@@ -7,7 +7,6 @@
   const A = window.Astro;
 
   const CASPIAN = { lon: 50.7, lat: 41.8 };
-  const CASPIAN_BBOX = { w: 46.5, s: 36.4, e: 55.0, n: 47.5 };
   const INTRO_MS = 6500;
   const START_DIST = 11;
   const END_DIST = 1.55;
@@ -20,7 +19,6 @@
   const SKY_RADIUS = 2000;
   const MILKY_RADIUS = 3000;
 
-  const ASF_BASE = 'https://api.daac.asf.alaska.edu/services/search/param';
   const VERTEX_URL = 'https://search.asf.alaska.edu/';
 
   const STAR_URLS = [
@@ -753,7 +751,7 @@
     });
   }
 
-  /* ── Data: before/after mosaic from the data branch, dates from the ASF archive ── */
+  /* ── Data: processed before/after mosaic and worked acquisition dates ── */
   const DATA_BASE = 'https://raw.githubusercontent.com/MUSA-ANN1/DancingWithTheSARs/data/regions/caspian-sea/';
   const ACCENT_RGB = [252, 61, 33];          // NASA red, the one accent colour
 
@@ -764,15 +762,10 @@
   let dayByMs = new Map();
   let currentIdx = -1;
   let datesState = 'idle';                   // idle | loading | ready | error
-  let datesFromMosaic = false;
   let calYear = new Date().getUTCFullYear();
   let calMonth = new Date().getUTCMonth();
   let imgToken = 0;
 
-  const firstBrowse = p => {
-    if (Array.isArray(p.browse)) return p.browse.find(Boolean) || null;
-    return typeof p.browse === 'string' ? p.browse : null;
-  };
   const dayMs = iso => Date.parse(String(iso).slice(0, 10) + 'T00:00:00Z');
   const fmtDate = ms => new Date(ms).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
   const fmtIso = iso => fmtDate(dayMs(iso));
@@ -969,32 +962,18 @@
     scene.add(changeMesh);
   }
 
-  /* ── Available dates (ASF archive, falling back to the dates inside the mosaic) ── */
-  function groupByDay(features) {
-    const map = new Map();
-    for (const p of features) {
-      const st = String(p.startTime || '');
-      if (st.length < 10) continue;
-      const key = st.slice(0, 10);
-      if (!map.has(key)) map.set(key, []);
-      map.get(key).push(p);
-    }
-    return [...map.entries()]
-      .sort((a, b) => (a[0] < b[0] ? -1 : 1))
-      .map(([date, items]) => ({
-        date,
-        ms: dayMs(date),
-        items,
-        pick: items.find(firstBrowse) || items[0],
-        levels: [...new Set(items.map(i => i.processingLevel).filter(Boolean))]
-      }));
-  }
-
+  /* ── Worked dates: acquisition dates used by the published processing run ── */
   function mosaicDays() {
-    if (!meta) return [];
-    const set = new Set([meta.before, meta.after].filter(Boolean));
-    (meta.frame_pair_dates || []).forEach(p => { if (p.before) set.add(p.before); if (p.after) set.add(p.after); });
-    return [...set].sort().map(date => ({ date, ms: dayMs(date), items: [], pick: null, levels: ['GCOV'] }));
+    if (!meta || !Array.isArray(meta.frame_pair_dates)) return [];
+    const set = new Set();
+    meta.frame_pair_dates.forEach(pair => {
+      if (pair.before) set.add(String(pair.before).slice(0, 10));
+      if (pair.after) set.add(String(pair.after).slice(0, 10));
+    });
+    return [...set]
+      .filter(date => /^\\d{4}-\\d{2}-\\d{2}$/.test(date) && Number.isFinite(dayMs(date)))
+      .sort()
+      .map(date => ({ date, ms: dayMs(date), items: [], pick: null, levels: ['GCOV'] }));
   }
 
   function showCalendarState(kind, title, body) {
@@ -1010,36 +989,18 @@
   async function loadDates() {
     if (datesState === 'loading' || datesState === 'ready') return;
     datesState = 'loading';
-    calStatus.textContent = 'Searching the archive';
-    showCalendarState('loading', 'Searching the ASF archive', 'Looking for NISAR passes over the Caspian Sea.');
+    calStatus.textContent = 'Loading processed dates';
+    showCalendarState('loading', 'Loading processed dates',
+      'Reading the acquisition dates used by the latest NISAR processing run.');
 
-    const b = CASPIAN_BBOX;
-    const wkt = `POLYGON((${b.w} ${b.s},${b.e} ${b.s},${b.e} ${b.n},${b.w} ${b.n},${b.w} ${b.s}))`;
-    const url = `${ASF_BASE}?dataset=NISAR&processingLevel=GCOV,GUNW&intersectsWith=${encodeURIComponent(wkt)}&maxResults=500&output=geojson`;
-
-    let list = [];
-    try {
-      const ac = new AbortController();
-      const id = setTimeout(() => ac.abort(), 15000);
-      const res = await fetch(url, { signal: ac.signal });
-      clearTimeout(id);
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      const json = await res.json();
-      list = groupByDay((json.features || []).map(f => f.properties || {}));
-    } catch (e) { list = []; }
-
-    datesFromMosaic = false;
-    if (!list.length) {
-      await metaReady;
-      list = mosaicDays();
-      datesFromMosaic = list.length > 0;
-    }
+    await metaReady;
+    const list = mosaicDays();
 
     if (!list.length) {
       datesState = 'error';
-      calStatus.textContent = 'No dates available';
-      showCalendarState('error', 'Could not load any dates',
-        'The archive search failed or was blocked by the browser. Close this panel and open it again to retry.');
+      calStatus.textContent = 'No processed dates available';
+      showCalendarState('error', 'No processed dates available',
+        'The latest processing metadata does not contain matched acquisition dates.');
       return;
     }
 
@@ -1049,9 +1010,7 @@
     const last = days[days.length - 1];
     calYear = new Date(last.ms).getUTCFullYear();
     calMonth = new Date(last.ms).getUTCMonth();
-    calStatus.textContent = datesFromMosaic
-      ? `${days.length} dates from the latest mosaic. The archive search was unreachable.`
-      : `${days.length} dates with NISAR data, ${fmtDate(days[0].ms)} to ${fmtDate(last.ms)}`;
+    calStatus.textContent = `${days.length} worked acquisition dates · ${fmtDate(days[0].ms)} to ${fmtDate(last.ms)}`;
     showCalendarState(null);
     buildList();
     renderCalendar();
