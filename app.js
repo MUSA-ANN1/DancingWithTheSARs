@@ -42,6 +42,7 @@
   const menuBtn = $('#menu-btn');
   const menuPanel = $('#menu-panel');
   const settingsBtn = $('#settings-btn');
+  const menuHistoryBtn = $('#menu-history-btn');
   const settingsClose = $('#settings-close');
   const settingsPanel = $('#settings-panel');
   const themeInputs = Array.from(document.querySelectorAll('input[name="earth-theme"]'));
@@ -685,6 +686,10 @@
     closeSettings();
     menuPanel.hidden = !opening;
     menuBtn.setAttribute('aria-expanded', String(opening));
+  });
+  menuHistoryBtn.addEventListener('click', () => {
+    closeMenu();
+    openHistory();
   });
   settingsBtn.addEventListener('click', () => {
     closeMenu();
