@@ -98,11 +98,11 @@ h1 {
   top: 0;
   bottom: 0;
   left: 0;
-  width: min(100%, 28rem);
+  width: min(21rem, calc(100vw - var(--gutter) * 2));
   display: flex;
   flex-direction: column;
   gap: var(--s3);
-  padding: calc(var(--s3) + var(--safe-t)) var(--gutter) calc(var(--s3) + 3.5rem + var(--safe-b)) calc(var(--gutter) + var(--safe-l));
+  padding: calc(var(--s3) + var(--safe-t)) var(--gutter) calc(var(--s3) + 2.5rem + var(--s1) + var(--safe-b)) calc(var(--gutter) + var(--safe-l));
   pointer-events: none;
 }
 #left-rail > * { pointer-events: auto; }
@@ -146,6 +146,7 @@ h3 { font-size: var(--step--1); font-weight: 600; color: var(--muted); }
 
 #nisar-panel {
   display: flex;
+  flex: 1 1 auto;
   flex-direction: column;
   min-height: 0;
   padding: var(--s2);
@@ -155,8 +156,9 @@ h3 { font-size: var(--step--1); font-weight: 600; color: var(--muted); }
 
 #compare-figure {
   position: relative;
-  flex: none;
-  height: clamp(9rem, 22vh, 14rem);
+  flex: 1 1 auto;
+  min-height: 12rem;
+  height: auto;
   background: var(--space);
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -390,8 +392,9 @@ h3 { font-size: var(--step--1); font-weight: 600; color: var(--muted); }
 @media (max-width: 40rem) {
   h1 { font-size: var(--step-3); }
   .lede { display: none; }
-  #left-rail { width: calc(100% - var(--tool) - var(--s1) - var(--gutter)); padding-right: var(--s1); padding-bottom: calc(var(--s3) + 3rem + var(--safe-b)); gap: var(--s2); }
-  #compare-figure { height: clamp(9rem, 22vh, 14rem); }
+  #left-rail { width: calc(100% - var(--tool) - var(--s1) - var(--gutter)); padding-right: var(--s1); padding-bottom: calc(var(--s2) + 2.5rem + var(--s1) + var(--safe-b)); gap: var(--s2); }
+  #nisar-panel { flex: 1 1 auto; }
+  #compare-figure { flex: 1 1 auto; min-height: 10rem; height: auto; }
   #timeline {
     top: auto;
     left: var(--gutter);
