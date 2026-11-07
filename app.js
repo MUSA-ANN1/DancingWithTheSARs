@@ -1050,7 +1050,9 @@
     const firstMonth = new Date(days[0].ms), lastMonth = new Date(days[days.length - 1].ms);
     const key = calYear * 12 + calMonth;
     calPrev.disabled = key <= firstMonth.getUTCFullYear() * 12 + firstMonth.getUTCMonth();
-    calNext.disabled = key >= lastMonth.getUTCFullYear() * 12 + lastMonth.getUTCMonth();
+    const now = new Date();
+    const currentMonthKey = now.getUTCFullYear() * 12 + now.getUTCMonth();
+    calNext.disabled = key >= currentMonthKey;
   }
 
   function shiftMonth(delta) {
