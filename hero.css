@@ -109,9 +109,12 @@ ol {
 }
 
 .bar__name {
+  display: inline-block;
+  padding-block: 0.08em 0.14em;
   font-family: var(--font-display);
   font-size: var(--step-1);
   font-weight: 700;
+  line-height: 1.2;
   color: var(--text);
   text-decoration: none;
 }
@@ -155,11 +158,15 @@ ol {
   content: "";
   position: absolute;
   z-index: -1;
-  inset: -2rem -10vw 0;
+  top: -2rem;
+  bottom: 0;
+  left: 50%;
+  width: 100vw;
+  transform: translateX(-50%);
   pointer-events: none;
   background:
-    radial-gradient(ellipse at 78% 42%, rgb(124 196 255 / 10%), transparent 42%),
-    linear-gradient(90deg, var(--bg) 0%, var(--bg) 42%, rgb(20 24 27 / 0%) 100%);
+    radial-gradient(ellipse at 82% 42%, rgb(124 196 255 / 13%), transparent 42%),
+    linear-gradient(90deg, var(--bg) 0%, var(--bg) 34%, rgb(20 24 27 / 0%) 100%);
 }
 
 .hero__headline {
@@ -227,7 +234,7 @@ ol {
 
   .hero::before {
     background:
-      radial-gradient(ellipse at 80% 40%, rgb(124 196 255 / 9%), transparent 48%),
+      radial-gradient(ellipse at 82% 40%, rgb(124 196 255 / 11%), transparent 48%),
       linear-gradient(90deg, var(--bg) 0%, rgb(20 24 27 / 92%) 48%, rgb(20 24 27 / 0%) 100%);
   }
 }
@@ -501,14 +508,43 @@ ol {
   opacity: 1;
   transform: translateX(0);
 }
-.enter:focus-visible { outline-color: var(--text); }
+ .enter:focus-visible { outline-color: var(--text); }
+
+.enter.is-opening {
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  padding: 0;
+  justify-content: center;
+  gap: 1rem;
+  border-radius: 0;
+  box-shadow: none;
+  transform: none;
+  transition:
+    width 620ms cubic-bezier(.16,1,.3,1),
+    height 620ms cubic-bezier(.16,1,.3,1),
+    right 620ms cubic-bezier(.16,1,.3,1),
+    bottom 620ms cubic-bezier(.16,1,.3,1),
+    border-radius 620ms ease,
+    background-color 300ms ease;
+}
+.enter.is-opening .enter__label,
+.enter.is-opening .enter__arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+.enter.is-opening .enter__icon { transform: scale(1.25); }
+.enter__icon { transition: transform 400ms ease; }
 
 @media (hover: none) {
   .enter { width: 3.75rem; }
   .enter:active { transform: scale(.96); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .enter, .enter__label, .enter__arrow { transition: none; }
+  .enter, .enter__label, .enter__arrow, .enter__icon { transition: none; }
+  .enter.is-opening { transition: none; }
 }
 .hyperia-icon {
     width: 26px;
