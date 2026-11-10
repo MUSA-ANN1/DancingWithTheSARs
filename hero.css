@@ -362,32 +362,72 @@ ol {
   margin-bottom: var(--s-1);
 }
 
-/* Entry button, bottom right on every screen size */
+/* Circular globe launcher: expands left like a sliding paper tab */
 .enter {
   position: fixed;
   right: max(var(--s-2), env(safe-area-inset-right));
   bottom: max(var(--s-2), env(safe-area-inset-bottom));
   z-index: 10;
-  display: inline-flex;
+  width: 3.75rem;
+  height: 3.75rem;
+  display: flex;
   align-items: center;
-  gap: var(--s-1);
-  min-height: 3rem;
-  padding: 0.75rem 1.25rem;
+  justify-content: flex-start;
+  gap: 0.7rem;
+  padding: 0 1.1rem;
+  overflow: hidden;
+  white-space: nowrap;
   background: var(--accent);
   color: var(--on-accent);
-  border-radius: var(--radius);
+  border-radius: 999px;
   font-family: var(--font-body);
   font-size: var(--step-0);
   font-weight: 600;
   text-decoration: none;
+  box-shadow: 0 8px 28px #0006;
+  transition: width 420ms cubic-bezier(.2,.8,.2,1), border-radius 420ms ease,
+    box-shadow 250ms ease, transform 250ms ease;
 }
 
-.enter .ph {
-  font-size: var(--step-1);
+.enter__icon {
+  flex: 0 0 1.5rem;
+  width: 1.5rem;
+  display: grid;
+  place-items: center;
 }
-
+.enter__icon .ph { font-size: 1.5rem; }
+.enter__label {
+  opacity: 0;
+  transform: translateX(1.1rem);
+  transition: opacity 180ms ease, transform 350ms cubic-bezier(.2,.8,.2,1);
+}
+.enter__arrow {
+  opacity: 0;
+  transform: translateX(0.5rem);
+  transition: opacity 180ms ease 70ms, transform 350ms ease 70ms;
+}
+.enter:hover,
 .enter:focus-visible {
-  outline-color: var(--text);
+  width: 13.5rem;
+  border-radius: 999px;
+  box-shadow: 0 12px 34px #0008;
+  transform: translateY(-2px);
+}
+.enter:hover .enter__label,
+.enter:focus-visible .enter__label,
+.enter:hover .enter__arrow,
+.enter:focus-visible .enter__arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+.enter:focus-visible { outline-color: var(--text); }
+
+@media (hover: none) {
+  .enter { width: 3.75rem; }
+  .enter:active { transform: scale(.96); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .enter, .enter__label, .enter__arrow { transition: none; }
 }
 .hyperia-icon {
     width: 26px;
