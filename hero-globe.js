@@ -89,7 +89,7 @@
     const point = new THREE.Vector3();
     for (let i = 0; i < vertices.count; i++) {
       point.set(vertices.getX(i), vertices.getY(i), 0);
-      const lon = point.x * Math.PI / 180;
+      const lon = (point.x + 180) * Math.PI / 180;
       const lat = point.y * Math.PI / 180;
       const r = 1.006;
       vertices.setXYZ(i, -r * Math.cos(lat) * Math.sin(lon), r * Math.sin(lat), r * Math.cos(lat) * Math.cos(lon));
@@ -98,10 +98,10 @@
     geometry.computeVertexNormals();
     const fill = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
       color: 0x0B3D91, transparent: true, opacity: 0.72,
-      side: THREE.DoubleSide, depthWrite: false, depthTest: false,
+      side: THREE.DoubleSide, depthWrite: false, depthTest: true,
       polygonOffset: true, polygonOffsetFactor: -2
     }));
-    fill.renderOrder = 10;
+    fill.renderOrder = 5;
     globe.add(fill);
   }
 
@@ -111,11 +111,15 @@
     const positions = [];
     for (const line of (mesh.coordinates || [])) {
       for (let i = 1; i < line.length; i++) {
-        const point = ([lon, lat]) => new THREE.Vector3(
-          -Math.cos(lat * Math.PI / 180) * Math.sin(lon * Math.PI / 180),
-          Math.sin(lat * Math.PI / 180),
-          Math.cos(lat * Math.PI / 180) * Math.cos(lon * Math.PI / 180)
-        ).multiplyScalar(1.003);
+        const point = ([lon, lat]) => {
+          const phi = (lon + 180) * Math.PI / 180;
+          const theta = lat * Math.PI / 180;
+          return new THREE.Vector3(
+            -Math.cos(theta) * Math.sin(phi),
+            Math.sin(theta),
+            Math.cos(theta) * Math.cos(phi)
+          ).multiplyScalar(1.003);
+        };
         const a = point(line[i - 1]), b = point(line[i]);
         positions.push(a.x, a.y, a.z, b.x, b.y, b.z);
       }
