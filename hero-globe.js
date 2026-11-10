@@ -2,7 +2,6 @@
   const host = document.getElementById('hero-globe');
   if (!host || !window.THREE) return;
 
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const W = 2048, H = 1024;
   const globe = new THREE.Group();
   const sunDirection = new THREE.Vector3(-0.55, 0.32, 0.77).normalize();
@@ -231,7 +230,7 @@
   function render() {
     requestAnimationFrame(render);
     const delta = Math.min(clock.getDelta(), 0.05);
-    if (!reducedMotion) globe.rotation.y += delta * 0.11;
+    globe.rotation.y += delta * 0.18;
     renderer.render(scene, camera);
   }
   render();
