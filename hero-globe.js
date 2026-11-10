@@ -93,7 +93,7 @@
       const lon = point.x * Math.PI / 180;
       const lat = point.y * Math.PI / 180;
       const r = 1.006;
-      vertices.setXYZ(i, r * Math.cos(lat) * Math.cos(lon), r * Math.sin(lat), -r * Math.cos(lat) * Math.sin(lon));
+      vertices.setXYZ(i, -r * Math.cos(lat) * Math.sin(lon), r * Math.sin(lat), r * Math.cos(lat) * Math.cos(lon));
     }
     vertices.needsUpdate = true;
     geometry.computeVertexNormals();
@@ -113,9 +113,9 @@
     for (const line of (mesh.coordinates || [])) {
       for (let i = 1; i < line.length; i++) {
         const point = ([lon, lat]) => new THREE.Vector3(
-          Math.cos(lat * Math.PI / 180) * Math.cos(lon * Math.PI / 180),
+          -Math.cos(lat * Math.PI / 180) * Math.sin(lon * Math.PI / 180),
           Math.sin(lat * Math.PI / 180),
-          -Math.cos(lat * Math.PI / 180) * Math.sin(lon * Math.PI / 180)
+          Math.cos(lat * Math.PI / 180) * Math.cos(lon * Math.PI / 180)
         ).multiplyScalar(1.003);
         const a = point(line[i - 1]), b = point(line[i]);
         positions.push(a.x, a.y, a.z, b.x, b.y, b.z);
@@ -231,7 +231,7 @@
   function render() {
     requestAnimationFrame(render);
     const delta = Math.min(clock.getDelta(), 0.05);
-    if (!reducedMotion) globe.rotation.y += delta * 0.075;
+    if (!reducedMotion) globe.rotation.y += delta * 0.11;
     renderer.render(scene, camera);
   }
   render();
@@ -250,7 +250,7 @@
     event.preventDefault();
     link.classList.add('is-opening');
     link.setAttribute('aria-label', 'Opening the globe');
-    window.setTimeout(() => { window.location.href = link.href; }, 620);
+    window.setTimeout(() => { window.location.href = link.href; }, 850);
   });
   function reducedMotionPreference() {
     return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
