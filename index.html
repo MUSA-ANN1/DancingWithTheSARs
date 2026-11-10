@@ -42,17 +42,6 @@
     <p class="hero__lead">See where the land and the water changed, using NISAR radar, in a form light enough for a slow mobile connection.</p>
     <p class="hero__note">A NASA Space Apps Challenge 2026 project. The globe currently shows the Caspian Sea.</p>
 
-    <figure class="shot">
-      <div class="shot__frame">
-        <img src="assets/globe.png" width="1600" height="900" alt="The 3D globe centred on the Caspian Sea, with the date slider at the bottom." onerror="this.closest('.shot').classList.add('is-empty')">
-        <div class="shot__empty">
-          <i class="ph ph-image" aria-hidden="true"></i>
-          <strong>Globe screenshot not added yet</strong>
-          <p>Save a screenshot of the globe as <code>assets/globe.png</code> and it appears here.</p>
-        </div>
-      </div>
-      <figcaption>The globe view. Press the button at the bottom right to open it.</figcaption>
-    </figure>
   </section>
 
   <section class="wrap insight" id="problem" aria-labelledby="problem-title">
@@ -131,10 +120,10 @@
   <p><a href="https://github.com/MUSA-ANN1/DancingWithTheSARs">Source code on GitHub</a></p>
 </footer>
 
-<a class="enter" href="globe.html">
-  <i class="ph ph-globe-hemisphere-west" aria-hidden="true"></i>
-  Open the globe
-  <i class="ph ph-arrow-right" aria-hidden="true"></i>
+<a class="enter" href="globe.html" aria-label="Open the globe">
+  <span class="enter__icon"><i class="ph ph-globe-hemisphere-west" aria-hidden="true"></i></span>
+  <span class="enter__label">Open the globe</span>
+  <i class="ph ph-arrow-right enter__arrow" aria-hidden="true"></i>
 </a>
 
 </body>
