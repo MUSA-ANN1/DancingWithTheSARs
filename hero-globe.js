@@ -76,6 +76,36 @@
     textures.nightMap.needsUpdate = true;
   }
 
+
+  function addCaspianHighlight() {
+    const shore = window.CASPIAN_SHORELINE;
+    if (!Array.isArray(shore) || shore.length < 3) return;
+    const shape = new THREE.Shape();
+    shape.moveTo(shore[0][0], shore[0][1]);
+    for (let i = 1; i < shore.length; i++) shape.lineTo(shore[i][0], shore[i][1]);
+    shape.closePath();
+
+    const geometry = new THREE.ShapeGeometry(shape, 2);
+    const vertices = geometry.attributes.position;
+    const point = new THREE.Vector3();
+    for (let i = 0; i < vertices.count; i++) {
+      point.set(vertices.getX(i), vertices.getY(i), 0);
+      const lon = point.x * Math.PI / 180;
+      const lat = point.y * Math.PI / 180;
+      const r = 1.006;
+      vertices.setXYZ(i, r * Math.cos(lat) * Math.cos(lon), r * Math.sin(lat), -r * Math.cos(lat) * Math.sin(lon));
+    }
+    vertices.needsUpdate = true;
+    geometry.computeVertexNormals();
+    const fill = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
+      color: 0x0B3D91, transparent: true, opacity: 0.72,
+      side: THREE.DoubleSide, depthWrite: false, depthTest: false,
+      polygonOffset: true, polygonOffsetFactor: -2
+    }));
+    fill.renderOrder = 10;
+    globe.add(fill);
+  }
+
   function addCountryBorders() {
     if (!window.WORLD || !window.topojson) return;
     const mesh = topojson.mesh(WORLD, WORLD.objects.countries, (a, b) => a !== b);
@@ -182,6 +212,7 @@
   );
   globe.add(atmosphere);
   addCountryBorders();
+  addCaspianHighlight();
   addGeographicDetails(textures);
 
   function resize() {
