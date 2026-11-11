@@ -1,21 +1,21 @@
-/* Dancing with the SARs: Caspian Sea
-   Real sky (star catalogue, Milky Way, Sun, Moon) around a day/night Earth.
-   The camera orbits the Earth; the Earth itself never rotates, so the
-   Caspian always stays centred. Users can only zoom.
-   Requires: three.js r158 (global), astro.js (window.Astro). */
+
+
+
+
+
 'use strict';
 
 (function () {
 
-  /* ── Constants ─────────────────────────────────────────────── */
+  
   const DEG = Math.PI / 180;
   const A = window.Astro;
 
-  const CASPIAN = { lon: 50.7, lat: 41.8 };                  // view centre
-  const CASPIAN_BBOX = { w: 46.5, s: 36.4, e: 55.0, n: 47.5 }; // ASF search area
+  const CASPIAN = { lon: 50.7, lat: 41.8 };                  
+  const CASPIAN_BBOX = { w: 46.5, s: 36.4, e: 55.0, n: 47.5 }; 
   const INTRO_MS = 3000;
-  const START_DIST = 11;      // Earth radii, far away
-  const END_DIST = 1.55;      // zoomed on the Caspian
+  const START_DIST = 11;      
+  const END_DIST = 1.55;      
   const MIN_DIST = 1.08;
   const MAX_DIST = 11;
   const PLAY_MS = 1600;
@@ -28,7 +28,7 @@
   const ASF_BASE = 'https://api.daac.asf.alaska.edu/services/search/param';
   const VERTEX_URL = 'https://search.asf.alaska.edu/';
 
-  const NIGHT_TEX = 'https://unpkg.com/three-globe@2.31.2/example/img/earth-night.jpg'; // city-light source texture
+  const NIGHT_TEX = 'https://unpkg.com/three-globe@2.31.2/example/img/earth-night.jpg'; 
 
   const STAR_URLS = [
     'https://cdn.jsdelivr.net/gh/ofrohn/d3-celestial@master/data/stars.6.json',
@@ -40,7 +40,7 @@
     'https://raw.githubusercontent.com/ofrohn/d3-celestial/master/data/mw.json'
   ];
 
-  /* ── DOM ────────────────────────────────────────────────────── */
+  
   const $ = s => document.querySelector(s);
   const globeEl = $('#globe-container');
   const introOv = $('#intro-overlay');
@@ -76,11 +76,11 @@
     if (msg && ms) statusTimer = setTimeout(() => setStatus(''), ms);
   }
 
-  /* ── Geometry helpers ───────────────────────────────────────── */
-  /* One formula for both geography and the sky: longitude / right
-     ascension 0 sits on +x, north is +y, east runs toward -z.
-     This matches how THREE.SphereGeometry wraps an equirectangular
-     texture, so the Earth map, the stars and the Sun all agree. */
+  
+  
+
+
+
   function sphToVec3(lonRad, latRad, r) {
     return new THREE.Vector3(
       r * Math.cos(latRad) * Math.cos(lonRad),
@@ -92,9 +92,9 @@
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
   const easeInOut = t => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 
-  /* ════════════════════════════════════════════════════════════
-     1. SCENE
-  ════════════════════════════════════════════════════════════ */
+  
+
+
   let renderer, scene, camera, sky, sunGroupItems = {}, moonMesh, moonLight;
   const earthUniforms = {
     dayMap: { value: null },
@@ -121,10 +121,10 @@
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera(45, W / H, 0.05, 4000);
 
-    // The sky group holds everything that lives in inertial space.
-    // It is rotated each frame by minus the sidereal time, so that in
-    // the Earth-fixed frame the stars, Sun and Moon sit where they
-    // really are right now.
+    
+    
+    
+    
     sky = new THREE.Group();
     scene.add(sky);
 
@@ -186,7 +186,7 @@
       tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
     });
 
-    // Turn NASA's night imagery into a transparent light-only layer.
+    
     const loader = new THREE.TextureLoader();
     loader.setCrossOrigin('anonymous');
     loader.load(NIGHT_TEX, tex => {
