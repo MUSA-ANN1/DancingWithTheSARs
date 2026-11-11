@@ -1,24 +1,24 @@
-/* Dancing with the SARs: globe view
-   Rules live in DESIGN-SYSTEM.md. Colour source: NASA brand palette.
-   NASA blue #0B3D91, NASA red #FC3D21, NASA gray #AEB0B5, white, black.
-   One accent (NASA red) means "selected" or "change". No shadows, gradients,
-   hover effects, blur or second corner radius anywhere in this file. */
+
+
+
+
+
 
 :root {
   --space: #000000;
-  --surface: #051b41;          /* NASA blue at 45% brightness */
-  --line: #0b3d91;             /* NASA blue */
+  --surface: #051b41;          
+  --line: #0b3d91;             
   --text: #ffffff;
-  --muted: #aeb0b5;            /* NASA gray */
-  --accent: #fc3d21;           /* NASA red */
-  --on-accent: #000000;        /* 5.8:1 on the accent, white would only reach 3.6:1 */
+  --muted: #aeb0b5;            
+  --accent: #fc3d21;           
+  --on-accent: #000000;        
 
   --radius: 4px;
 
   --font-display: "Barlow Condensed", "Arial Narrow", sans-serif;
   --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
 
-  /* Type scale, ratio 1.25 from 16px */
+  
   --step--1: 0.8rem;
   --step-0: 1rem;
   --step-1: 1.25rem;
@@ -27,7 +27,7 @@
   --step-4: 2.441rem;
   --step-5: 3.052rem;
 
-  /* Spacing, 8px base */
+  
   --s1: 0.5rem;
   --s2: 1rem;
   --s3: 1.5rem;
@@ -35,7 +35,7 @@
 
   --measure: 70ch;
   --gutter: clamp(1rem, 3vw, 2rem);
-  --tool: 2.75rem;             /* menu and history buttons share this size */
+  --tool: 2.75rem;             
   --safe-t: env(safe-area-inset-top, 0px);
   --safe-b: env(safe-area-inset-bottom, 0px);
   --safe-l: env(safe-area-inset-left, 0px);
@@ -68,7 +68,7 @@ a { color: inherit; }
 
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-/* ---------- Title (intro and header share one position) ---------- */
+
 
 h1 {
   font-family: var(--font-display);
@@ -90,7 +90,7 @@ h1 {
 #intro-overlay.fade-out { opacity: 0; }
 #intro-text { text-align: left; max-width: 28rem; }
 
-/* ---------- Left rail: title, then the comparison panel ---------- */
+
 
 #left-rail {
   position: absolute;
@@ -108,7 +108,7 @@ h1 {
 #left-rail > * { pointer-events: auto; }
 .head { pointer-events: none !important; text-align: left; }
 
-/* ---------- Shared panel look ---------- */
+
 
 #nisar-panel, #timeline, #settings-panel, #menu-panel, #change-legend, #status-bar, .tool-btn {
   background: var(--surface);
@@ -142,7 +142,7 @@ h3 { font-size: var(--step--1); font-weight: 600; color: var(--muted); }
 .icon-btn:disabled { color: var(--muted); border-color: transparent; cursor: default; opacity: 0.4; }
 .ph { display: block; }
 
-/* ---------- Comparison panel ---------- */
+
 
 #nisar-panel {
   display: flex;
@@ -187,7 +187,7 @@ h3 { font-size: var(--step--1); font-weight: 600; color: var(--muted); }
 }
 .comparison-option.is-active { background: var(--accent); color: var(--on-accent); }
 
-/* Empty states say what happened and what to do next */
+
 #nisar-no-img { padding: var(--s3) var(--s2) calc(var(--s3) + 2.5rem); }
 #nisar-no-img .ph, #calendar-empty .ph { font-size: var(--step-2); color: var(--muted); margin-bottom: var(--s1); }
 .empty-title { font-size: var(--step-0); font-weight: 600; }
@@ -214,7 +214,7 @@ h3 { font-size: var(--step--1); font-weight: 600; color: var(--muted); }
   text-underline-offset: 3px;
 }
 
-/* ---------- Top right: menu and history buttons ---------- */
+
 
 #toolbar {
   position: absolute;
@@ -311,7 +311,7 @@ h3 { font-size: var(--step--1); font-weight: 600; color: var(--muted); }
 #settings-panel label strong { font-size: var(--step--1); font-weight: 600; }
 #settings-panel label small { color: var(--muted); font-size: var(--step--1); line-height: 1.4; }
 
-/* ---------- Calendar: under the buttons, down to the bottom ---------- */
+
 
 #timeline {
   position: absolute;
@@ -392,7 +392,7 @@ h3 { font-size: var(--step--1); font-weight: 600; color: var(--muted); }
 
 #calendar-empty { padding: var(--s2) 0; }
 
-/* ---------- Legend (bottom left) and status ---------- */
+
 
 #change-legend {
   position: absolute;
@@ -422,7 +422,7 @@ h3 { font-size: var(--step--1); font-weight: 600; color: var(--muted); }
   pointer-events: none;
 }
 
-/* ---------- Small screens ---------- */
+
 
 @media (max-width: 40rem) {
   h1 { font-size: var(--step-3); }
