@@ -8,7 +8,12 @@
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
 .DS_Store
-/build
+/build/intermediates
+/build/generated
+/build/tmp
+/build/outputs/logs
+/build/outputs/apk/androidTest
+/build/outputs/apk/debug/output-metadata.json
 /captures
 .externalNativeBuild
 .cxx
