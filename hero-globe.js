@@ -218,6 +218,13 @@
   addCaspianHighlight();
   addGeographicDetails(textures);
 
+  const caspianDirection = new THREE.Vector3(
+    Math.cos(41.8 * Math.PI / 180) * Math.cos(50.7 * Math.PI / 180),
+    Math.sin(41.8 * Math.PI / 180),
+    -Math.cos(41.8 * Math.PI / 180) * Math.sin(50.7 * Math.PI / 180)
+  ).normalize();
+  globe.quaternion.setFromUnitVectors(caspianDirection, new THREE.Vector3(0, 0, 1));
+
   function resize() {
     const rect = host.getBoundingClientRect();
     const w = Math.max(1, Math.round(rect.width));
@@ -234,7 +241,7 @@
   function render() {
     requestAnimationFrame(render);
     const delta = Math.min(clock.getDelta(), 0.05);
-    globe.rotation.y += delta * 0.18;
+    globe.rotateY(delta * 0.025);
     renderer.render(scene, camera);
   }
   render();
