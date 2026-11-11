@@ -72,6 +72,10 @@ def run(r, session, state, force, target, cfg, out, tmp, finish, log):
         for item in latest_dir.iterdir():
             if item.is_file():
                 shutil.copy2(item,root_dir/item.name)
+        root_meta=json.loads((root_dir/'meta.json').read_text())
+        root_meta['available_pairs']=entries
+        root_meta['pair_index']='index.json'
+        (root_dir/'meta.json').write_text(json.dumps(root_meta,indent=1))
         log(r['name'],'indexed',len(entries),'date pairs; latest',latest['before'],'to',latest['after'])
 
 
