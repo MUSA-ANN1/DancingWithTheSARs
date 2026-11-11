@@ -92,7 +92,7 @@
       const lon = (point.x + 180) * Math.PI / 180;
       const lat = point.y * Math.PI / 180;
       const r = 1.006;
-      vertices.setXYZ(i, -r * Math.cos(lat) * Math.sin(lon), r * Math.sin(lat), r * Math.cos(lat) * Math.cos(lon));
+      vertices.setXYZ(i, r * Math.cos(lat) * Math.cos(lon), r * Math.sin(lat), -r * Math.cos(lat) * Math.sin(lon));
     }
     vertices.needsUpdate = true;
     geometry.computeVertexNormals();
@@ -115,9 +115,9 @@
           const phi = (lon + 180) * Math.PI / 180;
           const theta = lat * Math.PI / 180;
           return new THREE.Vector3(
-            -Math.cos(theta) * Math.sin(phi),
+            Math.cos(theta) * Math.cos(phi),
             Math.sin(theta),
-            Math.cos(theta) * Math.cos(phi)
+            -Math.cos(theta) * Math.sin(phi)
           ).multiplyScalar(1.003);
         };
         const a = point(line[i - 1]), b = point(line[i]);
