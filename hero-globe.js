@@ -89,7 +89,7 @@
     const point = new THREE.Vector3();
     for (let i = 0; i < vertices.count; i++) {
       point.set(vertices.getX(i), vertices.getY(i), 0);
-      const lon = (point.x + 180) * Math.PI / 180;
+      const lon = point.x * Math.PI / 180;
       const lat = point.y * Math.PI / 180;
       const r = 1.006;
       vertices.setXYZ(i, r * Math.cos(lat) * Math.cos(lon), r * Math.sin(lat), -r * Math.cos(lat) * Math.sin(lon));
@@ -112,7 +112,7 @@
     for (const line of (mesh.coordinates || [])) {
       for (let i = 1; i < line.length; i++) {
         const point = ([lon, lat]) => {
-          const phi = (lon + 180) * Math.PI / 180;
+          const phi = lon * Math.PI / 180;
           const theta = lat * Math.PI / 180;
           return new THREE.Vector3(
             Math.cos(theta) * Math.cos(phi),
@@ -149,7 +149,16 @@
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 30);
-  camera.position.set(0, 0, 3.1);
+  const caspianLon = 50.7 * Math.PI / 180;
+  const caspianLat = 41.8 * Math.PI / 180;
+  const caspianCosLat = Math.cos(caspianLat);
+  camera.position.set(
+    3.1 * caspianCosLat * Math.cos(caspianLon),
+    3.1 * Math.sin(caspianLat),
+    -3.1 * caspianCosLat * Math.sin(caspianLon)
+  );
+  camera.up.set(0, 1, 0);
+  camera.lookAt(0, 0, 0);
   scene.add(globe);
 
   const textures = makeTextures();
@@ -218,12 +227,7 @@
   addCaspianHighlight();
   addGeographicDetails(textures);
 
-  const caspianDirection = new THREE.Vector3(
-    Math.cos(41.8 * Math.PI / 180) * Math.cos(50.7 * Math.PI / 180),
-    Math.sin(41.8 * Math.PI / 180),
-    -Math.cos(41.8 * Math.PI / 180) * Math.sin(50.7 * Math.PI / 180)
-  ).normalize();
-  globe.quaternion.setFromUnitVectors(caspianDirection, new THREE.Vector3(0, 0, 1));
+
 
   function resize() {
     const rect = host.getBoundingClientRect();
