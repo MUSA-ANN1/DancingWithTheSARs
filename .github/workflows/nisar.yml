@@ -30,6 +30,13 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
+      - name: Restore previously published NISAR products
+        uses: actions/checkout@v4
+        with:
+          ref: data
+          path: previous-data
+          persist-credentials: false
+
       - name: Check available disk space
         run: |
           df -h
