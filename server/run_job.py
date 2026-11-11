@@ -26,7 +26,6 @@ ENCODING = "PNG RGBA: R=G=B=v, alpha 255 = valid, 0 = no data. value = lo + (v-1
 def log(*a): print(time.strftime("%H:%M:%S"), *a, flush=True)
 
 
-# ---------- Caspian water level: one small NASA text file ----------
 def parse_level(text):
     """Columns: mission, cycle, YYYYMMDD, ... col 15 = height above mean sea level (EGM2008, m); 9999.99 = missing."""
     pts = []
@@ -52,7 +51,6 @@ def fetch_level():
     OUT.mkdir(parents=True, exist_ok=True); (OUT / "level.json").write_text(json.dumps(d))
     log("level.json:", len(d["points"]), "points, last", d["points"][-1] if d["points"] else None)
 
-# ---------- choose passes ----------
 def name_of(p): return p.properties.get("sceneName") or p.properties.get("fileID")
 
 def pick_pair(products):
@@ -75,7 +73,6 @@ def search(r, level):
     return list(asf.search(dataset="NISAR", processingLevel=level, intersectsWith=f"POINT({r['lon']} {r['lat']})",
                            start=start.isoformat(), end=end.isoformat(), maxResults=200))
 
-# ---------- build outputs ----------
 def finish(r, meta, rd):
     meta.update(name=r["name"], label=r.get("label", r["name"]), lon=r["lon"], lat=r["lat"], encoding=ENCODING,
                 updated=dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"))
@@ -152,7 +149,6 @@ def write_gunw(r, f, scenes, target, d2, d1):
         category=cat, confidence=conf, evidence=ev, scenes=scenes,
         images=dict(diff="diff.png", change="change.png")), rd)
 
-# ---------- one region, from the real archive ----------
 def run_region(r, session, force, state, target):
     t0 = time.time(); mode = r.get("mode", "gcov")
     if mode in ("gcov", "shore"):
