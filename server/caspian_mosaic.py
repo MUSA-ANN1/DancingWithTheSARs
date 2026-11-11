@@ -44,9 +44,6 @@ def run(r, session, state, force, target, cfg, out, tmp, finish, log):
     if not force and state.get(r['name'])==signature and (rd/'meta.json').exists(): return log(r['name'],'nothing new, skipped')
     width=max(512,int(target*(east-west)/(north-south))); height=int(target); shape=(height,width)
     dst_transform=from_origin(west,north,(east-west)/width,(north-south)/height)
-    # Blend overlapping granules instead of exposing hard tile boundaries.
-    # Each scene is robustly radiometrically aligned to the existing mosaic in
-    # its overlap, then feather-weighted so scene edges do not form visible seams.
     sums=[np.zeros(shape,np.float64),np.zeros(shape,np.float64)]
     weights=[np.zeros(shape,np.float32),np.zeros(shape,np.float32)]
     from scipy.ndimage import distance_transform_edt
@@ -88,14 +85,11 @@ def run(r, session, state, force, target, cfg, out, tmp, finish, log):
                             out=np.zeros(shape, np.float64),
                             where=existing_valid
                         )
-                        # Correct scene-to-scene radiometric offsets only where
-                        # both scenes observe the same ground; reject extreme fits.
                         offset = float(np.median(existing[overlap_mask] - tile[overlap_mask]))
                         offset = float(np.clip(offset, -8.0, 8.0))
                     else:
                         offset = 0.0
                     adjusted = tile.astype(np.float32, copy=False) + offset
-                    # Distance-to-edge feathering suppresses sharp tile outlines.
                     edge_distance = distance_transform_edt(valid)
                     feather = np.clip(edge_distance / 32.0, 0.05, 1.0).astype(np.float32)
                     sums[idx] += np.where(valid, adjusted * feather, 0.0)
@@ -108,9 +102,6 @@ def run(r, session, state, force, target, cfg, out, tmp, finish, log):
         after=np.divide(sums[1],weights[1],out=np.full(shape,np.nan,np.float32),where=weights[1]>0)
         common=np.isfinite(before)&np.isfinite(after); n=int(common.sum())
         if n<1000: raise RuntimeError(f'Only {n} common pixels across Caspian mosaic; refusing misleading comparison.')
-        # Build the Caspian water reference from Natural Earth land polygons.
-        # Natural Earth's lakes layer does not reliably include the Caspian Sea;
-        # the land layer traces its shoreline as the boundary between land and water.
         import io, zipfile, requests, shapefile
         from shapely.geometry import shape as shapely_shape, box
         from shapely import make_valid
@@ -123,9 +114,6 @@ def run(r, session, state, force, target, cfg, out, tmp, finish, log):
             response.raise_for_status()
             cache.write_bytes(response.content)
 
-        # Clip real polygon geometries to the processing extent before rasterizing.
-        # Do not clamp individual vertices: that distorts large polygons and can
-        # accidentally paint most/all of the Caspian as land.
         extent = box(west, south, east, north)
         land_geometries = []
         with zipfile.ZipFile(cache) as zf:
@@ -158,7 +146,6 @@ def run(r, session, state, force, target, cfg, out, tmp, finish, log):
             dtype='uint8'
         ).astype(bool)
 
-        # Invert clipped land polygons: the remaining basin pixels are water.
         reference_water = ~land_mask
         water_pixels = int(reference_water.sum())
         if water_pixels < 1000 or water_pixels > int(reference_water.size * 0.90):
@@ -167,15 +154,11 @@ def run(r, session, state, force, target, cfg, out, tmp, finish, log):
                 f'{water_pixels}/{reference_water.size} water pixels.'
             )
 
-        # Draw only the reference-water boundary for map context.
         edge = reference_water ^ binary_erosion(reference_water, iterations=1)
         outline_pixels = np.zeros((height, width, 4), dtype=np.uint8)
         outline_pixels[edge] = (105, 205, 230, 255)
         outline = Image.fromarray(outline_pixels, 'RGBA')
 
-        # Define a 15-pixel coastal search band around the reference shoreline.
-        # At this basin-wide grid resolution, this is a screening band, not a precise
-        # geodetic buffer. The reference polygon is not treated as observed water.
         interior = binary_erosion(reference_water, iterations=1)
         shoreline_edge = reference_water ^ interior
         distance_px = distance_transform_edt(~shoreline_edge)
@@ -189,14 +172,10 @@ def run(r, session, state, force, target, cfg, out, tmp, finish, log):
         if threshold_before is None or threshold_after is None:
             raise RuntimeError('Insufficient coastal-zone backscatter samples for water classification.')
 
-        # Darker backscatter is treated as likely water. This is exploratory, so
-        # require threshold margin and a meaningful temporal difference.
         water_before = (before < threshold_before) & np.isfinite(before)
         water_after = (after < threshold_after) & np.isfinite(after)
         margin_db = 2.0
         change_db = 3.0
-        # Keep the published change layer on the Caspian-water side only:
-        # land pixels remain transparent, even inside the coastal screening band.
         confident = (common & coastal_zone & reference_water &
                      (np.abs(before - threshold_before) >= margin_db) &
                      (np.abs(after - threshold_after) >= margin_db) &
@@ -204,8 +183,6 @@ def run(r, session, state, force, target, cfg, out, tmp, finish, log):
         retreat = water_before & ~water_after & confident
         advance = ~water_before & water_after & confident
 
-        # Separate water-classification layers, shoreline-change candidates,
-        # and actual NISAR observation coverage. No-data remains transparent.
         def mask_png(mask, path, rgba):
             rgba_img = np.zeros(mask.shape + (4,), dtype=np.uint8)
             rgba_img[mask] = rgba
@@ -217,8 +194,6 @@ def run(r, session, state, force, target, cfg, out, tmp, finish, log):
         mask_png(water_after, rd/'water_after.png', (20, 125, 220, 210))
         L.overlay_png(retreat, advance, rd/'change.png')
 
-        # Coverage colors: common observations in both dates, single-date coverage
-        # separately. Transparent pixels have no usable observation on either date.
         cov = np.zeros((height, width, 4), dtype=np.uint8)
         only_before = np.isfinite(before) & ~np.isfinite(after)
         only_after = np.isfinite(after) & ~np.isfinite(before)
