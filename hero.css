@@ -1,5 +1,5 @@
-/* Dancing with the SARs: landing page
-   One accent, one radius, no shadows, no gradients, no motion. */
+
+
 
 :root {
   --bg: #14181b;
@@ -15,7 +15,7 @@
   --font-display: "Barlow Condensed", "Arial Narrow", sans-serif;
   --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
 
-  /* Type scale: major third, 1.25, base 1rem */
+  
   --step--1: 0.8rem;
   --step-0: 1rem;
   --step-1: 1.25rem;
@@ -25,7 +25,7 @@
   --step-5: 3.052rem;
   --step-8: 5.96rem;
 
-  /* Space scale */
+  
   --s-1: 0.5rem;
   --s-2: 1rem;
   --s-3: 1.5rem;
@@ -101,7 +101,7 @@ ol {
   padding-inline: max(var(--s-3), env(safe-area-inset-left));
 }
 
-/* Top bar */
+
 .bar {
   display: flex;
   align-items: center;
@@ -151,7 +151,7 @@ ol {
   }
 }
 
-/* Hero */
+
 .hero {
   position: relative;
   isolation: isolate;
@@ -264,7 +264,7 @@ ol {
   margin-top: var(--s-5);
 }
 
-/* Screenshots and their empty state */
+
 .shot {
   margin: 0;
 }
@@ -333,7 +333,7 @@ ol {
   display: flex;
 }
 
-/* Insight sections */
+
 .insight {
   border-top: 1px solid var(--line);
   padding-block: var(--s-6);
@@ -373,7 +373,7 @@ ol {
   }
 }
 
-/* Steps: a real sequence, so numbered */
+
 .steps {
   counter-reset: step;
   display: grid;
@@ -405,7 +405,7 @@ ol {
   color: var(--muted);
 }
 
-/* Plain fact list */
+
 .facts {
   display: grid;
   gap: var(--s-2);
@@ -443,7 +443,7 @@ ol {
   color: var(--muted);
 }
 
-/* Footer */
+
 .foot {
   border-top: 1px solid var(--line);
   padding-block: var(--s-4) 9rem;
@@ -455,7 +455,7 @@ ol {
   margin-bottom: var(--s-1);
 }
 
-/* Circular globe launcher: expands left like a sliding paper tab */
+
 .enter {
   position: fixed;
   right: max(var(--s-2), env(safe-area-inset-right));
