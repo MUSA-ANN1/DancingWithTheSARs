@@ -3,7 +3,7 @@ import math, os, re, warnings
 import numpy as np, h5py
 from PIL import Image
 
-WAVELENGTH_M = 0.2384            # L-band, approximate. Check the product metadata.
+WAVELENGTH_M = 0.2384            
 RED, BLUE = (252, 61, 33, 210), (94, 134, 204, 210)
 
 def parse_name(n):
