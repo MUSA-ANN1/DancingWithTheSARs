@@ -751,17 +751,17 @@
     });
   }
 
-  /* ── Data: processed before/after mosaic and worked acquisition dates ── */
+  
   const DATA_BASE = 'https://raw.githubusercontent.com/MUSA-ANN1/DancingWithTheSARs/data/regions/caspian-sea/';
-  const ACCENT_RGB = [252, 61, 33];          // NASA red, the one accent colour
+  const ACCENT_RGB = [252, 61, 33];          
 
   let meta = null;
   let metaReady = Promise.resolve();
-  let mosaicSide = 'before';                 // 'before' | 'after' | null while one date is shown
+  let mosaicSide = 'before';                 
   let days = [];
   let dayByMs = new Map();
   let currentIdx = -1;
-  let datesState = 'idle';                   // idle | loading | ready | error
+  let datesState = 'idle';                   
   let calYear = new Date().getUTCFullYear();
   let calMonth = new Date().getUTCMonth();
   let imgToken = 0;
@@ -786,7 +786,7 @@
     return `${f(b[0])} to ${f(b[2])}°E, ${f(b[1])} to ${f(b[3])}°N`;
   }
 
-  /* ── Comparison panel ── */
+  
   function paintEmpty(icon, title, body) {
     emptyIcon.className = 'ph ' + icon;
     emptyTitle.textContent = title;
@@ -880,7 +880,7 @@
     }
   }
 
-  /* ── Change layer on the globe: the legend colour, drawn from change.png ── */
+  
   let changeMesh = null;
 
   function loadChangeOverlay() {
@@ -906,7 +906,7 @@
     for (let i = 0; i < px.data.length; i += 4) {
       const on = px.data[i + 3] > 0;
       if (on) changed++;
-      // every pixel carries the accent colour so transparent edges never blend toward black
+      
       px.data[i] = ACCENT_RGB[0]; px.data[i + 1] = ACCENT_RGB[1]; px.data[i + 2] = ACCENT_RGB[2];
       px.data[i + 3] = on ? 255 : 0;
     }
@@ -917,7 +917,7 @@
     changeLabel.textContent = changed ? 'Change' : 'No change detected';
     if (!changed) return;
 
-    // Grow each marked pixel by one so it stays visible at globe scale (about 1.6 km per pixel)
+    
     const out = document.createElement('canvas');
     out.width = w; out.height = h;
     const ox = out.getContext('2d');
@@ -927,7 +927,7 @@
     tex.colorSpace = THREE.SRGBColorSpace;
     tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
 
-    // The mosaic grid is plain longitude/latitude, so it maps straight onto the bbox
+    
     const [west, south, east, north] = meta.bbox;
     const nx = 96, ny = 128;
     const pos = new Float32Array((nx + 1) * (ny + 1) * 3);
@@ -962,7 +962,7 @@
     scene.add(changeMesh);
   }
 
-  /* ── Worked dates: acquisition dates used by the published processing run ── */
+  
   function mosaicDays() {
     if (!meta || !Array.isArray(meta.frame_pair_dates)) return [];
     const set = new Set();
@@ -1017,11 +1017,11 @@
     markSelection();
   }
 
-  /* ── Calendar ── */
+  
   function renderCalendar() {
     const first = new Date(Date.UTC(calYear, calMonth, 1));
     calTitle.textContent = first.toLocaleDateString('en-GB', { month: 'long', year: 'numeric', timeZone: 'UTC' });
-    const lead = (first.getUTCDay() + 6) % 7;                       // week starts on Monday
+    const lead = (first.getUTCDay() + 6) % 7;                       
     const count = new Date(Date.UTC(calYear, calMonth + 1, 0)).getUTCDate();
     calGrid.replaceChildren();
     for (let i = 0; i < lead; i++) {
@@ -1115,8 +1115,8 @@
     comparisonButtons.forEach(b => { b.classList.remove('is-active'); b.setAttribute('aria-pressed', 'false'); });
     if (panelBody.hidden) setPanelCollapsed(false);
 
-    // Calendar dates are archive metadata only. The comparison panel always uses
-    // processed files published by the GitHub Actions pipeline, never ASF browse images.
+    
+    
     const distanceToWindow = (date, window) => {
       if (!window || window.length < 2) return Number.POSITIVE_INFINITY;
       if (date >= window[0] && date <= window[1]) return 0;
@@ -1145,7 +1145,7 @@
     if (e.key === 'ArrowRight') { e.preventDefault(); stepDate(1); }
   });
 
-  /* ── Open and close the calendar (button under the menu button) ── */
+  
   function openHistory() {
     closeMenu();
     closeSettings();
@@ -1160,7 +1160,7 @@
   historyBtn.addEventListener('click', () => (timeline.hidden ? openHistory() : closeHistory()));
   historyClose.addEventListener('click', closeHistory);
 
-  /* ── Start-up after the intro ── */
+  
   function showMainUI() {
     mainHead.hidden = false;
     toolbar.hidden = false;
