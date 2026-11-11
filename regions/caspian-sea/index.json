@@ -1,0 +1,49 @@
+{
+ "name": "caspian-sea",
+ "generated": "2026-11-11T17:36:56+00:00",
+ "count": 2,
+ "pairs": [
+  {
+   "id": "oct16-oct28-2026",
+   "folder": "pairs/oct16-oct28-2026/",
+   "before": "2026-10-16",
+   "after": "2026-10-28",
+   "pol": "HHHH",
+   "updated": "2026-11-11T17:02:15+00:00",
+   "images": {
+    "before": "before.png",
+    "after": "after.png",
+    "water_before": "water_before.png",
+    "water_after": "water_after.png",
+    "change": "change.png",
+    "coverage": "coverage.png",
+    "reference": "reference.png"
+   }
+  },
+  {
+   "id": "oct01-oct25-2026",
+   "folder": "pairs/oct01-oct25-2026/",
+   "before": "2026-10-01",
+   "after": "2026-10-25",
+   "pol": "HHHH",
+   "updated": "2026-11-11T17:36:56+00:00",
+   "images": {
+    "before": "before.png",
+    "after": "after.png",
+    "water_before": "water_before.png",
+    "water_after": "water_after.png",
+    "change": "change.png",
+    "coverage": "coverage.png",
+    "reference": "reference.png"
+   }
+  }
+ ],
+ "errors": [
+  {
+   "id": "oct18-oct30-2026",
+   "before": "2026-10-18",
+   "after": "2026-10-30",
+   "error": "All-NaN slice encountered"
+  }
+ ]
+}

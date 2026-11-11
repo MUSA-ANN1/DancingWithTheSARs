@@ -1,11 +1,11 @@
 {
- "generated": "2026-11-07T13:48:41+00:00",
+ "generated": "2026-11-11T17:36:56+00:00",
  "regions": [
   {
    "type": "mosaic",
    "mode": "shore",
-   "before": "2026-10-04",
-   "after": "2026-10-21",
+   "before": "2026-10-16",
+   "after": "2026-10-28",
    "bbox": [
     46.5,
     36.4,
@@ -18,287 +18,56 @@
    ],
    "pol": "HHHH",
    "quality_mask": "Applied before downsampling; mask values 1..254 valid, 0 and 255 excluded",
-   "quality_masked_scene_count": 80,
+   "quality_masked_scene_count": 14,
    "frame_pair_dates": [
     {
-     "before": "2026-10-09",
-     "after": "2026-10-21",
-     "track": "136",
-     "direction": "D",
-     "frame": "070"
-    },
-    {
-     "before": "2026-10-09",
-     "after": "2026-10-21",
-     "track": "136",
-     "direction": "D",
-     "frame": "069"
-    },
-    {
-     "before": "2026-10-09",
-     "after": "2026-10-21",
-     "track": "136",
-     "direction": "D",
-     "frame": "068"
-    },
-    {
-     "before": "2026-10-09",
-     "after": "2026-10-21",
-     "track": "136",
-     "direction": "D",
-     "frame": "067"
-    },
-    {
-     "before": "2026-10-09",
-     "after": "2026-10-21",
-     "track": "136",
-     "direction": "D",
-     "frame": "066"
-    },
-    {
-     "before": "2026-10-09",
-     "after": "2026-10-21",
-     "track": "136",
-     "direction": "D",
-     "frame": "065"
-    },
-    {
-     "before": "2026-10-09",
-     "after": "2026-10-21",
-     "track": "128",
-     "direction": "A",
-     "frame": "026"
-    },
-    {
-     "before": "2026-10-09",
-     "after": "2026-10-21",
-     "track": "128",
-     "direction": "A",
-     "frame": "025"
-    },
-    {
-     "before": "2026-10-09",
-     "after": "2026-10-21",
-     "track": "128",
-     "direction": "A",
-     "frame": "024"
-    },
-    {
-     "before": "2026-10-09",
-     "after": "2026-10-21",
-     "track": "128",
-     "direction": "A",
-     "frame": "023"
-    },
-    {
-     "before": "2026-10-09",
-     "after": "2026-10-21",
-     "track": "128",
-     "direction": "A",
-     "frame": "022"
-    },
-    {
-     "before": "2026-10-09",
-     "after": "2026-10-21",
-     "track": "128",
-     "direction": "A",
-     "frame": "021"
-    },
-    {
-     "before": "2026-10-09",
-     "after": "2026-10-21",
-     "track": "128",
+     "before": "2026-10-16",
+     "after": "2026-10-28",
+     "track": "056",
      "direction": "A",
      "frame": "020"
     },
     {
-     "before": "2026-10-08",
-     "after": "2026-10-20",
-     "track": "122",
-     "direction": "D",
-     "frame": "066"
-    },
-    {
-     "before": "2026-10-08",
-     "after": "2026-10-20",
-     "track": "122",
-     "direction": "D",
-     "frame": "065"
-    },
-    {
-     "before": "2026-10-08",
-     "after": "2026-10-20",
-     "track": "122",
-     "direction": "D",
-     "frame": "064"
-    },
-    {
-     "before": "2026-10-07",
-     "after": "2026-10-19",
-     "track": "107",
-     "direction": "D",
-     "frame": "070"
-    },
-    {
-     "before": "2026-10-07",
-     "after": "2026-10-19",
-     "track": "107",
-     "direction": "D",
-     "frame": "069"
-    },
-    {
-     "before": "2026-10-07",
-     "after": "2026-10-19",
-     "track": "099",
+     "before": "2026-10-16",
+     "after": "2026-10-28",
+     "track": "056",
      "direction": "A",
-     "frame": "026"
+     "frame": "021"
     },
     {
-     "before": "2026-10-07",
-     "after": "2026-10-19",
-     "track": "099",
+     "before": "2026-10-16",
+     "after": "2026-10-28",
+     "track": "056",
      "direction": "A",
-     "frame": "025"
+     "frame": "022"
     },
     {
-     "before": "2026-10-07",
-     "after": "2026-10-19",
-     "track": "099",
-     "direction": "A",
-     "frame": "024"
-    },
-    {
-     "before": "2026-10-07",
-     "after": "2026-10-19",
-     "track": "099",
+     "before": "2026-10-16",
+     "after": "2026-10-28",
+     "track": "056",
      "direction": "A",
      "frame": "023"
     },
     {
-     "before": "2026-10-07",
-     "after": "2026-10-19",
-     "track": "099",
+     "before": "2026-10-16",
+     "after": "2026-10-28",
+     "track": "056",
      "direction": "A",
-     "frame": "022"
+     "frame": "024"
     },
     {
-     "before": "2026-10-07",
-     "after": "2026-10-19",
-     "track": "099",
-     "direction": "A",
-     "frame": "021"
-    },
-    {
-     "before": "2026-10-06",
-     "after": "2026-10-18",
-     "track": "093",
-     "direction": "D",
-     "frame": "070"
-    },
-    {
-     "before": "2026-10-06",
-     "after": "2026-10-18",
-     "track": "093",
-     "direction": "D",
-     "frame": "069"
-    },
-    {
-     "before": "2026-10-06",
-     "after": "2026-10-18",
-     "track": "093",
-     "direction": "D",
-     "frame": "068"
-    },
-    {
-     "before": "2026-10-06",
-     "after": "2026-10-18",
-     "track": "093",
-     "direction": "D",
-     "frame": "067"
-    },
-    {
-     "before": "2026-10-06",
-     "after": "2026-10-18",
-     "track": "093",
-     "direction": "D",
-     "frame": "066"
-    },
-    {
-     "before": "2026-10-06",
-     "after": "2026-10-18",
-     "track": "093",
-     "direction": "D",
-     "frame": "065"
-    },
-    {
-     "before": "2026-10-06",
-     "after": "2026-10-18",
-     "track": "093",
-     "direction": "D",
-     "frame": "064"
-    },
-    {
-     "before": "2026-10-06",
-     "after": "2026-10-18",
-     "track": "085",
-     "direction": "A",
-     "frame": "022"
-    },
-    {
-     "before": "2026-10-06",
-     "after": "2026-10-18",
-     "track": "085",
-     "direction": "A",
-     "frame": "021"
-    },
-    {
-     "before": "2026-10-06",
-     "after": "2026-10-18",
-     "track": "085",
-     "direction": "A",
-     "frame": "020"
-    },
-    {
-     "before": "2026-10-05",
-     "after": "2026-10-17",
-     "track": "070",
-     "direction": "A",
-     "frame": "026"
-    },
-    {
-     "before": "2026-10-05",
-     "after": "2026-10-17",
-     "track": "070",
+     "before": "2026-10-16",
+     "after": "2026-10-28",
+     "track": "056",
      "direction": "A",
      "frame": "025"
     },
     {
-     "before": "2026-10-04",
-     "after": "2026-10-16",
-     "track": "064",
-     "direction": "D",
-     "frame": "070"
-    },
-    {
-     "before": "2026-10-04",
-     "after": "2026-10-16",
-     "track": "064",
-     "direction": "D",
-     "frame": "069"
-    },
-    {
-     "before": "2026-10-04",
-     "after": "2026-10-16",
-     "track": "064",
-     "direction": "D",
-     "frame": "068"
-    },
-    {
-     "before": "2026-10-04",
-     "after": "2026-10-16",
-     "track": "064",
-     "direction": "D",
-     "frame": "067"
+     "before": "2026-10-16",
+     "after": "2026-10-28",
+     "track": "056",
+     "direction": "A",
+     "frame": "026"
     }
    ],
    "unit": "dB",
@@ -307,8 +76,8 @@
     0.0
    ],
    "threshold": [
-    -1.9,
-    -1.9
+    -2.9,
+    -2.9
    ],
    "stats": {
     "common_coverage_pct": 100.0,
@@ -322,8 +91,8 @@
     "retreat_pct_of_confident_coastal": 0.0,
     "advance_pct_of_confident_coastal": 0.0,
     "threshold_db": [
-     -1.9,
-     -1.9
+     -2.9,
+     -2.9
     ],
     "confidence_rules": {
      "threshold_margin_db": 2.0,
@@ -341,498 +110,103 @@
     "All contributing scenes use one consistent polarization (HHHH preferred, otherwise HVHV) and require the GCOV mask; mask values 0 and 255 are excluded before downsampling.",
     "Water classification is exploratory; wind, waves, vegetation, soil moisture and radar geometry can mimic shoreline change.",
     "coverage.png shows valid NISAR observation availability, not the shoreline. reference.png is Natural Earth reference geography, not an observation.",
-    "Processed 40 frame pairs; tile dates range from 2026-10-04 to 2026-10-21."
+    "Processed 7 frame pairs; tile dates range from 2026-10-16 to 2026-10-28."
    ],
    "scenes": [
-    "NISAR_L2_PR_GCOV_032_136_D_070_2005_DHDH_A_20261009T152546_20261009T152621_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_033_136_D_070_2005_DHDH_A_20261021T152546_20261021T152621_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_032_136_D_069_2005_DHDH_A_20261009T152512_20261009T152547_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_033_136_D_069_2005_DHDH_A_20261021T152513_20261021T152547_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_032_136_D_068_2005_DHDH_A_20261009T152439_20261009T152513_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_033_136_D_068_2005_DHDH_A_20261021T152439_20261021T152514_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_032_136_D_067_2005_DHDH_A_20261009T152405_20261009T152440_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_033_136_D_067_2005_DHDH_A_20261021T152405_20261021T152440_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_032_136_D_066_2005_DHDH_A_20261009T152331_20261009T152406_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_033_136_D_066_2005_DHDH_A_20261021T152331_20261021T152406_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_032_136_D_065_2005_DHDH_A_20261009T152257_20261009T152332_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_033_136_D_065_2005_DHDH_A_20261021T152257_20261021T152332_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_032_128_A_026_2005_DHDH_A_20261009T014128_20261009T014203_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_033_128_A_026_2005_DHDH_A_20261021T014128_20261021T014203_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_032_128_A_025_2005_DHDH_A_20261009T014054_20261009T014129_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_033_128_A_025_2005_DHDH_A_20261021T014054_20261021T014129_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_032_128_A_024_2005_DHDH_A_20261009T014020_20261009T014055_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_033_128_A_024_2005_DHDH_A_20261021T014020_20261021T014055_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_032_128_A_023_2005_DHDH_A_20261009T013946_20261009T014021_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_033_128_A_023_2005_DHDH_A_20261021T013946_20261021T014021_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_032_128_A_022_2005_DHDH_A_20261009T013912_20261009T013947_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_033_128_A_022_2005_DHDH_A_20261021T013912_20261021T013947_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_032_128_A_021_2005_DHDH_A_20261009T013838_20261009T013913_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_033_128_A_021_2005_DHDH_A_20261021T013838_20261021T013913_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_032_128_A_020_2005_DHDH_A_20261009T013804_20261009T013839_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_033_128_A_020_2005_DHDH_A_20261021T013804_20261021T013839_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_032_122_D_066_2005_DHDH_M_20261008T160508_20261008T160543_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_033_122_D_066_2005_DHDH_M_20261020T160508_20261020T160543_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_032_122_D_065_2005_DHDH_A_20261008T160434_20261008T160509_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_033_122_D_065_2005_DHDH_A_20261020T160434_20261020T160509_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_032_122_D_064_2005_DHDH_A_20261008T160359_20261008T160435_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_033_122_D_064_2005_DHDH_A_20261020T160400_20261020T160435_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_032_107_D_070_2005_DHDH_A_20261007T150907_20261007T150942_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_033_107_D_070_2005_DHDH_A_20261019T150908_20261019T150942_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_032_107_D_069_2005_DHDH_A_20261007T150834_20261007T150908_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_033_107_D_069_2005_DHDH_A_20261019T150834_20261019T150909_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_032_099_A_026_2005_DHDH_A_20261007T012449_20261007T012524_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_033_099_A_026_2005_DHDH_A_20261019T012449_20261019T012524_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_032_099_A_025_2005_DHDH_A_20261007T012415_20261007T012450_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_033_099_A_025_2005_DHDH_A_20261019T012415_20261019T012450_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_032_099_A_024_2005_DHDH_A_20261007T012341_20261007T012416_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_033_099_A_024_2005_DHDH_A_20261019T012341_20261019T012416_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_032_099_A_023_2005_DHDH_A_20261007T012307_20261007T012342_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_033_099_A_023_2005_DHDH_A_20261019T012307_20261019T012342_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_032_099_A_022_2005_DHDH_A_20261007T012233_20261007T012308_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_033_099_A_022_2005_DHDH_A_20261019T012233_20261019T012308_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_032_099_A_021_2005_DHDH_A_20261007T012159_20261007T012234_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_033_099_A_021_2005_DHDH_A_20261019T012159_20261019T012234_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_032_093_D_070_2005_DHDH_A_20261006T155045_20261006T155119_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_033_093_D_070_2005_DHDH_A_20261018T155045_20261018T155119_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_032_093_D_069_4005_DHDH_A_20261006T155011_20261006T155017_P05023_N_P_J_001",
-    "NISAR_L2_PR_GCOV_033_093_D_069_4005_DHDH_A_20261018T155011_20261018T155017_P05023_N_P_J_001",
-    "NISAR_L2_PR_GCOV_032_093_D_068_4005_DHDH_A_20261006T154937_20261006T155012_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_033_093_D_068_4005_DHDH_A_20261018T154937_20261018T155012_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_032_093_D_067_4005_DHDH_A_20261006T154900_20261006T154938_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_033_093_D_067_4005_DHDH_A_20261018T154900_20261018T154938_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_032_093_D_066_2005_DHDH_M_20261006T154829_20261006T154904_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_033_093_D_066_2005_DHDH_M_20261018T154829_20261018T154904_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_032_093_D_065_2005_DHDH_A_20261006T154755_20261006T154830_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_033_093_D_065_2005_DHDH_A_20261018T154755_20261018T154830_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_032_093_D_064_2005_DHDH_A_20261006T154721_20261006T154756_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_033_093_D_064_2005_DHDH_A_20261018T154721_20261018T154756_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_032_085_A_022_4005_DHDH_A_20261006T020408_20261006T020445_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_033_085_A_022_4005_DHDH_A_20261018T020408_20261018T020445_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_032_085_A_021_2005_DHDH_M_20261006T020336_20261006T020411_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_033_085_A_021_2005_DHDH_M_20261018T020337_20261018T020411_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_032_085_A_020_2005_DHDH_A_20261006T020303_20261006T020337_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_033_085_A_020_2005_DHDH_A_20261018T020303_20261018T020338_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_032_070_A_026_2005_DHDH_A_20261005T010810_20261005T010845_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_033_070_A_026_2005_DHDH_A_20261017T010810_20261017T010845_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_032_070_A_025_2005_DHDH_A_20261005T010736_20261005T010811_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_033_070_A_025_2005_DHDH_A_20261017T010736_20261017T010811_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_032_064_D_070_2005_DHDH_A_20261004T153406_20261004T153440_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_033_064_D_070_2005_DHDH_A_20261016T153406_20261016T153441_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_032_064_D_069_2005_DHDH_A_20261004T153332_20261004T153407_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_033_064_D_069_2005_DHDH_A_20261016T153332_20261016T153407_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_032_064_D_068_2005_DHDH_A_20261004T153258_20261004T153333_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_033_064_D_068_2005_DHDH_A_20261016T153258_20261016T153333_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_032_064_D_067_2005_DHDH_A_20261004T153224_20261004T153259_P05023_N_F_J_001",
-    "NISAR_L2_PR_GCOV_033_064_D_067_2005_DHDH_A_20261016T153224_20261016T153259_P05023_N_F_J_001"
+    "NISAR_L2_PR_GCOV_033_056_A_020_2005_DHDH_A_20261016T014624_20261016T014659_P05023_N_F_J_001",
+    "NISAR_L2_PR_GCOV_034_056_A_020_2005_DHDH_A_20261028T014624_20261028T014659_P05036_N_F_J_001",
+    "NISAR_L2_PR_GCOV_033_056_A_021_2005_DHDH_M_20261016T014658_20261016T014733_P05023_N_F_J_001",
+    "NISAR_L2_PR_GCOV_034_056_A_021_2005_DHDH_M_20261028T014658_20261028T014733_P05036_N_F_J_001",
+    "NISAR_L2_PR_GCOV_033_056_A_022_4005_DHDH_A_20261016T014732_20261016T014806_P05023_N_F_J_001",
+    "NISAR_L2_PR_GCOV_034_056_A_022_4005_DHDH_A_20261028T014732_20261028T014807_P05036_N_F_J_001",
+    "NISAR_L2_PR_GCOV_033_056_A_023_4005_DHDH_A_20261016T014805_20261016T014840_P05023_N_F_J_001",
+    "NISAR_L2_PR_GCOV_034_056_A_023_4005_DHDH_A_20261028T014806_20261028T014845_P05036_N_F_J_001",
+    "NISAR_L2_PR_GCOV_033_056_A_024_4005_DHDH_A_20261016T014839_20261016T014845_P05023_N_P_J_001",
+    "NISAR_L2_PR_GCOV_034_056_A_024_4005_DHDH_A_20261028T014840_20261028T014845_P05036_N_P_J_001",
+    "NISAR_L2_PR_GCOV_033_056_A_025_2005_DHDH_M_20261016T014913_20261016T014948_P05023_N_F_J_001",
+    "NISAR_L2_PR_GCOV_034_056_A_025_2005_DHDH_M_20261028T014914_20261028T014949_P05036_N_F_J_001",
+    "NISAR_L2_PR_GCOV_033_056_A_026_4005_DHDH_A_20261016T014944_20261016T015023_P05023_N_F_J_001",
+    "NISAR_L2_PR_GCOV_034_056_A_026_4005_DHDH_A_20261028T014948_20261028T015023_P05036_N_F_J_001"
    ],
-   "frame_pairs": 40,
+   "frame_pairs": 7,
+   "pair_id": "oct16-oct28-2026",
    "before_date_window": [
-    "2026-10-04",
-    "2026-10-09"
+    "2026-10-16",
+    "2026-10-16"
    ],
    "after_date_window": [
-    "2026-10-16",
-    "2026-10-21"
+    "2026-10-28",
+    "2026-10-28"
    ],
    "max_composite_span_days": 7,
    "input_audits": [
     {
-     "scene": "NISAR_L2_PR_GCOV_032_136_D_070_2005_DHDH_A_20261009T152546_20261009T152621_P05023_N_F_J_001",
+     "scene": "NISAR_L2_PR_GCOV_033_056_A_020_2005_DHDH_A_20261016T014624_20261016T014659_P05023_N_F_J_001",
      "polarization": "HHHH",
      "quality_mask_used": true
     },
     {
-     "scene": "NISAR_L2_PR_GCOV_033_136_D_070_2005_DHDH_A_20261021T152546_20261021T152621_P05023_N_F_J_001",
+     "scene": "NISAR_L2_PR_GCOV_034_056_A_020_2005_DHDH_A_20261028T014624_20261028T014659_P05036_N_F_J_001",
      "polarization": "HHHH",
      "quality_mask_used": true
     },
     {
-     "scene": "NISAR_L2_PR_GCOV_032_136_D_069_2005_DHDH_A_20261009T152512_20261009T152547_P05023_N_F_J_001",
+     "scene": "NISAR_L2_PR_GCOV_033_056_A_021_2005_DHDH_M_20261016T014658_20261016T014733_P05023_N_F_J_001",
      "polarization": "HHHH",
      "quality_mask_used": true
     },
     {
-     "scene": "NISAR_L2_PR_GCOV_033_136_D_069_2005_DHDH_A_20261021T152513_20261021T152547_P05023_N_F_J_001",
+     "scene": "NISAR_L2_PR_GCOV_034_056_A_021_2005_DHDH_M_20261028T014658_20261028T014733_P05036_N_F_J_001",
      "polarization": "HHHH",
      "quality_mask_used": true
     },
     {
-     "scene": "NISAR_L2_PR_GCOV_032_136_D_068_2005_DHDH_A_20261009T152439_20261009T152513_P05023_N_F_J_001",
+     "scene": "NISAR_L2_PR_GCOV_033_056_A_022_4005_DHDH_A_20261016T014732_20261016T014806_P05023_N_F_J_001",
      "polarization": "HHHH",
      "quality_mask_used": true
     },
     {
-     "scene": "NISAR_L2_PR_GCOV_033_136_D_068_2005_DHDH_A_20261021T152439_20261021T152514_P05023_N_F_J_001",
+     "scene": "NISAR_L2_PR_GCOV_034_056_A_022_4005_DHDH_A_20261028T014732_20261028T014807_P05036_N_F_J_001",
      "polarization": "HHHH",
      "quality_mask_used": true
     },
     {
-     "scene": "NISAR_L2_PR_GCOV_032_136_D_067_2005_DHDH_A_20261009T152405_20261009T152440_P05023_N_F_J_001",
+     "scene": "NISAR_L2_PR_GCOV_033_056_A_023_4005_DHDH_A_20261016T014805_20261016T014840_P05023_N_F_J_001",
      "polarization": "HHHH",
      "quality_mask_used": true
     },
     {
-     "scene": "NISAR_L2_PR_GCOV_033_136_D_067_2005_DHDH_A_20261021T152405_20261021T152440_P05023_N_F_J_001",
+     "scene": "NISAR_L2_PR_GCOV_034_056_A_023_4005_DHDH_A_20261028T014806_20261028T014845_P05036_N_F_J_001",
      "polarization": "HHHH",
      "quality_mask_used": true
     },
     {
-     "scene": "NISAR_L2_PR_GCOV_032_136_D_066_2005_DHDH_A_20261009T152331_20261009T152406_P05023_N_F_J_001",
+     "scene": "NISAR_L2_PR_GCOV_033_056_A_024_4005_DHDH_A_20261016T014839_20261016T014845_P05023_N_P_J_001",
      "polarization": "HHHH",
      "quality_mask_used": true
     },
     {
-     "scene": "NISAR_L2_PR_GCOV_033_136_D_066_2005_DHDH_A_20261021T152331_20261021T152406_P05023_N_F_J_001",
+     "scene": "NISAR_L2_PR_GCOV_034_056_A_024_4005_DHDH_A_20261028T014840_20261028T014845_P05036_N_P_J_001",
      "polarization": "HHHH",
      "quality_mask_used": true
     },
     {
-     "scene": "NISAR_L2_PR_GCOV_032_136_D_065_2005_DHDH_A_20261009T152257_20261009T152332_P05023_N_F_J_001",
+     "scene": "NISAR_L2_PR_GCOV_033_056_A_025_2005_DHDH_M_20261016T014913_20261016T014948_P05023_N_F_J_001",
      "polarization": "HHHH",
      "quality_mask_used": true
     },
     {
-     "scene": "NISAR_L2_PR_GCOV_033_136_D_065_2005_DHDH_A_20261021T152257_20261021T152332_P05023_N_F_J_001",
+     "scene": "NISAR_L2_PR_GCOV_034_056_A_025_2005_DHDH_M_20261028T014914_20261028T014949_P05036_N_F_J_001",
      "polarization": "HHHH",
      "quality_mask_used": true
     },
     {
-     "scene": "NISAR_L2_PR_GCOV_032_128_A_026_2005_DHDH_A_20261009T014128_20261009T014203_P05023_N_F_J_001",
+     "scene": "NISAR_L2_PR_GCOV_033_056_A_026_4005_DHDH_A_20261016T014944_20261016T015023_P05023_N_F_J_001",
      "polarization": "HHHH",
      "quality_mask_used": true
     },
     {
-     "scene": "NISAR_L2_PR_GCOV_033_128_A_026_2005_DHDH_A_20261021T014128_20261021T014203_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_032_128_A_025_2005_DHDH_A_20261009T014054_20261009T014129_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_033_128_A_025_2005_DHDH_A_20261021T014054_20261021T014129_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_032_128_A_024_2005_DHDH_A_20261009T014020_20261009T014055_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_033_128_A_024_2005_DHDH_A_20261021T014020_20261021T014055_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_032_128_A_023_2005_DHDH_A_20261009T013946_20261009T014021_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_033_128_A_023_2005_DHDH_A_20261021T013946_20261021T014021_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_032_128_A_022_2005_DHDH_A_20261009T013912_20261009T013947_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_033_128_A_022_2005_DHDH_A_20261021T013912_20261021T013947_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_032_128_A_021_2005_DHDH_A_20261009T013838_20261009T013913_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_033_128_A_021_2005_DHDH_A_20261021T013838_20261021T013913_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_032_128_A_020_2005_DHDH_A_20261009T013804_20261009T013839_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_033_128_A_020_2005_DHDH_A_20261021T013804_20261021T013839_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_032_122_D_066_2005_DHDH_M_20261008T160508_20261008T160543_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_033_122_D_066_2005_DHDH_M_20261020T160508_20261020T160543_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_032_122_D_065_2005_DHDH_A_20261008T160434_20261008T160509_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_033_122_D_065_2005_DHDH_A_20261020T160434_20261020T160509_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_032_122_D_064_2005_DHDH_A_20261008T160359_20261008T160435_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_033_122_D_064_2005_DHDH_A_20261020T160400_20261020T160435_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_032_107_D_070_2005_DHDH_A_20261007T150907_20261007T150942_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_033_107_D_070_2005_DHDH_A_20261019T150908_20261019T150942_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_032_107_D_069_2005_DHDH_A_20261007T150834_20261007T150908_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_033_107_D_069_2005_DHDH_A_20261019T150834_20261019T150909_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_032_099_A_026_2005_DHDH_A_20261007T012449_20261007T012524_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_033_099_A_026_2005_DHDH_A_20261019T012449_20261019T012524_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_032_099_A_025_2005_DHDH_A_20261007T012415_20261007T012450_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_033_099_A_025_2005_DHDH_A_20261019T012415_20261019T012450_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_032_099_A_024_2005_DHDH_A_20261007T012341_20261007T012416_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_033_099_A_024_2005_DHDH_A_20261019T012341_20261019T012416_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_032_099_A_023_2005_DHDH_A_20261007T012307_20261007T012342_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_033_099_A_023_2005_DHDH_A_20261019T012307_20261019T012342_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_032_099_A_022_2005_DHDH_A_20261007T012233_20261007T012308_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_033_099_A_022_2005_DHDH_A_20261019T012233_20261019T012308_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_032_099_A_021_2005_DHDH_A_20261007T012159_20261007T012234_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_033_099_A_021_2005_DHDH_A_20261019T012159_20261019T012234_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_032_093_D_070_2005_DHDH_A_20261006T155045_20261006T155119_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_033_093_D_070_2005_DHDH_A_20261018T155045_20261018T155119_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_032_093_D_069_4005_DHDH_A_20261006T155011_20261006T155017_P05023_N_P_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_033_093_D_069_4005_DHDH_A_20261018T155011_20261018T155017_P05023_N_P_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_032_093_D_068_4005_DHDH_A_20261006T154937_20261006T155012_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_033_093_D_068_4005_DHDH_A_20261018T154937_20261018T155012_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_032_093_D_067_4005_DHDH_A_20261006T154900_20261006T154938_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_033_093_D_067_4005_DHDH_A_20261018T154900_20261018T154938_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_032_093_D_066_2005_DHDH_M_20261006T154829_20261006T154904_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_033_093_D_066_2005_DHDH_M_20261018T154829_20261018T154904_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_032_093_D_065_2005_DHDH_A_20261006T154755_20261006T154830_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_033_093_D_065_2005_DHDH_A_20261018T154755_20261018T154830_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_032_093_D_064_2005_DHDH_A_20261006T154721_20261006T154756_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_033_093_D_064_2005_DHDH_A_20261018T154721_20261018T154756_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_032_085_A_022_4005_DHDH_A_20261006T020408_20261006T020445_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_033_085_A_022_4005_DHDH_A_20261018T020408_20261018T020445_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_032_085_A_021_2005_DHDH_M_20261006T020336_20261006T020411_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_033_085_A_021_2005_DHDH_M_20261018T020337_20261018T020411_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_032_085_A_020_2005_DHDH_A_20261006T020303_20261006T020337_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_033_085_A_020_2005_DHDH_A_20261018T020303_20261018T020338_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_032_070_A_026_2005_DHDH_A_20261005T010810_20261005T010845_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_033_070_A_026_2005_DHDH_A_20261017T010810_20261017T010845_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_032_070_A_025_2005_DHDH_A_20261005T010736_20261005T010811_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_033_070_A_025_2005_DHDH_A_20261017T010736_20261017T010811_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_032_064_D_070_2005_DHDH_A_20261004T153406_20261004T153440_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_033_064_D_070_2005_DHDH_A_20261016T153406_20261016T153441_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_032_064_D_069_2005_DHDH_A_20261004T153332_20261004T153407_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_033_064_D_069_2005_DHDH_A_20261016T153332_20261016T153407_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_032_064_D_068_2005_DHDH_A_20261004T153258_20261004T153333_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_033_064_D_068_2005_DHDH_A_20261016T153258_20261016T153333_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_032_064_D_067_2005_DHDH_A_20261004T153224_20261004T153259_P05023_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_033_064_D_067_2005_DHDH_A_20261016T153224_20261016T153259_P05023_N_F_J_001",
+     "scene": "NISAR_L2_PR_GCOV_034_056_A_026_4005_DHDH_A_20261028T014948_20261028T015023_P05036_N_F_J_001",
      "polarization": "HHHH",
      "quality_mask_used": true
     }
@@ -846,13 +220,50 @@
     "coverage": "coverage.png",
     "reference": "reference.png"
    },
-   "name": "caspian-sea",
-   "label": "Caspian Sea basin-wide view",
+   "name": "caspian-sea/pairs/oct16-oct28-2026",
+   "label": "Caspian Sea basin-wide view \u00b7 2026-10-16 to 2026-10-28",
    "lon": 50.7,
    "lat": 41.8,
    "encoding": "PNG RGBA: R=G=B=v, alpha 255 = valid, 0 = no data. value = lo + (v-1)/254*(hi-lo)",
-   "updated": "2026-11-07T13:48:41+00:00",
-   "elapsed_s": 4676.6
+   "updated": "2026-11-11T17:02:15+00:00",
+   "elapsed_s": 3933.2,
+   "available_pairs": [
+    {
+     "id": "oct16-oct28-2026",
+     "folder": "pairs/oct16-oct28-2026/",
+     "before": "2026-10-16",
+     "after": "2026-10-28",
+     "pol": "HHHH",
+     "updated": "2026-11-11T17:02:15+00:00",
+     "images": {
+      "before": "before.png",
+      "after": "after.png",
+      "water_before": "water_before.png",
+      "water_after": "water_after.png",
+      "change": "change.png",
+      "coverage": "coverage.png",
+      "reference": "reference.png"
+     }
+    },
+    {
+     "id": "oct01-oct25-2026",
+     "folder": "pairs/oct01-oct25-2026/",
+     "before": "2026-10-01",
+     "after": "2026-10-25",
+     "pol": "HHHH",
+     "updated": "2026-11-11T17:36:56+00:00",
+     "images": {
+      "before": "before.png",
+      "after": "after.png",
+      "water_before": "water_before.png",
+      "water_after": "water_after.png",
+      "change": "change.png",
+      "coverage": "coverage.png",
+      "reference": "reference.png"
+     }
+    }
+   ],
+   "pair_index": "index.json"
   }
  ],
  "errors": [],
