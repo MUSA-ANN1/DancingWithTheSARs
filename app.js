@@ -1,21 +1,21 @@
-/* Dancing with the SARs: Caspian Sea
-   Real sky (star catalogue, Milky Way, Sun, Moon) around a day/night Earth.
-   The camera orbits the Earth; the Earth itself never rotates, so the
-   Caspian always stays centred. Users can only zoom.
-   Requires: three.js r158 (global), astro.js (window.Astro). */
+
+
+
+
+
 'use strict';
 
 (function () {
 
-  /* ── Constants ─────────────────────────────────────────────── */
+  
   const DEG = Math.PI / 180;
   const A = window.Astro;
 
-  const CASPIAN = { lon: 50.7, lat: 41.8 };                  // view centre
-  const CASPIAN_BBOX = { w: 46.5, s: 36.4, e: 55.0, n: 47.5 }; // ASF search area
+  const CASPIAN = { lon: 50.7, lat: 41.8 };                  
+  const CASPIAN_BBOX = { w: 46.5, s: 36.4, e: 55.0, n: 47.5 }; 
   const INTRO_MS = 3000;
-  const START_DIST = 11;      // Earth radii, far away
-  const END_DIST = 1.55;      // zoomed on the Caspian
+  const START_DIST = 11;      
+  const END_DIST = 1.55;      
   const MIN_DIST = 1.08;
   const MAX_DIST = 11;
   const PLAY_MS = 1600;
@@ -39,7 +39,7 @@
     'https://raw.githubusercontent.com/ofrohn/d3-celestial/master/data/mw.json'
   ];
 
-  /* ── DOM ────────────────────────────────────────────────────── */
+  
   const $ = s => document.querySelector(s);
   const globeEl = $('#globe-container');
   const introOv = $('#intro-overlay');
@@ -75,11 +75,11 @@
     if (msg && ms) statusTimer = setTimeout(() => setStatus(''), ms);
   }
 
-  /* ── Geometry helpers ───────────────────────────────────────── */
-  /* One formula for both geography and the sky: longitude / right
-     ascension 0 sits on +x, north is +y, east runs toward -z.
-     This matches how THREE.SphereGeometry wraps an equirectangular
-     texture, so the Earth map, the stars and the Sun all agree. */
+  
+  
+
+
+
   function sphToVec3(lonRad, latRad, r) {
     return new THREE.Vector3(
       r * Math.cos(latRad) * Math.cos(lonRad),
@@ -91,9 +91,9 @@
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
   const easeInOut = t => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 
-  /* ════════════════════════════════════════════════════════════
-     1. SCENE
-  ════════════════════════════════════════════════════════════ */
+  
+
+
   let renderer, scene, camera, sky, sunGroupItems = {}, moonMesh, moonLight;
   const earthUniforms = {
     dayMap: { value: null },
@@ -118,10 +118,10 @@
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera(45, W / H, 0.05, 4000);
 
-    // The sky group holds everything that lives in inertial space.
-    // It is rotated each frame by minus the sidereal time, so that in
-    // the Earth-fixed frame the stars, Sun and Moon sit where they
-    // really are right now.
+    
+    
+    
+    
     sky = new THREE.Group();
     scene.add(sky);
 
@@ -224,9 +224,9 @@
     buildCaspianHighlight();
   }
   function buildCountryBorders() {
-    // Keep country boundaries as true spherical vector lines, rather than
-    // relying only on the rasterized map texture. This mirrors the crisp,
-    // continuous vector borders from the earlier globe.
+    
+    
+    
     if (typeof WORLD === 'undefined' || !window.topojson) return;
 
     const mesh = topojson.mesh(WORLD, WORLD.objects.countries, (a, b) => a !== b);
@@ -261,9 +261,9 @@
   }
 
   function buildCaspianHighlight() {
-    // Keep the sea fill, but draw its shoreline as spherical vector segments.
-    // The outline deliberately uses the same radius, color and depth behavior
-    // as buildCountryBorders(), so both kinds of borders share one visual style.
+    
+    
+    
     const shore = [
       [47.0, 48.0], [49.4, 47.2], [51.8, 46.8], [53.5, 45.8],
       [53.9, 44.2], [53.2, 42.5], [52.8, 40.7], [52.1, 39.0],
@@ -304,8 +304,8 @@
     fill.material.depthTest = false;
     scene.add(fill);
 
-    // Match the country-border vector treatment: short spherical line segments,
-    // a fine dark stroke, and depth testing so the far side does not bleed through.
+    
+    
     const borderPositions = [];
     for (let i = 0; i < shore.length; i++) {
       const a = shore[i];
@@ -374,7 +374,7 @@
   }
 
   function buildSun() {
-    // Real angular size: about 0.53 degrees across, scaled by Earth-Sun distance.
+    
     const disc = new THREE.Mesh(
       new THREE.SphereGeometry(1, 32, 16),
       new THREE.MeshBasicMaterial({ color: 0xfff4d8 })
@@ -398,7 +398,7 @@
     scene.add(new THREE.AmbientLight(0x1a2233, 0.35));
   }
 
-  /* ── Real stars ─────────────────────────────────────────────── */
+  
   async function fetchJSON(urls, timeoutMs) {
     for (const url of urls) {
       try {
@@ -407,7 +407,7 @@
         const res = await fetch(url, { signal: ac.signal });
         clearTimeout(id);
         if (res.ok) return await res.json();
-      } catch (e) { /* try next source */ }
+      } catch (e) {  }
     }
     return null;
   }
@@ -424,7 +424,7 @@
   function bvToRGB(bv) {
     const k = 4600 * (1 / (0.92 * bv + 1.7) + 1 / (0.92 * bv + 0.62));
     const [r, g, b] = kelvinToRGB(clamp(k, 2500, 30000));
-    const w = 0.5; // eyes see stars as pale, so blend toward white
+    const w = 0.5; 
     return [lerp(r, 1, w), lerp(g, 1, w), lerp(b, 1, w)];
   }
 
@@ -447,7 +447,7 @@
       if (!isFinite(mag)) continue;
       let bv = parseFloat(f.properties.bv);
       if (!isFinite(bv)) bv = 0.6;
-      // Catalogue coordinates are [right ascension in degrees, declination].
+      
       const v = sphToVec3(c[0] * DEG, c[1] * DEG, SKY_RADIUS);
       pos.set([v.x, v.y, v.z], k * 3);
       const [r, g, b] = bvToRGB(bv);
@@ -486,7 +486,7 @@
     setStatus(`${k.toLocaleString('en-US')} real stars loaded`, 4000);
   }
 
-  /* ── Real Milky Way (outline data painted to a sky texture) ── */
+  
   async function loadMilkyWay() {
     const data = await fetchJSON(MW_URLS);
     if (!data || !Array.isArray(data.features)) return;
@@ -506,7 +506,7 @@
       for (const poly of polys) {
         const path = new Path2D();
         for (const ring of poly) {
-          // unwrap longitudes so rings crossing the +-180 seam stay continuous
+          
           let prev = null;
           const pts = ring.map(([lo, la]) => {
             if (prev !== null) {
@@ -538,7 +538,7 @@
     sky.add(mesh);
   }
 
-  /* ── Per-frame real-time sky ────────────────────────────────── */
+  
   const Y_AXIS = new THREE.Vector3(0, 1, 0);
 
   function updateSky() {
@@ -549,7 +549,7 @@
     const sun = A.sunEq(jd);
     const sunVec = sphToVec3(sun.ra, sun.dec, 1);
 
-    // Sun position in inertial space, with its true angular size
+    
     const angRadius = (0.2666 * DEG) / sun.au;
     const r = SUN_RENDER_DIST * Math.tan(angRadius);
     sunGroupItems.disc.position.copy(sunVec).multiplyScalar(SUN_RENDER_DIST);
@@ -557,7 +557,7 @@
     sunGroupItems.glow.position.copy(sunGroupItems.disc.position);
     sunGroupItems.glow.scale.setScalar(r * 22);
 
-    // Sun direction in the Earth-fixed frame, used for day/night shading
+    
     const fixed = sunVec.clone().applyAxisAngle(Y_AXIS, -theta);
     earthUniforms.sunDir.value.copy(fixed);
     moonLight.position.copy(fixed).multiplyScalar(50);
@@ -566,10 +566,10 @@
     moonMesh.position.copy(sphToVec3(moon.ra, moon.dec, moon.distEarthRadii));
   }
 
-  /* ════════════════════════════════════════════════════════════
-     2. CAMERA: opening animation and zoom-only controls
-  ════════════════════════════════════════════════════════════ */
-  let phase = 'intro';          // intro, explore
+  
+
+
+  let phase = 'intro';          
   let introStart = 0;
   let fadeStarted = false;
   let dist = START_DIST;
@@ -584,7 +584,7 @@
   function stepIntro(now) {
     const t = clamp((now - introStart) / INTRO_MS, 0, 1);
     const e = easeInOut(t);
-    // start over longitude 0, orbit one full turn, finish above the Caspian
+    
     placeCamera(lerp(0, 360 + CASPIAN.lon, e), lerp(0, CASPIAN.lat, e), lerp(START_DIST, END_DIST, e));
 
     if (t > 0.78 && !fadeStarted) {
@@ -644,12 +644,12 @@
     });
   }
 
-  /* ════════════════════════════════════════════════════════════
-     3. NISAR DATA (ASF search API) AND HISTORY TIMELINE
-  ════════════════════════════════════════════════════════════ */
-  let days = [];                // one entry per acquisition day, ascending
+  
+
+
+  let days = [];                
   let currentIdx = -1;
-  let nisarState = 'idle';      // idle, loading, ready, empty, error
+  let nisarState = 'idle';      
   let playTimer = null;
   let isPlaying = false;
 
@@ -835,10 +835,10 @@
       const dd = Math.abs(d.offset - v);
       if (dd < bd) { bd = dd; best = i; }
     });
-    selectDay(best);          // snaps the thumb to the nearest real acquisition
+    selectDay(best);          
   });
 
-  /* ── Open / close the history bar (button at the top) ── */
+  
   function openHistory() {
     timeline.hidden = false;
     nisarPanel.hidden = false;
@@ -856,7 +856,7 @@
   historyBtn.addEventListener('click', () => (timeline.hidden ? openHistory() : closeHistory()));
   historyClose.addEventListener('click', closeHistory);
 
-  /* ── Play / pause through the acquisition dates ── */
+  
   playBtn.addEventListener('click', () => (isPlaying ? stopPlay() : startPlay()));
   function startPlay() {
     if (days.length < 2) return;
@@ -877,9 +877,9 @@
     playTimer = setTimeout(stepPlay, PLAY_MS);
   }
 
-  /* ════════════════════════════════════════════════════════════
-     4. LOOP, RESIZE, BOOT
-  ════════════════════════════════════════════════════════════ */
+  
+
+
   function frame(now) {
     requestAnimationFrame(frame);
     updateSky();
