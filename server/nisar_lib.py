@@ -39,8 +39,6 @@ def blockmean(ds, step, positive_only=False, budget=32e6, mask_ds=None):
         end = min(r + rows, R)
         a = ds[r:end, :C].astype("float32")
         if mask_ds is not None:
-            # ASF GCOV mask convention: 1..254 are valid subswath samples;
-            # 0 is invalid and 255 is fill/outside the acquisition.
             m = mask_ds[r:end, :C]
             a[(m == 0) | (m == 255)] = np.nan
         if positive_only: a[a <= 0] = np.nan
@@ -135,10 +133,6 @@ def quant_png(a, lo, hi, path):
     v = np.zeros(a.shape, np.float32)
     v[ok] = np.clip((a[ok] - lo) / (hi - lo), 0, 1) * 254 + 1
 
-    # Cosmetic-only gap repair: fill at most two iterations of isolated 1-pixel
-    # holes surrounded by at least 6 of 8 valid neighbors. Large missing swaths
-    # remain transparent, and the scientific arrays used for statistics/change
-    # detection are never modified.
     for _ in range(2):
         padded_ok = np.pad(ok, 1, mode="constant", constant_values=False)
         padded_v = np.pad(v, 1, mode="constant", constant_values=0)
