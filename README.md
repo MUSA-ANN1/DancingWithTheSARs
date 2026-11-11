@@ -62,6 +62,13 @@ The website is served through GitHub Pages:
 
 The globe and its interface are implemented in the root-level HTML, CSS, and JavaScript files, including `globe.html`, `app.js`, `globe.css`, `world.js`, and supporting scripts. The comparison panel reads the compact products from the `data` branch.
 
+## Android app
+
+The Android app is a lightweight WebView wrapper that presents the project website in a full-screen, app-style interface. The website remains responsible for the main content and functionality.
+
+- [Android Studio project and source code (android branch)](https://github.com/MUSA-ANN1/DancingWithTheSARs/tree/android)
+- [Debug APK](https://github.com/MUSA-ANN1/DancingWithTheSARs/blob/android/app-debug.apk)
+
 ## Scientific limitations
 
 - **Backscatter change is not shoreline displacement.** Wind, waves, surface moisture, vegetation, roughness, radar geometry, and other effects can change radar return without a coastline moving.
@@ -98,5 +105,8 @@ The project uses NISAR Level-2 GCOV products distributed through the Alaska Sate
 **Team Hyperia** — NASA Space Apps Challenge 2026, Ashgabat.
 
 - Alyhan Bayryyev — Team leader
+- Abdullah Bayryyev — Team member
 - Musa Annagulyyev — Team member
+- Suray Annagulyyev — Team member
 - Sanjar Osmanov — Team member
+- Ismail Osmanov — Team member
