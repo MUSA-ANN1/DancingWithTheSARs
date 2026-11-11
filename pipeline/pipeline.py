@@ -158,7 +158,6 @@ def main():
     if int(valid.sum()) < 100:
         raise SystemExit("Too few overlapping valid pixels; choose another pair/ROI.")
 
-    # Valid only when the selected layers are positive linear backscatter/power.
     change = np.full(a.shape, np.nan, dtype="float32")
     change[valid] = np.abs(10.0 * np.log10(a[valid]) - 10.0 * np.log10(b_aligned[valid]))
 
