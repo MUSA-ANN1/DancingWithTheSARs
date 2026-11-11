@@ -9,14 +9,14 @@ Dancing with the SARs is a NASA Space Apps Challenge 2026 project by **Team Hype
 ## What the project currently does
 
 - Searches ASF DAAC for NISAR GCOV observations intersecting the configured Caspian Sea area.
-- Groups observations by repeat-pass track, orbit direction, and frame, then pairs the two newest available dates for each matching frame.
+- Groups observations by repeat-pass track, orbit direction, and frame, then creates a separate product for every consecutive compatible acquisition-date pair. Each date pair is stored independently, with up to 40 matching frame pairs mosaicked together.
 - Processes a consistent polarization across the mosaic (HHHH is preferred; HVHV is the fallback) and requires the GCOV quality-mask layer.
 - Excludes invalid mask samples before downsampling, converts positive linear backscatter power to dB, aligns overlapping scenes, and blends overlaps to reduce visible granule seams.
 - Builds before/after mosaics and experimental water-classification and coastal-zone screening layers.
-- Exports compact PNG products and JSON metadata to the separate `data` branch.
+- Exports compact PNG products and JSON metadata to the separate `data` branch. Each date pair is stored under `regions/caspian-sea/pairs/<date-pair>/`; `regions/caspian-sea/index.json` lists all available pairs, and the root `meta.json` keeps the newest pair for backward compatibility.
 - Displays the Caspian observations in a browser-based 3D globe with a historical-date interface and a before/after comparison panel.
 
-The current configured study area is the Caspian Sea basin-wide bounding box. The pipeline currently processes up to 40 repeat-frame pairs and targets a 768-pixel output height; see `server/config.json`.
+The current configured study area is the Caspian Sea basin-wide bounding box. The pipeline searches a rolling 730-day window, processes up to three previously unprocessed date-pair groups per run, combines up to 40 matching frame pairs within each date pair, and targets a 768-pixel output height; see `server/config.json`.
 
 ## Current data products
 
@@ -37,7 +37,7 @@ The PNGs are encoded with transparency for no-data areas. See the `encoding` fie
 
 ## Processing workflow
 
-The automated workflow is defined in `.github/workflows/nisar.yml`.
+The automated workflow is defined in `.github/workflows/nisar.yml`. It runs daily at 05:17 UTC, as well as on pushes to `main` and manual dispatch. Each run restores the existing `data` branch before processing, so already-published date pairs are skipped and historical products are preserved.
 
 1. GitHub Actions installs the Python dependencies in `server/requirements.txt`.
 2. It checks that the `EDL_TOKEN` secret is configured.
