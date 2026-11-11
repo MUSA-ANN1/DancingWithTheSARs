@@ -30,8 +30,8 @@ def run(r, session, state, force, target, cfg, out, tmp, finish, log):
     if not by_dates:
         raise RuntimeError('No repeat GCOV frame pairs found over the Caspian polygon.')
     limit=int(cfg.get('max_date_pairs_per_run',3))
-    completed=[]
-    processed=0
+    pair_errors=[]
+    attempted=0
     ordered=sorted(by_dates, key=lambda pair:(pair[1],pair[0]), reverse=True)
     for before,after in ordered:
         slug=f"{dt.date.fromisoformat(before):%b%d}".lower()+f"-{dt.date.fromisoformat(after):%b%d}".lower()+f"-{dt.date.fromisoformat(after):%Y}"
@@ -39,7 +39,6 @@ def run(r, session, state, force, target, cfg, out, tmp, finish, log):
         pair_dir=out/'regions'/pair_id
         if not force and (pair_dir/'meta.json').exists():
             log(slug,'already processed, skipped')
-            completed.append((before,after,slug))
             continue
         frame_pairs=sorted(by_dates[(before,after)], key=lambda x:(x[2][0],x[2][1],x[2][2]))
         max_frames=int(cfg.get('max_frame_pairs_per_date_pair',40))
@@ -47,10 +46,16 @@ def run(r, session, state, force, target, cfg, out, tmp, finish, log):
         pair_region=dict(r)
         pair_region['name']=pair_id
         pair_region['label']=f"{r.get('label',r['name'])} · {before} to {after}"
-        _run_pair(pair_region,session,state,force,target,cfg,out,tmp,finish,log,frame_pairs)
-        completed.append((before,after,slug))
-        processed += 1
-        if processed >= limit:
+        attempted += 1
+        try:
+            _run_pair(pair_region,session,state,force,target,cfg,out,tmp,finish,log,frame_pairs)
+        except Exception as exc:
+            pair_errors.append({'id':slug,'before':before,'after':after,'error':str(exc)[:500]})
+            log(slug,'FAILED:',str(exc)[:250])
+            if attempted >= limit:
+                break
+            continue
+        if attempted >= limit:
             break
     pairs_root=out/'regions'/r['name']/'pairs'
     entries=[]
@@ -63,7 +68,7 @@ def run(r, session, state, force, target, cfg, out, tmp, finish, log):
             log('could not index',meta_path,exc)
     entries.sort(key=lambda x:(x.get('after') or '',x.get('before') or ''),reverse=True)
     pairs_root.mkdir(parents=True,exist_ok=True)
-    index={'name':r['name'],'generated':dt.datetime.now(dt.timezone.utc).isoformat(timespec='seconds'),'count':len(entries),'pairs':entries}
+    index={'name':r['name'],'generated':dt.datetime.now(dt.timezone.utc).isoformat(timespec='seconds'),'count':len(entries),'pairs':entries,'errors':pair_errors}
     (out/'regions'/r['name']/'index.json').write_text(json.dumps(index,indent=1))
     if entries:
         latest=entries[0]
