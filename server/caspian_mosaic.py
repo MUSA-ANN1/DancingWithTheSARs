@@ -11,24 +11,73 @@ def name_of(p): return p.properties.get('sceneName') or p.properties.get('fileID
 
 def run(r, session, state, force, target, cfg, out, tmp, finish, log):
     import asf_search as asf
-    import rasterio
-    from rasterio.transform import from_origin
-    from rasterio.warp import reproject, Resampling
     bbox=cfg.get('caspian_bbox',[46.5,36.4,55.0,47.5]); west,south,east,north=bbox
     wkt=f'POLYGON(({west} {south},{east} {south},{east} {north},{west} {north},{west} {south}))'
     end=dt.date.today()+dt.timedelta(days=1); start=end-dt.timedelta(days=r.get('days',365))
     products=list(asf.search(dataset='NISAR',processingLevel='GCOV',intersectsWith=wkt,start=start.isoformat(),end=end.isoformat(),maxResults=1000))
-    groups=defaultdict(dict)
-    for p in products:
+    by_frame=defaultdict(dict)
+    for product in products:
         try:
-            q=L.parse_name(name_of(p)); groups[(q['track'],q['dir'],q['frame'])][q['date']]=p
-        except Exception: pass
-    pairs=[]
-    for key, dates in groups.items():
+            q=L.parse_name(name_of(product))
+            by_frame[(q['track'],q['dir'],q['frame'])][q['date']]=product
+        except Exception:
+            continue
+    by_dates=defaultdict(list)
+    for key, dates in by_frame.items():
         ds=sorted(dates)
-        if len(ds)>=2: pairs.append((ds[-2],ds[-1],key,dates[ds[-2]],dates[ds[-1]]))
-    pairs.sort(key=lambda x:(x[1],x[0]),reverse=True); pairs=pairs[:int(cfg.get('max_frame_pairs',10))]
-    if not pairs: raise RuntimeError('No repeat GCOV frame pairs found over the Caspian polygon.')
+        for before, after in zip(ds, ds[1:]):
+            by_dates[(before,after)].append((before,after,key,dates[before],dates[after]))
+    if not by_dates:
+        raise RuntimeError('No repeat GCOV frame pairs found over the Caspian polygon.')
+    limit=int(cfg.get('max_date_pairs_per_run',3))
+    completed=[]
+    ordered=sorted(by_dates, key=lambda pair:(pair[1],pair[0]), reverse=True)
+    for before,after in ordered:
+        slug=f"{dt.date.fromisoformat(before):%b%d}".lower()+f"-{dt.date.fromisoformat(after):%b%d}".lower()+f"-{dt.date.fromisoformat(after):%Y}"
+        pair_id=f"{r['name']}/pairs/{slug}"
+        pair_dir=out/'regions'/pair_id
+        if not force and (pair_dir/'meta.json').exists():
+            log(slug,'already processed, skipped')
+            completed.append((before,after,slug))
+            continue
+        frame_pairs=sorted(by_dates[(before,after)], key=lambda x:(x[2][0],x[2][1],x[2][2]))
+        max_frames=int(cfg.get('max_frame_pairs_per_date_pair',40))
+        frame_pairs=frame_pairs[:max_frames]
+        pair_region=dict(r)
+        pair_region['name']=pair_id
+        pair_region['label']=f"{r.get('label',r['name'])} · {before} to {after}"
+        _run_pair(pair_region,session,state,force,target,cfg,out,tmp,finish,log,frame_pairs)
+        completed.append((before,after,slug))
+        if len([x for x in completed if not (out/'regions'/r['name']/'pairs'/x[2]/'meta.json').exists()])>=limit:
+            break
+    pairs_root=out/'regions'/r['name']/'pairs'
+    entries=[]
+    for meta_path in sorted(pairs_root.glob('*/meta.json')):
+        try:
+            m=json.loads(meta_path.read_text())
+            folder=meta_path.parent.name
+            entries.append({'id':folder,'folder':f'pairs/{folder}/','before':m.get('before'),'after':m.get('after'),'pol':m.get('pol'),'updated':m.get('updated'),'images':m.get('images',{})})
+        except Exception as exc:
+            log('could not index',meta_path,exc)
+    entries.sort(key=lambda x:(x.get('after') or '',x.get('before') or ''),reverse=True)
+    pairs_root.mkdir(parents=True,exist_ok=True)
+    index={'name':r['name'],'generated':dt.datetime.now(dt.timezone.utc).isoformat(timespec='seconds'),'count':len(entries),'pairs':entries}
+    (out/'regions'/r['name']/'index.json').write_text(json.dumps(index,indent=1))
+    if entries:
+        latest=entries[0]
+        latest_dir=pairs_root/latest['id']
+        root_dir=out/'regions'/r['name']
+        for item in latest_dir.iterdir():
+            if item.is_file():
+                shutil.copy2(item,root_dir/item.name)
+        log(r['name'],'indexed',len(entries),'date pairs; latest',latest['before'],'to',latest['after'])
+
+
+def _run_pair(r, session, state, force, target, cfg, out, tmp, finish, log, pairs):
+    import rasterio
+    from rasterio.transform import from_origin
+    from rasterio.warp import reproject, Resampling
+    bbox=cfg.get('caspian_bbox',[46.5,36.4,55.0,47.5]); west,south,east,north=bbox
     max_span = int(cfg.get('max_composite_span_days', 7))
     before_dates = sorted({p[0] for p in pairs})
     after_dates = sorted({p[1] for p in pairs})
@@ -41,7 +90,10 @@ def run(r, session, state, force, target, cfg, out, tmp, finish, log):
         )
     signature=[name_of(p) for pair in pairs for p in pair[3:5]]
     rd=out/'regions'/r['name']
-    if not force and state.get(r['name'])==signature and (rd/'meta.json').exists(): return log(r['name'],'nothing new, skipped')
+    if not force and (rd/'meta.json').exists():
+        existing=json.loads((rd/'meta.json').read_text())
+        if existing.get('scenes')==[name_of(p) for pair in pairs for p in pair[3:5]]:
+            return log(r['name'],'already processed, skipped')
     width=max(512,int(target*(east-west)/(north-south))); height=int(target); shape=(height,width)
     dst_transform=from_origin(west,north,(east-west)/width,(north-south)/height)
     sums=[np.zeros(shape,np.float64),np.zeros(shape,np.float64)]
@@ -221,7 +273,7 @@ def run(r, session, state, force, target, cfg, out, tmp, finish, log):
                                  'coastal_band_pixels': 15}
         }
         evidence=['Mosaic assembled from matching repeat NISAR track/direction/frame pairs. Overlapping scenes are median-offset aligned and edge-feather blended to reduce tile seams.','The change layer is masked to the Natural Earth Caspian-water polygon; land pixels are transparent.','Shoreline-change candidates are restricted to a 15-pixel band around the Natural Earth reference shoreline.','Candidate pixels require a 2 dB margin from both date-specific thresholds and at least 3 dB temporal backscatter difference.','All contributing scenes use one consistent polarization (HHHH preferred, otherwise HVHV) and require the GCOV mask; mask values 0 and 255 are excluded before downsampling.' ,'Water classification is exploratory; wind, waves, vegetation, soil moisture and radar geometry can mimic shoreline change.','coverage.png shows valid NISAR observation availability, not the shoreline. reference.png is Natural Earth reference geography, not an observation.',f'Processed {len(pairs)} frame pairs; tile dates range from {min(dates_seen)} to {max(dates_seen)}.']
-        meta=finish(r,{'type':'mosaic','mode':'shore','before':min(dates_seen),'after':max(dates_seen),'bbox':bbox,'size':[width,height],'pol':reference_pol,'quality_mask':'Applied before downsampling; mask values 1..254 valid, 0 and 255 excluded','quality_masked_scene_count':len(quality_masked_scenes),'frame_pair_dates':frame_pair_dates,'unit':'dB','range':list(DB_RANGE),'threshold':[round(threshold_before,1),round(threshold_after,1)],'stats':stats,'category':'Coastal-zone shoreline-change screening','confidence':'exploratory; threshold and temporal-difference filters applied','evidence':evidence,'scenes':scenes,'frame_pairs':len(pairs),'before_date_window':[before_dates[0],before_dates[-1]],'after_date_window':[after_dates[0],after_dates[-1]],'max_composite_span_days':max_span,'input_audits':input_audits,'images':{'before':'before.png','after':'after.png','water_before':'water_before.png','water_after':'water_after.png','change':'change.png','coverage':'coverage.png','reference':'reference.png'}},rd)
+        meta=finish(r,{'type':'mosaic','mode':'shore','before':min(dates_seen),'after':max(dates_seen),'bbox':bbox,'size':[width,height],'pol':reference_pol,'quality_mask':'Applied before downsampling; mask values 1..254 valid, 0 and 255 excluded','quality_masked_scene_count':len(quality_masked_scenes),'frame_pair_dates':frame_pair_dates,'unit':'dB','range':list(DB_RANGE),'threshold':[round(threshold_before,1),round(threshold_after,1)],'stats':stats,'category':'Coastal-zone shoreline-change screening','confidence':'exploratory; threshold and temporal-difference filters applied','evidence':evidence,'scenes':scenes,'frame_pairs':len(pairs), 'pair_id':r['name'].split('/')[-1],'before_date_window':[before_dates[0],before_dates[-1]],'after_date_window':[after_dates[0],after_dates[-1]],'max_composite_span_days':max_span,'input_audits':input_audits,'images':{'before':'before.png','after':'after.png','water_before':'water_before.png','water_after':'water_after.png','change':'change.png','coverage':'coverage.png','reference':'reference.png'}},rd)
         meta['elapsed_s']=round(time.monotonic()-started_at,1); (rd/'meta.json').write_text(json.dumps(meta,indent=1)); state[r['name']]=signature; log(r['name'],'mosaic complete',stats)
     finally:
         pass
