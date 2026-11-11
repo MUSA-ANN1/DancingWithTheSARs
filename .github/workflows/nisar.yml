@@ -1,6 +1,8 @@
 name: NISAR Caspian processing
 
 on:
+  schedule:
+    - cron: '17 5 * * *'
   workflow_dispatch:
   push:
     branches: [main]
@@ -33,6 +35,10 @@ jobs:
           df -h
           mkdir -p "$OUT_DIR" "$TMP_DIR"
           df -h "$OUT_DIR" "$TMP_DIR"
+          if [ -d previous-data/regions ]; then cp -a previous-data/regions "$OUT_DIR/"; fi
+          for file in index.json level.json; do
+            if [ -f "previous-data/$file" ]; then cp -a "previous-data/$file" "$OUT_DIR/"; fi
+          done
 
       - name: Set up Python
         uses: actions/setup-python@v5
