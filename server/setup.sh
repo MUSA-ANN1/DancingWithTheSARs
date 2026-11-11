@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# Run once on a fresh Ubuntu 24.04 EC2 instance:  sudo bash setup.sh
 set -euo pipefail
 [ "$(id -u)" = 0 ] || { echo "Run with sudo."; exit 1; }
 RUN_USER="${SUDO_USER:-ubuntu}"
