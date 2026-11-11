@@ -31,6 +31,7 @@ def run(r, session, state, force, target, cfg, out, tmp, finish, log):
         raise RuntimeError('No repeat GCOV frame pairs found over the Caspian polygon.')
     limit=int(cfg.get('max_date_pairs_per_run',3))
     completed=[]
+    processed=0
     ordered=sorted(by_dates, key=lambda pair:(pair[1],pair[0]), reverse=True)
     for before,after in ordered:
         slug=f"{dt.date.fromisoformat(before):%b%d}".lower()+f"-{dt.date.fromisoformat(after):%b%d}".lower()+f"-{dt.date.fromisoformat(after):%Y}"
@@ -48,7 +49,8 @@ def run(r, session, state, force, target, cfg, out, tmp, finish, log):
         pair_region['label']=f"{r.get('label',r['name'])} · {before} to {after}"
         _run_pair(pair_region,session,state,force,target,cfg,out,tmp,finish,log,frame_pairs)
         completed.append((before,after,slug))
-        if len([x for x in completed if not (out/'regions'/r['name']/'pairs'/x[2]/'meta.json').exists()])>=limit:
+        processed += 1
+        if processed >= limit:
             break
     pairs_root=out/'regions'/r['name']/'pairs'
     entries=[]
