@@ -1,8 +1,8 @@
 {
  "type": "mosaic",
  "mode": "shore",
- "before": "2026-10-16",
- "after": "2026-10-28",
+ "before": "2026-10-23",
+ "after": "2026-11-04",
  "bbox": [
   46.5,
   36.4,
@@ -15,56 +15,14 @@
  ],
  "pol": "HHHH",
  "quality_mask": "Applied before downsampling; mask values 1..254 valid, 0 and 255 excluded",
- "quality_masked_scene_count": 14,
+ "quality_masked_scene_count": 2,
  "frame_pair_dates": [
   {
-   "before": "2026-10-16",
-   "after": "2026-10-28",
-   "track": "056",
-   "direction": "A",
-   "frame": "020"
-  },
-  {
-   "before": "2026-10-16",
-   "after": "2026-10-28",
-   "track": "056",
-   "direction": "A",
-   "frame": "021"
-  },
-  {
-   "before": "2026-10-16",
-   "after": "2026-10-28",
-   "track": "056",
-   "direction": "A",
-   "frame": "022"
-  },
-  {
-   "before": "2026-10-16",
-   "after": "2026-10-28",
-   "track": "056",
-   "direction": "A",
-   "frame": "023"
-  },
-  {
-   "before": "2026-10-16",
-   "after": "2026-10-28",
-   "track": "056",
+   "before": "2026-10-23",
+   "after": "2026-11-04",
+   "track": "157",
    "direction": "A",
    "frame": "024"
-  },
-  {
-   "before": "2026-10-16",
-   "after": "2026-10-28",
-   "track": "056",
-   "direction": "A",
-   "frame": "025"
-  },
-  {
-   "before": "2026-10-16",
-   "after": "2026-10-28",
-   "track": "056",
-   "direction": "A",
-   "frame": "026"
   }
  ],
  "unit": "dB",
@@ -73,8 +31,8 @@
   0.0
  ],
  "threshold": [
-  -2.9,
-  -2.9
+  -5.9,
+  -5.1
  ],
  "stats": {
   "common_coverage_pct": 100.0,
@@ -88,8 +46,8 @@
   "retreat_pct_of_confident_coastal": 0.0,
   "advance_pct_of_confident_coastal": 0.0,
   "threshold_db": [
-   -2.9,
-   -2.9
+   -5.9,
+   -5.1
   ],
   "confidence_rules": {
    "threshold_margin_db": 2.0,
@@ -107,103 +65,31 @@
   "All contributing scenes use one consistent polarization (HHHH preferred, otherwise HVHV) and require the GCOV mask; mask values 0 and 255 are excluded before downsampling.",
   "Water classification is exploratory; wind, waves, vegetation, soil moisture and radar geometry can mimic shoreline change.",
   "coverage.png shows valid NISAR observation availability, not the shoreline. reference.png is Natural Earth reference geography, not an observation.",
-  "Processed 7 frame pairs; tile dates range from 2026-10-16 to 2026-10-28."
+  "Processed 1 frame pairs; tile dates range from 2026-10-23 to 2026-11-04."
  ],
  "scenes": [
-  "NISAR_L2_PR_GCOV_033_056_A_020_2005_DHDH_A_20261016T014624_20261016T014659_P05023_N_F_J_001",
-  "NISAR_L2_PR_GCOV_034_056_A_020_2005_DHDH_A_20261028T014624_20261028T014659_P05036_N_F_J_001",
-  "NISAR_L2_PR_GCOV_033_056_A_021_2005_DHDH_M_20261016T014658_20261016T014733_P05023_N_F_J_001",
-  "NISAR_L2_PR_GCOV_034_056_A_021_2005_DHDH_M_20261028T014658_20261028T014733_P05036_N_F_J_001",
-  "NISAR_L2_PR_GCOV_033_056_A_022_4005_DHDH_A_20261016T014732_20261016T014806_P05023_N_F_J_001",
-  "NISAR_L2_PR_GCOV_034_056_A_022_4005_DHDH_A_20261028T014732_20261028T014807_P05036_N_F_J_001",
-  "NISAR_L2_PR_GCOV_033_056_A_023_4005_DHDH_A_20261016T014805_20261016T014840_P05023_N_F_J_001",
-  "NISAR_L2_PR_GCOV_034_056_A_023_4005_DHDH_A_20261028T014806_20261028T014845_P05036_N_F_J_001",
-  "NISAR_L2_PR_GCOV_033_056_A_024_4005_DHDH_A_20261016T014839_20261016T014845_P05023_N_P_J_001",
-  "NISAR_L2_PR_GCOV_034_056_A_024_4005_DHDH_A_20261028T014840_20261028T014845_P05036_N_P_J_001",
-  "NISAR_L2_PR_GCOV_033_056_A_025_2005_DHDH_M_20261016T014913_20261016T014948_P05023_N_F_J_001",
-  "NISAR_L2_PR_GCOV_034_056_A_025_2005_DHDH_M_20261028T014914_20261028T014949_P05036_N_F_J_001",
-  "NISAR_L2_PR_GCOV_033_056_A_026_4005_DHDH_A_20261016T014944_20261016T015023_P05023_N_F_J_001",
-  "NISAR_L2_PR_GCOV_034_056_A_026_4005_DHDH_A_20261028T014948_20261028T015023_P05036_N_F_J_001"
+  "NISAR_L2_PR_GCOV_033_157_A_024_4005_DHDH_A_20261023T015659_20261023T015705_P05036_N_P_J_001",
+  "NISAR_L2_PR_GCOV_034_157_A_024_4005_DHDH_A_20261104T015659_20261104T015706_P05036_N_P_J_001"
  ],
- "frame_pairs": 7,
- "pair_id": "oct16-oct28-2026",
+ "frame_pairs": 1,
+ "pair_id": "oct23-nov04-2026",
  "before_date_window": [
-  "2026-10-16",
-  "2026-10-16"
+  "2026-10-23",
+  "2026-10-23"
  ],
  "after_date_window": [
-  "2026-10-28",
-  "2026-10-28"
+  "2026-11-04",
+  "2026-11-04"
  ],
  "max_composite_span_days": 7,
  "input_audits": [
   {
-   "scene": "NISAR_L2_PR_GCOV_033_056_A_020_2005_DHDH_A_20261016T014624_20261016T014659_P05023_N_F_J_001",
+   "scene": "NISAR_L2_PR_GCOV_033_157_A_024_4005_DHDH_A_20261023T015659_20261023T015705_P05036_N_P_J_001",
    "polarization": "HHHH",
    "quality_mask_used": true
   },
   {
-   "scene": "NISAR_L2_PR_GCOV_034_056_A_020_2005_DHDH_A_20261028T014624_20261028T014659_P05036_N_F_J_001",
-   "polarization": "HHHH",
-   "quality_mask_used": true
-  },
-  {
-   "scene": "NISAR_L2_PR_GCOV_033_056_A_021_2005_DHDH_M_20261016T014658_20261016T014733_P05023_N_F_J_001",
-   "polarization": "HHHH",
-   "quality_mask_used": true
-  },
-  {
-   "scene": "NISAR_L2_PR_GCOV_034_056_A_021_2005_DHDH_M_20261028T014658_20261028T014733_P05036_N_F_J_001",
-   "polarization": "HHHH",
-   "quality_mask_used": true
-  },
-  {
-   "scene": "NISAR_L2_PR_GCOV_033_056_A_022_4005_DHDH_A_20261016T014732_20261016T014806_P05023_N_F_J_001",
-   "polarization": "HHHH",
-   "quality_mask_used": true
-  },
-  {
-   "scene": "NISAR_L2_PR_GCOV_034_056_A_022_4005_DHDH_A_20261028T014732_20261028T014807_P05036_N_F_J_001",
-   "polarization": "HHHH",
-   "quality_mask_used": true
-  },
-  {
-   "scene": "NISAR_L2_PR_GCOV_033_056_A_023_4005_DHDH_A_20261016T014805_20261016T014840_P05023_N_F_J_001",
-   "polarization": "HHHH",
-   "quality_mask_used": true
-  },
-  {
-   "scene": "NISAR_L2_PR_GCOV_034_056_A_023_4005_DHDH_A_20261028T014806_20261028T014845_P05036_N_F_J_001",
-   "polarization": "HHHH",
-   "quality_mask_used": true
-  },
-  {
-   "scene": "NISAR_L2_PR_GCOV_033_056_A_024_4005_DHDH_A_20261016T014839_20261016T014845_P05023_N_P_J_001",
-   "polarization": "HHHH",
-   "quality_mask_used": true
-  },
-  {
-   "scene": "NISAR_L2_PR_GCOV_034_056_A_024_4005_DHDH_A_20261028T014840_20261028T014845_P05036_N_P_J_001",
-   "polarization": "HHHH",
-   "quality_mask_used": true
-  },
-  {
-   "scene": "NISAR_L2_PR_GCOV_033_056_A_025_2005_DHDH_M_20261016T014913_20261016T014948_P05023_N_F_J_001",
-   "polarization": "HHHH",
-   "quality_mask_used": true
-  },
-  {
-   "scene": "NISAR_L2_PR_GCOV_034_056_A_025_2005_DHDH_M_20261028T014914_20261028T014949_P05036_N_F_J_001",
-   "polarization": "HHHH",
-   "quality_mask_used": true
-  },
-  {
-   "scene": "NISAR_L2_PR_GCOV_033_056_A_026_4005_DHDH_A_20261016T014944_20261016T015023_P05023_N_F_J_001",
-   "polarization": "HHHH",
-   "quality_mask_used": true
-  },
-  {
-   "scene": "NISAR_L2_PR_GCOV_034_056_A_026_4005_DHDH_A_20261028T014948_20261028T015023_P05036_N_F_J_001",
+   "scene": "NISAR_L2_PR_GCOV_034_157_A_024_4005_DHDH_A_20261104T015659_20261104T015706_P05036_N_P_J_001",
    "polarization": "HHHH",
    "quality_mask_used": true
   }
@@ -217,14 +103,48 @@
   "coverage": "coverage.png",
   "reference": "reference.png"
  },
- "name": "caspian-sea/pairs/oct16-oct28-2026",
- "label": "Caspian Sea basin-wide view \u00b7 2026-10-16 to 2026-10-28",
+ "name": "caspian-sea/pairs/oct23-nov04-2026",
+ "label": "Caspian Sea basin-wide view \u00b7 2026-10-23 to 2026-11-04",
  "lon": 50.7,
  "lat": 41.8,
  "encoding": "PNG RGBA: R=G=B=v, alpha 255 = valid, 0 = no data. value = lo + (v-1)/254*(hi-lo)",
- "updated": "2026-11-11T17:02:15+00:00",
- "elapsed_s": 3933.2,
+ "updated": "2026-11-12T13:53:05+00:00",
+ "elapsed_s": 127.8,
  "available_pairs": [
+  {
+   "id": "oct23-nov04-2026",
+   "folder": "pairs/oct23-nov04-2026/",
+   "before": "2026-10-23",
+   "after": "2026-11-04",
+   "pol": "HHHH",
+   "updated": "2026-11-12T13:53:05+00:00",
+   "images": {
+    "before": "before.png",
+    "after": "after.png",
+    "water_before": "water_before.png",
+    "water_after": "water_after.png",
+    "change": "change.png",
+    "coverage": "coverage.png",
+    "reference": "reference.png"
+   }
+  },
+  {
+   "id": "oct18-oct30-2026",
+   "folder": "pairs/oct18-oct30-2026/",
+   "before": "2026-10-18",
+   "after": "2026-10-30",
+   "pol": "HHHH",
+   "updated": "2026-11-12T14:21:38+00:00",
+   "images": {
+    "before": "before.png",
+    "after": "after.png",
+    "water_before": "water_before.png",
+    "water_after": "water_after.png",
+    "change": "change.png",
+    "coverage": "coverage.png",
+    "reference": "reference.png"
+   }
+  },
   {
    "id": "oct16-oct28-2026",
    "folder": "pairs/oct16-oct28-2026/",
@@ -283,6 +203,23 @@
    "after": "2026-10-23",
    "pol": "HHHH",
    "updated": "2026-11-11T18:16:36+00:00",
+   "images": {
+    "before": "before.png",
+    "after": "after.png",
+    "water_before": "water_before.png",
+    "water_after": "water_after.png",
+    "change": "change.png",
+    "coverage": "coverage.png",
+    "reference": "reference.png"
+   }
+  },
+  {
+   "id": "oct09-oct21-2026",
+   "folder": "pairs/oct09-oct21-2026/",
+   "before": "2026-10-09",
+   "after": "2026-10-21",
+   "pol": "HHHH",
+   "updated": "2026-11-12T14:49:37+00:00",
    "images": {
     "before": "before.png",
     "after": "after.png",

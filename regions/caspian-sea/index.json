@@ -1,8 +1,42 @@
 {
  "name": "caspian-sea",
- "generated": "2026-11-11T18:16:36+00:00",
- "count": 4,
+ "generated": "2026-11-12T14:49:37+00:00",
+ "count": 7,
  "pairs": [
+  {
+   "id": "oct23-nov04-2026",
+   "folder": "pairs/oct23-nov04-2026/",
+   "before": "2026-10-23",
+   "after": "2026-11-04",
+   "pol": "HHHH",
+   "updated": "2026-11-12T13:53:05+00:00",
+   "images": {
+    "before": "before.png",
+    "after": "after.png",
+    "water_before": "water_before.png",
+    "water_after": "water_after.png",
+    "change": "change.png",
+    "coverage": "coverage.png",
+    "reference": "reference.png"
+   }
+  },
+  {
+   "id": "oct18-oct30-2026",
+   "folder": "pairs/oct18-oct30-2026/",
+   "before": "2026-10-18",
+   "after": "2026-10-30",
+   "pol": "HHHH",
+   "updated": "2026-11-12T14:21:38+00:00",
+   "images": {
+    "before": "before.png",
+    "after": "after.png",
+    "water_before": "water_before.png",
+    "water_after": "water_after.png",
+    "change": "change.png",
+    "coverage": "coverage.png",
+    "reference": "reference.png"
+   }
+  },
   {
    "id": "oct16-oct28-2026",
    "folder": "pairs/oct16-oct28-2026/",
@@ -70,14 +104,24 @@
     "coverage": "coverage.png",
     "reference": "reference.png"
    }
+  },
+  {
+   "id": "oct09-oct21-2026",
+   "folder": "pairs/oct09-oct21-2026/",
+   "before": "2026-10-09",
+   "after": "2026-10-21",
+   "pol": "HHHH",
+   "updated": "2026-11-12T14:49:37+00:00",
+   "images": {
+    "before": "before.png",
+    "after": "after.png",
+    "water_before": "water_before.png",
+    "water_after": "water_after.png",
+    "change": "change.png",
+    "coverage": "coverage.png",
+    "reference": "reference.png"
+   }
   }
  ],
- "errors": [
-  {
-   "id": "oct18-oct30-2026",
-   "before": "2026-10-18",
-   "after": "2026-10-30",
-   "error": "All-NaN slice encountered"
-  }
- ]
+ "errors": []
 }
