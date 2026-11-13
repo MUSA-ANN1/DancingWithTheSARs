@@ -880,7 +880,128 @@
     setPanelCollapsed(!isClosed);
   });
 
-  // Dataset tabs. GRACE-FO and Sentinel-2 are UI placeholders until their data is supplied.
+  // Dataset tabs share one comparison panel. NISAR uses date-pair mosaics;
+  // GRACE-FO and Landsat use their published image + scientific JSON summaries.
+  const datasetDetails = $('#dataset-details');
+  const panelTitle = $('#panel-title');
+  const externalDatasetConfigs = {
+    'grace-fo': {
+      label: 'GRACE-FO',
+      image: 'https://raw.githubusercontent.com/MUSA-ANN1/DancingWithTheSARs/data/Grace-Fo/grace.jpg',
+      json: 'https://raw.githubusercontent.com/MUSA-ANN1/DancingWithTheSARs/data/Grace-Fo/caspian_grace_data.json',
+      folder: 'https://github.com/MUSA-ANN1/DancingWithTheSARs/tree/data/Grace-Fo'
+    },
+    landsat: {
+      label: 'Landsat',
+      image: 'https://raw.githubusercontent.com/MUSA-ANN1/DancingWithTheSARs/data/Landsat/landsat.jpg',
+      json: 'https://raw.githubusercontent.com/MUSA-ANN1/DancingWithTheSARs/data/Landsat/landsat_data.json',
+      folder: 'https://github.com/MUSA-ANN1/DancingWithTheSARs/tree/data/Landsat'
+    }
+  };
+  const externalDatasetCache = new Map();
+  let externalDatasetToken = 0;
+
+  function renderDatasetDetails(items) {
+    datasetDetails.replaceChildren();
+    items.forEach(([label, value]) => {
+      if (value === undefined || value === null || value === '') return;
+      const row = document.createElement('div');
+      const term = document.createElement('dt');
+      const detail = document.createElement('dd');
+      term.textContent = label;
+      detail.textContent = String(value);
+      row.append(term, detail);
+      datasetDetails.appendChild(row);
+    });
+    datasetDetails.hidden = !items.length;
+  }
+
+  function datasetPeriod(data, kind) {
+    if (kind === 'grace-fo') {
+      const series = data.calendar_monthly_series || [];
+      if (series.length) return `${series[0].month} to ${series[series.length - 1].month}`;
+      return 'Monthly observations';
+    }
+    const obs = data.annual_observations || [];
+    if (!obs.length) return data.metadata && data.metadata.period || 'Annual observations';
+    return `${obs[0].year} to ${obs[obs.length - 1].year}`;
+  }
+
+  async function showExternalDataset(name) {
+    const cfg = externalDatasetConfigs[name];
+    if (!cfg) return;
+    const token = ++externalDatasetToken;
+    closeHistory();
+    pairBtn.hidden = true;
+    compareBar.hidden = true;
+    readoutEl.hidden = false;
+    factsEl.hidden = false;
+    explanation.hidden = false;
+    nisarLink.hidden = false;
+    datasetPlaceholder.hidden = true;
+    datasetDetails.hidden = true;
+    compareFigure.hidden = false;
+    panelTitle.textContent = cfg.label + ' observations';
+    readoutLabel.textContent = 'Observation period';
+    readoutDate.textContent = 'Loading…';
+    factProduct.textContent = cfg.label;
+    factArea.textContent = 'Caspian Sea';
+    explanation.textContent = 'Loading the published dataset metadata and observations.';
+    nisarLink.href = cfg.folder;
+    nisarLink.querySelector('span').textContent = 'Open ' + cfg.label + ' data';
+    setPanelEmpty('ph-circle-notch', 'Loading ' + cfg.label, 'Fetching the published image and JSON data.');
+
+    let data = externalDatasetCache.get(name);
+    if (!data) {
+      data = await fetchJSON([cfg.json]);
+      if (data) externalDatasetCache.set(name, data);
+    }
+    if (token !== externalDatasetToken) return;
+    if (!data) {
+      readoutDate.textContent = 'Data unavailable';
+      explanation.textContent = 'The dataset JSON could not be loaded from the data branch. Please try again later.';
+      setPanelEmpty('ph-warning', 'Dataset unavailable', 'The JSON file could not be reached.');
+      renderDatasetDetails([]);
+      return;
+    }
+
+    const md = data.metadata || {};
+    factProduct.textContent = md.dataset || cfg.label;
+    factArea.textContent = md.region || 'Caspian Sea';
+    readoutDate.textContent = datasetPeriod(data, name);
+    compareImg.alt = cfg.label + ' scientific data visualization for the Caspian Sea';
+    setPanelImage(cfg.image, compareImg.alt);
+
+    if (name === 'grace-fo') {
+      const trend = data.trend || {};
+      const processing = data.processing || {};
+      const slope = Number.isFinite(Number(trend.slope_cm_per_year))
+        ? Number(trend.slope_cm_per_year).toFixed(2) + ' cm/year' : 'Not available';
+      renderDatasetDetails([
+        ['Linear trend', slope],
+        ['R²', Number.isFinite(Number(trend.r_squared)) ? Number(trend.r_squared).toFixed(3) : 'Not available'],
+        ['Monthly records', processing.unique_calendar_months || (data.monthly_observations || []).length],
+        ['Missing months', processing.missing_calendar_months],
+        ['Source', md.source]
+      ]);
+      explanation.textContent = trend.interpretation ||
+        'GRACE-FO estimates mass anomalies from changes in Earth’s gravity field; this is not a direct sea-level measurement.';
+    } else {
+      const qa = data.quality_assessment || {};
+      const interpretation = data.interpretation || {};
+      const trend = data.trend || {};
+      renderDatasetDetails([
+        ['Annual scenes', (data.annual_observations || []).length],
+        ['Resolution', md.spatial_resolution_m ? md.spatial_resolution_m + ' m' : 'Not specified'],
+        ['Quality review', qa.status || 'Not specified'],
+        ['Index disagreement', Array.isArray(qa.low_index_overlap_years) && qa.low_index_overlap_years.length ? qa.low_index_overlap_years.join(', ') : 'None listed'],
+        ['Trend', trend.status === 'not_estimated' ? 'Not estimated' : (trend.slope ?? 'Not available')]
+      ]);
+      explanation.textContent = interpretation.reason ||
+        'Annual Landsat water-index observations. Review quality and index agreement before interpreting shoreline change.';
+    }
+  }
+
   function setDataset(name) {
     const tab = datasetTabs.find(t => t.dataset.dataset === name) || datasetTabs[0];
     datasetTabs.forEach(t => {
@@ -889,15 +1010,33 @@
       t.setAttribute('aria-selected', String(on));
       t.tabIndex = on ? 0 : -1;
     });
-    const isNisar = tab.dataset.dataset === 'nisar';
-    [compareFigure, compareBar, readoutEl, factsEl, explanation, nisarLink].forEach(el => { el.hidden = !isNisar; });
-    datasetPlaceholder.hidden = isNisar;
-    if (!isNisar) {
-      const label = tab.dataset.label || tab.textContent.trim();
-      placeholderTitle.textContent = `${label} data not added yet`;
-      placeholderBody.textContent = `${label} will be connected to this comparison later. No ${label} observations are shown yet.`;
-      closeHistory();
+    const selected = tab.dataset.dataset;
+    const isNisar = selected === 'nisar';
+    const external = Object.prototype.hasOwnProperty.call(externalDatasetConfigs, selected);
+    externalDatasetToken++;
+    [compareFigure, readoutEl, factsEl, explanation].forEach(el => { el.hidden = !isNisar && !external; });
+    compareBar.hidden = !isNisar;
+    pairBtn.hidden = !isNisar;
+    nisarLink.hidden = !isNisar && !external;
+    datasetDetails.hidden = true;
+    datasetPlaceholder.hidden = isNisar || external;
+    if (isNisar) {
+      panelTitle.textContent = 'Caspian Sea comparison';
+      nisarLink.href = 'https://search.asf.alaska.edu/';
+      nisarLink.querySelector('span').textContent = 'Open in ASF Vertex';
+      if (pairIdx >= 0 && meta) showMosaic(mosaicSide);
+      else setPanelEmpty('ph-circle-notch', 'Loading comparison', 'Fetching the latest radar mosaics.');
+      return;
     }
+    const label = tab.dataset.label || tab.textContent.trim();
+    if (external) {
+      showExternalDataset(selected);
+      return;
+    }
+    panelTitle.textContent = label + ' observations';
+    placeholderTitle.textContent = label + ' data not added yet';
+    placeholderBody.textContent = label + ' will be connected to this comparison later. No ' + label + ' observations are shown yet.';
+    closeHistory();
   }
   datasetTabs.forEach((tab, i) => {
     tab.addEventListener('click', () => setDataset(tab.dataset.dataset));
