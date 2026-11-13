@@ -149,13 +149,13 @@
     pointer-events: none;
   }
 
-  /* Toolbar: one horizontal row, top-right, above every panel */
+  /* Toolbar: Menu first, Historical Imagery directly underneath */
   #toolbar {
     z-index: 50;
     top: var(--m-top);
     right: calc(var(--gutter) + var(--safe-r));
-    flex-direction: row;
-    align-items: flex-start;
+    flex-direction: column;
+    align-items: flex-end;
   }
   .tool-btn { font-size: 1.375rem; box-shadow: 0 4px 16px rgb(0 0 0 / 35%); }
 
