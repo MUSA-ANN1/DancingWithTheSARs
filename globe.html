@@ -514,6 +514,7 @@
           <div class="dataset-tabs" role="tablist" aria-label="Dataset">
             <button type="button" class="dataset-tab is-active" role="tab" data-dataset="nisar" aria-selected="true" aria-controls="panel-body">NISAR L-band radar</button>
             <button type="button" class="dataset-tab" role="tab" data-dataset="grace-fo" data-label="GRACE-FO" aria-selected="false" aria-controls="panel-body">GRACE-FO</button>
+            <button type="button" class="dataset-tab" role="tab" data-dataset="landsat" data-label="Landsat" aria-selected="false" aria-controls="panel-body">Landsat</button>
             <button type="button" class="dataset-tab" role="tab" data-dataset="sentinel-2" data-label="Sentinel-2" aria-selected="false" aria-controls="panel-body">Sentinel-2</button>
           </div>
           <h2 id="panel-title">Caspian Sea comparison</h2>
@@ -555,6 +556,7 @@
         </dl>
 
         <p id="comparison-explanation">Radar observations over the Caspian Sea. Choose Before or After to compare the two acquisition mosaics.</p>
+        <dl id="dataset-details" class="facts dataset-details" hidden aria-live="polite"></dl>
 
         <a id="nisar-link" href="https://search.asf.alaska.edu/" target="_blank" rel="noopener">
           <span>Open in ASF Vertex</span>
@@ -677,6 +679,6 @@
 <script src="astro.js"></script>
 <script src="caspian-coastline.js?v=d746d94d"></script>
 
-<script src="app.js?v=hyperia-6"></script>
+<script src="app.js?v=hyperia-7"></script>
 </body>
 </html>
