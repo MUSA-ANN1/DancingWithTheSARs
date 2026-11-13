@@ -602,3 +602,21 @@ h3 { font-size: var(--step--1); font-weight: 600; color: var(--muted); }
     max-height: calc(100vh - var(--s3) * 2 - var(--tool) * 2 - var(--s1) * 2 - var(--safe-t) - var(--safe-b));
   }
 }
+
+
+/* Comparison panel slides left; its arrow handle remains visible for reopening. */
+#nisar-panel {
+  position: relative;
+  transform: translateX(0);
+  transition: transform 320ms cubic-bezier(.2,.8,.2,1);
+  will-change: transform;
+}
+#nisar-panel.is-collapsed {
+  transform: translateX(calc(-100% + var(--tool) + var(--s2) * 2));
+}
+#panel-toggle {
+  flex: 0 0 auto;
+}
+@media (prefers-reduced-motion: reduce) {
+  #nisar-panel { transition: none; }
+}
