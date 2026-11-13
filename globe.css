@@ -621,3 +621,20 @@ h3 { font-size: var(--step--1); font-weight: 600; color: var(--muted); }
 @media (prefers-reduced-motion: reduce) {
   #nisar-panel { transition: none; }
 }
+
+
+/* Supplementary metrics for the GRACE-FO and Landsat datasets. */
+.dataset-details {
+  display: grid;
+  gap: 0.35rem;
+  padding-top: var(--s2);
+  border-top: 1px solid var(--line);
+}
+.dataset-details > div {
+  display: grid;
+  grid-template-columns: minmax(5.5rem, 0.7fr) minmax(0, 1.3fr);
+  gap: var(--s1);
+  align-items: start;
+}
+.dataset-details dt { color: var(--muted); }
+.dataset-details dd { font-weight: 500; overflow-wrap: anywhere; }
