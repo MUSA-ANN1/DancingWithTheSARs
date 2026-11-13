@@ -67,7 +67,7 @@ The globe and its interface are implemented in the root-level HTML, CSS, and Jav
 The Android app is a lightweight WebView wrapper that presents the project website in a full-screen, app-style interface. The website remains responsible for the main content and functionality.
 
 - [Android Studio project and source code (android branch)](https://github.com/MUSA-ANN1/DancingWithTheSARs/tree/android)
-- [APK](https://github.com/MUSA-ANN1/DancingWithTheSARs/blob/android/app-debug.apk)
+- [APK](https://play.google.com/store/apps/details?id=com.hyperia.dancingwiththesars)
 
 ## Scientific limitations
 
