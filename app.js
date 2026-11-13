@@ -861,7 +861,6 @@
 
   // Slide the comparison panel off-canvas while keeping its arrow handle reachable.
   function setPanelCollapsed(collapsed) {
-    panelBody.hidden = collapsed;
     nisarPanel.classList.toggle('is-collapsed', collapsed);
     panelToggle.setAttribute('aria-expanded', String(!collapsed));
     panelToggle.setAttribute('aria-label', collapsed ? 'Show comparison panel' : 'Hide comparison panel');
@@ -1264,7 +1263,6 @@
     mainHead.hidden = false;
     toolbar.hidden = false;
     nisarPanel.hidden = false;
-    if (window.matchMedia('(max-width: 40rem)').matches) setPanelCollapsed(true);
     initData();
   }
 
