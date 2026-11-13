@@ -456,9 +456,6 @@ h3 { font-size: var(--step--1); font-weight: 600; color: var(--muted); }
   #settings-panel { right: var(--gutter); top: calc(var(--s3) + var(--safe-t) + var(--tool) * 2 + var(--s1) * 2); width: calc(100vw - var(--gutter) * 2); }
 }
 
-/* Comparison panel: collapsed card shrinks to its header in every layout */
-#nisar-panel.is-collapsed { flex: 0 0 auto; }
-#nisar-panel.is-collapsed #panel-body { display: none; }
 
 /* Dataset tabs in the comparison header */
 /* Tabs get their own full-width row; title and collapse button share the row below */
@@ -604,7 +601,7 @@ h3 { font-size: var(--step--1); font-weight: 600; color: var(--muted); }
 }
 
 
-/* Comparison panel slides left; its arrow handle remains visible for reopening. */
+/* The whole comparison panel slides horizontally; its arrow handle stays reachable. */
 #nisar-panel {
   position: relative;
   transform: translateX(0);
@@ -614,9 +611,7 @@ h3 { font-size: var(--step--1); font-weight: 600; color: var(--muted); }
 #nisar-panel.is-collapsed {
   transform: translateX(calc(-100% + var(--tool) + var(--s2) * 2));
 }
-#panel-toggle {
-  flex: 0 0 auto;
-}
+#panel-toggle { flex: 0 0 auto; }
 @media (prefers-reduced-motion: reduce) {
   #nisar-panel { transition: none; }
 }
