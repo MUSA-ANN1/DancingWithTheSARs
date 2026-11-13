@@ -611,7 +611,9 @@ h3 { font-size: var(--step--1); font-weight: 600; color: var(--muted); }
 #nisar-panel.is-collapsed {
   transform: translateX(calc(-100% + var(--tool) + var(--s2) * 2));
 }
-#panel-toggle { flex: 0 0 auto; }
+#panel-toggle { flex: 0 0 auto; position: relative; z-index: 30; pointer-events: auto; }
+#nisar-panel.is-collapsed { z-index: 30; }
+#nisar-panel.is-collapsed #panel-toggle { position: relative; z-index: 31; pointer-events: auto; }
 @media (prefers-reduced-motion: reduce) {
   #nisar-panel { transition: none; }
 }
