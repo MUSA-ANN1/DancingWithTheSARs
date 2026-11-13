@@ -217,8 +217,8 @@ h3 { font-size: var(--step--1); font-weight: 600; color: var(--muted); }
   top: calc(var(--s3) + var(--safe-t));
   right: calc(var(--gutter) + var(--safe-r));
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
+  flex-direction: row;
+  align-items: center;
   gap: var(--s1);
 }
 .tool-btn {
@@ -230,6 +230,21 @@ h3 { font-size: var(--step--1); font-weight: 600; color: var(--muted); }
   font-size: var(--step-2);
 }
 .tool-btn[aria-expanded="true"] { border-color: var(--accent); }
+.history-tool-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  width: auto;
+  min-width: var(--tool);
+  padding: 0 0.85rem;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.history-tool-btn .ph { font-size: 1.15rem; }
+.history-tool-btn[aria-expanded="true"] { border-color: var(--accent); color: var(--text); }
 
 #menu-panel {
   position: absolute;
@@ -311,7 +326,7 @@ h3 { font-size: var(--step--1); font-weight: 600; color: var(--muted); }
 #timeline {
   position: absolute;
   z-index: 25;
-  top: calc(var(--s3) + var(--safe-t) + var(--tool) * 2 + var(--s1) * 2);
+  top: calc(var(--s3) + var(--safe-t) + var(--tool) + var(--s1));
   right: calc(var(--gutter) + var(--safe-r));
   bottom: calc(var(--s3) + var(--safe-b));
   width: min(21rem, calc(100vw - var(--gutter) * 2));
