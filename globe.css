@@ -195,6 +195,9 @@ h3 { font-size: var(--step--1); font-weight: 600; color: var(--muted); }
 .facts > div { display: grid; grid-template-columns: 4.5rem 1fr; gap: var(--s1); }
 .facts dt { color: var(--muted); }
 .facts dd { font-weight: 500; font-variant-numeric: tabular-nums; }
+.validation-status { margin-top: var(--s2); }
+.validation-status > div { grid-template-columns: 4.5rem 1fr; }
+.validation-status dd { line-height: 1.45; }
 
 #comparison-explanation { font-size: var(--step--1); color: var(--muted); padding-top: var(--s2); border-top: 1px solid var(--line); }
 
