@@ -36,6 +36,7 @@
   const mainHead = $('#main-head');
   const toolbar = $('#toolbar');
   const menuBtn = $('#menu-btn');
+  const historyBtn = $('#history-btn');
   const menuPanel = $('#menu-panel');
   const settingsBtn = $('#settings-btn');
   const settingsClose = $('#settings-close');
@@ -1247,13 +1248,16 @@
     }
     timeline.hidden = false;
     pairBtn.setAttribute('aria-expanded', 'true');
+    historyBtn.setAttribute('aria-expanded', 'true');
   }
   function closeHistory() {
     timeline.hidden = true;
     pairBtn.setAttribute('aria-expanded', 'false');
+    historyBtn.setAttribute('aria-expanded', 'false');
   }
   pairBtn.addEventListener('click', () => (timeline.hidden ? openHistory() : closeHistory()));
   historyClose.addEventListener('click', closeHistory);
+  historyBtn.addEventListener('click', () => (timeline.hidden ? openHistory() : closeHistory()));
 
   
   function showMainUI() {
