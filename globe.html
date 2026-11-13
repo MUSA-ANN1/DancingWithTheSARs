@@ -449,6 +449,41 @@
     #timeline:not([hidden]) { animation: m-side-enter 240ms cubic-bezier(.2,.8,.2,1) both; }
   }
 }
+
+  /* Compact the menu on phones without changing desktop sizing. */
+  @media (max-width: 40rem) {
+    #menu-panel {
+      width: min(17.5rem, calc(100vw - var(--gutter) * 2 - var(--safe-l) - var(--safe-r)));
+      padding: 0.45rem;
+      gap: 0.15rem;
+    }
+    .menu-heading { padding: 0.4rem 0.6rem 0.5rem; }
+    .menu-heading strong { font-size: 0.95rem; }
+    .menu-section-label { padding: 0.25rem 0.6rem 0.1rem; }
+    .menu-item {
+      min-height: 2.85rem;
+      gap: 0.55rem;
+      padding: 0.4rem 0.55rem;
+    }
+    .menu-icon {
+      width: 1.9rem;
+      height: 1.9rem;
+      border-radius: 0.6rem;
+      font-size: 1rem;
+    }
+    .menu-copy strong { font-size: 0.78rem; }
+    .menu-copy small { font-size: 0.65rem; line-height: 1.25; }
+    .menu-divider { margin: 0.2rem 0.55rem; }
+    .menu-footer { padding: 0.45rem 0.6rem 0.25rem; font-size: 0.63rem; }
+  }
+
+  @media (max-height: 30rem) {
+    #menu-panel { padding: 0.4rem; }
+    .menu-item { min-height: 2.55rem; padding: 0.3rem 0.5rem; }
+    .menu-icon { width: 1.75rem; height: 1.75rem; }
+    .menu-heading { padding: 0.3rem 0.55rem 0.4rem; }
+  }
+
 </style>
 </head>
 <body>
