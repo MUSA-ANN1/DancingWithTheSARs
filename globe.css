@@ -536,3 +536,38 @@ h3 { font-size: var(--step--1); font-weight: 600; color: var(--muted); }
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
+
+/* Keep Historical Imagery as a real, self-contained toolbar button beside Menu. */
+#toolbar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--s1);
+}
+#toolbar > #history-btn {
+  position: relative;
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  width: auto;
+  min-width: var(--tool);
+  height: var(--tool);
+  padding: 0 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+#toolbar > #history-btn .ph { display: block; font-size: 1.15rem; }
+#toolbar > #history-btn[aria-expanded="true"] { border-color: var(--accent); }
+#toolbar > #menu-panel {
+  top: calc(var(--tool) + var(--s1));
+  right: 0;
+}
