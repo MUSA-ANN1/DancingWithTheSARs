@@ -932,8 +932,8 @@
     const cfg = externalDatasetConfigs[name];
     if (!cfg) return;
     datasetChangeSummary.textContent = name === 'grace-fo'
-      ? 'Changes in water mass and storage across the Caspian region over time.'
-      : 'Changes in the extent of surface water and the position of the Caspian shoreline over the years.';
+      ? 'Changes in water mass and storage across the Caspian region over time. These results are intended for research and monitoring purposes and should not be treated as independently verified real-world measurements.'
+      : 'Changes in the extent of surface water and the position of the Caspian shoreline over the years. These results are intended for research and monitoring purposes and should not be treated as independently verified real-world measurements.';
     const token = ++externalDatasetToken;
     closeHistory();
     pairBtn.hidden = true;
@@ -1025,7 +1025,7 @@
     datasetDetails.hidden = true;
     datasetPlaceholder.hidden = isNisar || external;
     if (isNisar) {
-      datasetChangeSummary.textContent = 'Changes in surface conditions across the Caspian Sea and its coastal areas between the selected dates.';
+      datasetChangeSummary.textContent = 'Changes in surface conditions across the Caspian Sea and its coastal areas between the selected dates. These results are intended for research and monitoring purposes and should not be treated as independently verified real-world measurements.';
       panelTitle.textContent = 'Caspian Sea comparison';
       nisarLink.href = 'https://search.asf.alaska.edu/';
       nisarLink.querySelector('span').textContent = 'Open in ASF Vertex';
