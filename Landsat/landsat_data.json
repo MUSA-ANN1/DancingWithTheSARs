@@ -1,0 +1,572 @@
+{
+  "metadata": {
+    "project": "Caspian Watch",
+    "dataset": "Landsat Collection 2 Level-2 Surface Reflectance",
+    "source": "USGS Landsat 8 and Landsat 9",
+    "period": "2018-2026",
+    "region": "Turkmenistan Caspian Coast",
+    "measurement": "Annual August water-index and QA observations",
+    "crs": "EPSG:32639",
+    "aoi": {
+      "crs": "EPSG:32639",
+      "width": 400,
+      "height": 400,
+      "pixel_size_m": 30,
+      "pixel_area_km2": 0.0009,
+      "bounds": [
+        721275,
+        4383600,
+        733275,
+        4395600
+      ]
+    },
+    "spatial_resolution_m": 30,
+    "processing_date": "2026-11-09"
+  },
+  "processing": {
+    "observation_count": 9,
+    "temporal_sampling": "One selected August scene per year; not monthly",
+    "indices": {
+      "MNDWI": "(Green - SWIR1) / (Green + SWIR1)",
+      "NDWI": "(Green - NIR) / (Green + NIR)"
+    },
+    "reflectance_scale": 2.75e-05,
+    "reflectance_offset": -0.2,
+    "qa_pixel_invalid_bits": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "qa_radsat_relevant_bits": {
+      "NDWI": [
+        2,
+        4
+      ],
+      "MNDWI": [
+        2,
+        5
+      ]
+    },
+    "minimum_absolute_index_denominator": 0.02,
+    "pixel_area_km2": 0.0009,
+    "water_area_thresholds": {
+      "MNDWI": [
+        0.0,
+        0.1,
+        0.2,
+        0.3
+      ],
+      "NDWI": [
+        0.0,
+        0.1,
+        0.2,
+        0.3
+      ]
+    }
+  },
+  "trend": {
+    "status": "not_estimated",
+    "slope": null,
+    "r_squared": null,
+    "interpretation": "A reliable shoreline or water-area trend is not estimated because the water indices strongly disagree after 2021."
+  },
+  "annual_observations": [
+    {
+      "year": 2018,
+      "date": "2018-08-29",
+      "sensor": "Landsat 8",
+      "qa": {
+        "invalid_percent": 6.3838,
+        "cloud_percent": 0.6931,
+        "shadow_percent": 3.7281,
+        "valid_percent": 93.6163,
+        "qa_water_pixels": 29322,
+        "qa_water_area_km2": 26.3898
+      },
+      "water_index": {
+        "mndwi_median": -0.19136734306812286,
+        "ndwi_median": -0.11998148262500763,
+        "mndwi_area_km2_by_threshold": {
+          "0.0": 31.2588,
+          "0.1": 30.1653,
+          "0.2": 29.2131,
+          "0.3": 26.6085
+        },
+        "ndwi_area_km2_by_threshold": {
+          "0.0": 25.8795,
+          "0.1": 25.2936,
+          "0.2": 24.3819,
+          "0.3": 19.0296
+        },
+        "jaccard_overlap_percent": 85.9421,
+        "shared_water_candidate_pixels": 28293
+      },
+      "fixed_2021_water_candidate_pixels": {
+        "sample_pixels": 24421,
+        "green_median_reflectance": 0.14504249393939972,
+        "nir_median_reflectance": 0.06620000302791595,
+        "swir1_median_reflectance": 0.05159749090671539,
+        "mndwi_median": 0.4896504282951355,
+        "ndwi_median": 0.3912506401538849,
+        "mndwi_water_percent": 99.98362065435485,
+        "ndwi_water_percent": 99.8894394168953
+      },
+      "grid_ok": true,
+      "same_grid": true
+    },
+    {
+      "year": 2019,
+      "date": "2019-08-16",
+      "sensor": "Landsat 8",
+      "qa": {
+        "invalid_percent": 0.0,
+        "cloud_percent": 0.0,
+        "shadow_percent": 0.0,
+        "valid_percent": 100.0,
+        "qa_water_pixels": 32941,
+        "qa_water_area_km2": 29.6469
+      },
+      "water_index": {
+        "mndwi_median": -0.19915597140789032,
+        "ndwi_median": -0.12446022778749466,
+        "mndwi_area_km2_by_threshold": {
+          "0.0": 36.7173,
+          "0.1": 35.4411,
+          "0.2": 34.569,
+          "0.3": 33.7977
+        },
+        "ndwi_area_km2_by_threshold": {
+          "0.0": 30.1221,
+          "0.1": 29.286,
+          "0.2": 28.7658,
+          "0.3": 28.3194
+        },
+        "jaccard_overlap_percent": 85.5086,
+        "shared_water_candidate_pixels": 33132
+      },
+      "fixed_2021_water_candidate_pixels": {
+        "sample_pixels": 28377,
+        "green_median_reflectance": 0.11154748499393463,
+        "nir_median_reflectance": 0.006854996085166931,
+        "swir1_median_reflectance": 0.012272492051124573,
+        "mndwi_median": 0.7939263582229614,
+        "ndwi_median": 0.8842790722846985,
+        "mndwi_water_percent": 99.99647601931142,
+        "ndwi_water_percent": 99.95771223173698
+      },
+      "grid_ok": true,
+      "same_grid": true
+    },
+    {
+      "year": 2020,
+      "date": "2020-08-18",
+      "sensor": "Landsat 8",
+      "qa": {
+        "invalid_percent": 0.0669,
+        "cloud_percent": 0.0056,
+        "shadow_percent": 0.0612,
+        "valid_percent": 99.9331,
+        "qa_water_pixels": 32608,
+        "qa_water_area_km2": 29.3472
+      },
+      "water_index": {
+        "mndwi_median": -0.20538924634456635,
+        "ndwi_median": -0.12647029757499695,
+        "mndwi_area_km2_by_threshold": {
+          "0.0": 35.6355,
+          "0.1": 34.4835,
+          "0.2": 33.6573,
+          "0.3": 32.9202
+        },
+        "ndwi_area_km2_by_threshold": {
+          "0.0": 29.7342,
+          "0.1": 29.0025,
+          "0.2": 28.5651,
+          "0.3": 28.1547
+        },
+        "jaccard_overlap_percent": 86.336,
+        "shared_water_candidate_pixels": 32635
+      },
+      "fixed_2021_water_candidate_pixels": {
+        "sample_pixels": 28279,
+        "green_median_reflectance": 0.12342749536037445,
+        "nir_median_reflectance": 0.012520000338554382,
+        "swir1_median_reflectance": 0.009027495980262756,
+        "mndwi_median": 0.8629373908042908,
+        "ndwi_median": 0.8230111002922058,
+        "mndwi_water_percent": 99.99646380706531,
+        "ndwi_water_percent": 99.98231903532657
+      },
+      "grid_ok": true,
+      "same_grid": true
+    },
+    {
+      "year": 2021,
+      "date": "2021-08-05",
+      "sensor": "Landsat 8",
+      "qa": {
+        "invalid_percent": 0.0,
+        "cloud_percent": 0.0,
+        "shadow_percent": 0.0,
+        "valid_percent": 100.0,
+        "qa_water_pixels": 28060,
+        "qa_water_area_km2": 25.254
+      },
+      "water_index": {
+        "mndwi_median": -0.2103337049484253,
+        "ndwi_median": -0.13085143268108368,
+        "mndwi_area_km2_by_threshold": {
+          "0.0": 31.8888,
+          "0.1": 30.7512,
+          "0.2": 30.0087,
+          "0.3": 29.2752
+        },
+        "ndwi_area_km2_by_threshold": {
+          "0.0": 25.803,
+          "0.1": 25.2153,
+          "0.2": 24.777,
+          "0.3": 24.2919
+        },
+        "jaccard_overlap_percent": 84.365,
+        "shared_water_candidate_pixels": 28377
+      },
+      "fixed_2021_water_candidate_pixels": {
+        "sample_pixels": 28377,
+        "green_median_reflectance": 0.1351424902677536,
+        "nir_median_reflectance": 0.02838750183582306,
+        "swir1_median_reflectance": 0.01909250020980835,
+        "mndwi_median": 0.7354552745819092,
+        "ndwi_median": 0.657876193523407,
+        "mndwi_water_percent": 100.0,
+        "ndwi_water_percent": 100.0
+      },
+      "grid_ok": true,
+      "same_grid": true
+    },
+    {
+      "year": 2022,
+      "date": "2022-08-16",
+      "sensor": "Landsat 9",
+      "qa": {
+        "invalid_percent": 0.0,
+        "cloud_percent": 0.0,
+        "shadow_percent": 0.0,
+        "valid_percent": 100.0,
+        "qa_water_pixels": 2170,
+        "qa_water_area_km2": 1.953
+      },
+      "water_index": {
+        "mndwi_median": -0.18878817558288574,
+        "ndwi_median": -0.11464911699295044,
+        "mndwi_area_km2_by_threshold": {
+          "0.0": 23.9751,
+          "0.1": 20.0979,
+          "0.2": 18.2448,
+          "0.3": 16.6887
+        },
+        "ndwi_area_km2_by_threshold": {
+          "0.0": 5.4702,
+          "0.1": 3.6549,
+          "0.2": 2.4579,
+          "0.3": 1.5993
+        },
+        "jaccard_overlap_percent": 29.8861,
+        "shared_water_candidate_pixels": 6063
+      },
+      "fixed_2021_water_candidate_pixels": {
+        "sample_pixels": 28377,
+        "green_median_reflectance": 0.21227999031543732,
+        "nir_median_reflectance": 0.24833251535892487,
+        "swir1_median_reflectance": 0.1328599900007248,
+        "mndwi_median": 0.30658096075057983,
+        "ndwi_median": -0.07688271999359131,
+        "mndwi_water_percent": 55.150297776368184,
+        "ndwi_water_percent": 18.937872220460232
+      },
+      "grid_ok": true,
+      "same_grid": true
+    },
+    {
+      "year": 2023,
+      "date": "2023-08-11",
+      "sensor": "Landsat 8",
+      "qa": {
+        "invalid_percent": 0.0,
+        "cloud_percent": 0.0,
+        "shadow_percent": 0.0,
+        "valid_percent": 100.0,
+        "qa_water_pixels": 0,
+        "qa_water_area_km2": 0.0
+      },
+      "water_index": {
+        "mndwi_median": -0.20077717304229736,
+        "ndwi_median": -0.12522560358047485,
+        "mndwi_area_km2_by_threshold": {
+          "0.0": 8.9298,
+          "0.1": 6.9102,
+          "0.2": 4.4442,
+          "0.3": 2.1411
+        },
+        "ndwi_area_km2_by_threshold": {
+          "0.0": 0.009,
+          "0.1": 0.0009,
+          "0.2": 0.0,
+          "0.3": 0.0
+        },
+        "jaccard_overlap_percent": 0.1822,
+        "shared_water_candidate_pixels": 9
+      },
+      "fixed_2021_water_candidate_pixels": {
+        "sample_pixels": 28377,
+        "green_median_reflectance": 0.2286425083875656,
+        "nir_median_reflectance": 0.29230499267578125,
+        "swir1_median_reflectance": 0.29871249198913574,
+        "mndwi_median": -0.11553070694208145,
+        "ndwi_median": -0.12308776378631592,
+        "mndwi_water_percent": 6.646227578672868,
+        "ndwi_water_percent": 0.03171582619727244
+      },
+      "grid_ok": true,
+      "same_grid": true
+    },
+    {
+      "year": 2024,
+      "date": "2024-08-21",
+      "sensor": "Landsat 9",
+      "qa": {
+        "invalid_percent": 0.0,
+        "cloud_percent": 0.0,
+        "shadow_percent": 0.0,
+        "valid_percent": 100.0,
+        "qa_water_pixels": 0,
+        "qa_water_area_km2": 0.0
+      },
+      "water_index": {
+        "mndwi_median": -0.2077174186706543,
+        "ndwi_median": -0.12381882965564728,
+        "mndwi_area_km2_by_threshold": {
+          "0.0": 11.8611,
+          "0.1": 8.1918,
+          "0.2": 7.2774,
+          "0.3": 6.264
+        },
+        "ndwi_area_km2_by_threshold": {
+          "0.0": 0.0162,
+          "0.1": 0.0009,
+          "0.2": 0.0,
+          "0.3": 0.0
+        },
+        "jaccard_overlap_percent": 0.2226,
+        "shared_water_candidate_pixels": 18
+      },
+      "fixed_2021_water_candidate_pixels": {
+        "sample_pixels": 28377,
+        "green_median_reflectance": 0.17611749470233917,
+        "nir_median_reflectance": 0.21491999924182892,
+        "swir1_median_reflectance": 0.18354250490665436,
+        "mndwi_median": -0.045725926756858826,
+        "ndwi_median": -0.09591542184352875,
+        "mndwi_water_percent": 13.426366423511999,
+        "ndwi_water_percent": 0.05638369101737323
+      },
+      "grid_ok": true,
+      "same_grid": true
+    },
+    {
+      "year": 2025,
+      "date": "2025-08-24",
+      "sensor": "Landsat 9",
+      "qa": {
+        "invalid_percent": 0.0,
+        "cloud_percent": 0.0,
+        "shadow_percent": 0.0,
+        "valid_percent": 100.0,
+        "qa_water_pixels": 0,
+        "qa_water_area_km2": 0.0
+      },
+      "water_index": {
+        "mndwi_median": -0.1959822177886963,
+        "ndwi_median": -0.12179435789585114,
+        "mndwi_area_km2_by_threshold": {
+          "0.0": 8.0541,
+          "0.1": 5.8221,
+          "0.2": 3.6972,
+          "0.3": 2.0826
+        },
+        "ndwi_area_km2_by_threshold": {
+          "0.0": 0.0018,
+          "0.1": 0.0,
+          "0.2": 0.0,
+          "0.3": 0.0
+        },
+        "jaccard_overlap_percent": 0.0487,
+        "shared_water_candidate_pixels": 2
+      },
+      "fixed_2021_water_candidate_pixels": {
+        "sample_pixels": 28377,
+        "green_median_reflectance": 0.22399501502513885,
+        "nir_median_reflectance": 0.27605247497558594,
+        "swir1_median_reflectance": 0.2784450054168701,
+        "mndwi_median": -0.10356222093105316,
+        "ndwi_median": -0.10134967416524887,
+        "mndwi_water_percent": 3.1892025231701733,
+        "ndwi_water_percent": 0.0035239806885858267
+      },
+      "grid_ok": true,
+      "same_grid": true
+    },
+    {
+      "year": 2026,
+      "date": "2026-08-19",
+      "sensor": "Landsat 8",
+      "qa": {
+        "invalid_percent": 0.0,
+        "cloud_percent": 0.0,
+        "shadow_percent": 0.0,
+        "valid_percent": 100.0,
+        "qa_water_pixels": 0,
+        "qa_water_area_km2": 0.0
+      },
+      "water_index": {
+        "mndwi_median": -0.1958005428314209,
+        "ndwi_median": -0.1252356469631195,
+        "mndwi_area_km2_by_threshold": {
+          "0.0": 8.6598,
+          "0.1": 6.66,
+          "0.2": 4.8789,
+          "0.3": 2.7657
+        },
+        "ndwi_area_km2_by_threshold": {
+          "0.0": 0.0018,
+          "0.1": 0.0,
+          "0.2": 0.0,
+          "0.3": 0.0
+        },
+        "jaccard_overlap_percent": 0.0369,
+        "shared_water_candidate_pixels": 2
+      },
+      "fixed_2021_water_candidate_pixels": {
+        "sample_pixels": 28377,
+        "green_median_reflectance": 0.23944999277591705,
+        "nir_median_reflectance": 0.2992900013923645,
+        "swir1_median_reflectance": 0.33118999004364014,
+        "mndwi_median": -0.15344658493995667,
+        "ndwi_median": -0.11242713034152985,
+        "mndwi_water_percent": 5.261303168058639,
+        "ndwi_water_percent": 0.0070479613771716534
+      },
+      "grid_ok": true,
+      "same_grid": true
+    }
+  ],
+  "quality_assessment": {
+    "status": "PARTIAL_REVIEW_REQUIRED",
+    "all_grids_pass": true,
+    "low_index_overlap_years": [
+      2023,
+      2024,
+      2025,
+      2026
+    ],
+    "high_qa_invalid_years": [
+      2018
+    ],
+    "processing_errors": []
+  },
+  "sensor_comparison": {
+    "Landsat 8": [
+      {
+        "year": 2018,
+        "date": "2018-08-29",
+        "mndwi_gt_0_2_km2": 29.2131,
+        "ndwi_gt_0_km2": 25.8795,
+        "jaccard_percent": 85.9421
+      },
+      {
+        "year": 2019,
+        "date": "2019-08-16",
+        "mndwi_gt_0_2_km2": 34.569,
+        "ndwi_gt_0_km2": 30.1221,
+        "jaccard_percent": 85.5086
+      },
+      {
+        "year": 2020,
+        "date": "2020-08-18",
+        "mndwi_gt_0_2_km2": 33.6573,
+        "ndwi_gt_0_km2": 29.7342,
+        "jaccard_percent": 86.336
+      },
+      {
+        "year": 2021,
+        "date": "2021-08-05",
+        "mndwi_gt_0_2_km2": 30.0087,
+        "ndwi_gt_0_km2": 25.803,
+        "jaccard_percent": 84.365
+      },
+      {
+        "year": 2023,
+        "date": "2023-08-11",
+        "mndwi_gt_0_2_km2": 4.4442,
+        "ndwi_gt_0_km2": 0.009,
+        "jaccard_percent": 0.1822
+      },
+      {
+        "year": 2026,
+        "date": "2026-08-19",
+        "mndwi_gt_0_2_km2": 4.8789,
+        "ndwi_gt_0_km2": 0.0018,
+        "jaccard_percent": 0.0369
+      }
+    ],
+    "Landsat 9": [
+      {
+        "year": 2022,
+        "date": "2022-08-16",
+        "mndwi_gt_0_2_km2": 18.2448,
+        "ndwi_gt_0_km2": 5.4702,
+        "jaccard_percent": 29.8861
+      },
+      {
+        "year": 2024,
+        "date": "2024-08-21",
+        "mndwi_gt_0_2_km2": 7.2774,
+        "ndwi_gt_0_km2": 0.0162,
+        "jaccard_percent": 0.2226
+      },
+      {
+        "year": 2025,
+        "date": "2025-08-24",
+        "mndwi_gt_0_2_km2": 3.6972,
+        "ndwi_gt_0_km2": 0.0018,
+        "jaccard_percent": 0.0487
+      }
+    ]
+  },
+  "scientific_notes": [
+    "Each annual observation uses one selected August Landsat scene.",
+    "The AOI is a fixed 400 x 400 pixel grid at 30 m resolution.",
+    "QA water classification is not independent ground truth.",
+    "NDWI and MNDWI thresholds are not universal water-classification thresholds.",
+    "The strong post-2021 disagreement between NDWI and MNDWI prevents reliable water-area interpretation.",
+    "Landsat 8 and Landsat 9 observations occur in different years and dates; their grouping is not a controlled sensor calibration.",
+    "The 2018 observation has 6.3838 percent QA-invalid pixels.",
+    "The fixed 2021 water-candidate pixel analysis measures spectral change at fixed locations; it does not prove shoreline movement.",
+    "The OSM coastline is a provisional locator, not independent ground truth.",
+    "Water-index changes can be affected by water level, season, wind, turbidity, sediment, land cover and sensor differences.",
+    "No confirmed shoreline retreat is established by this dataset."
+  ],
+  "interpretation": {
+    "confirmed_shoreline_retreat": false,
+    "reason": "The post-2021 spectral and water-index disagreement prevents a reliable shoreline-retreat conclusion. Sensor, environmental and surface-condition effects are not independently separated.",
+    "osm_coastline_role": "Provisional locator only; not ground truth.",
+    "qa_water_role": "QA classification, not independent ground truth.",
+    "sensor_comparison_limit": "Landsat 8 and Landsat 9 observations are from different dates and years; the grouping is descriptive, not a controlled sensor calibration."
+  },
+  "outputs": [
+    "landsat_data.json",
+    "landsat_timeseries.png"
+  ]
+}
