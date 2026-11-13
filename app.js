@@ -866,7 +866,12 @@
     panelToggle.setAttribute('aria-label', collapsed ? 'Show comparison panel' : 'Hide comparison panel');
     panelToggle.querySelector('i').className = 'ph ' + (collapsed ? 'ph-caret-right' : 'ph-caret-left');
   }
-  panelToggle.addEventListener('click', () => setPanelCollapsed(!nisarPanel.classList.contains('is-collapsed')));
+  panelToggle.addEventListener('click', event => {
+    event.preventDefault();
+    event.stopPropagation();
+    const isClosed = nisarPanel.classList.contains('is-collapsed');
+    setPanelCollapsed(!isClosed);
+  });
 
   // Dataset tabs. GRACE-FO and Sentinel-2 are UI placeholders until their data is supplied.
   function setDataset(name) {
@@ -886,7 +891,6 @@
       placeholderBody.textContent = `${label} will be connected to this comparison later. No ${label} observations are shown yet.`;
       closeHistory();
     }
-    if (panelBody.hidden) setPanelCollapsed(false);
   }
   datasetTabs.forEach((tab, i) => {
     tab.addEventListener('click', () => setDataset(tab.dataset.dataset));
