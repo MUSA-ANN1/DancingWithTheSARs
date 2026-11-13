@@ -47,6 +47,7 @@
   const nisarPanel = $('#nisar-panel');
   const panelBody = $('#panel-body');
   const panelToggle = $('#panel-toggle');
+  const panelReopen = $('#panel-reopen');
   const compareImg = $('#compare-img');
   const comparisonButtons = Array.from(document.querySelectorAll('.comparison-option'));
   const nisarNoImg = $('#nisar-no-img');
@@ -862,10 +863,16 @@
   // Slide the comparison panel off-canvas while keeping its arrow handle reachable.
   function setPanelCollapsed(collapsed) {
     nisarPanel.classList.toggle('is-collapsed', collapsed);
+    panelReopen.hidden = !collapsed;
     panelToggle.setAttribute('aria-expanded', String(!collapsed));
     panelToggle.setAttribute('aria-label', collapsed ? 'Show comparison panel' : 'Hide comparison panel');
     panelToggle.querySelector('i').className = 'ph ' + (collapsed ? 'ph-caret-right' : 'ph-caret-left');
   }
+  panelReopen.addEventListener('click', event => {
+    event.preventDefault();
+    event.stopPropagation();
+    setPanelCollapsed(false);
+  });
   panelToggle.addEventListener('click', event => {
     event.preventDefault();
     event.stopPropagation();
