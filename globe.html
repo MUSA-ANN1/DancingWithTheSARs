@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600&display=swap">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon.png?v=hyperia-1">
-<link rel="stylesheet" href="globe.css?v=hyperia-3">
+<link rel="stylesheet" href="globe.css?v=hyperia-4">
 <style id="mobile-layout">
 /* =====================================================================
    Dancing with the SARs — mobile overrides
@@ -480,8 +480,12 @@
 
     <section id="nisar-panel" aria-labelledby="panel-title" hidden>
       <header class="panel-head">
-        <div>
-          <p class="kicker">NISAR L-band radar</p>
+        <div class="panel-heading">
+          <div class="dataset-tabs" role="tablist" aria-label="Dataset">
+            <button type="button" class="dataset-tab is-active" role="tab" data-dataset="nisar" aria-selected="true" aria-controls="panel-body">NISAR L-band radar</button>
+            <button type="button" class="dataset-tab" role="tab" data-dataset="grace-fo" data-label="GRACE-FO" aria-selected="false" aria-controls="panel-body">GRACE-FO</button>
+            <button type="button" class="dataset-tab" role="tab" data-dataset="sentinel-2" data-label="Sentinel-2" aria-selected="false" aria-controls="panel-body">Sentinel-2</button>
+          </div>
           <h2 id="panel-title">Caspian Sea comparison</h2>
         </div>
         <button id="panel-toggle" class="icon-btn" type="button" aria-expanded="true" aria-controls="panel-body" aria-label="Collapse comparison panel">
@@ -497,17 +501,22 @@
             <p id="nisar-empty-title" class="empty-title">Loading comparison</p>
             <p id="nisar-empty-body" class="empty-body">Fetching the latest radar mosaics.</p>
           </div>
-          <div class="compare-bar">
-            <div class="comparison-switch" role="group" aria-label="Choose comparison image">
-              <button type="button" class="comparison-option is-active" data-image="before" aria-pressed="true">Before</button>
-              <button type="button" class="comparison-option" data-image="after" aria-pressed="false">After</button>
-            </div>
-          </div>
         </figure>
+
+        <div class="compare-bar">
+          <div class="comparison-switch" role="group" aria-label="Choose comparison image">
+            <button type="button" class="comparison-option is-active" data-image="before" aria-pressed="true">Before</button>
+            <button type="button" class="comparison-option" data-image="after" aria-pressed="false">After</button>
+          </div>
+        </div>
 
         <div class="readout">
           <p id="readout-label" class="readout-label">Before</p>
           <p id="readout-date" class="readout-date">No date yet</p>
+          <button id="pair-btn" class="pair-btn" type="button" aria-expanded="false" aria-controls="timeline">
+            <i class="ph ph-calendar-blank" aria-hidden="true"></i>
+            <span id="pair-btn-label">Date pair</span>
+          </button>
         </div>
 
         <dl class="facts">
@@ -521,6 +530,12 @@
           <span>Open in ASF Vertex</span>
           <i class="ph ph-arrow-up-right" aria-hidden="true"></i>
         </a>
+
+        <div id="dataset-placeholder" hidden>
+          <i class="ph ph-hourglass" aria-hidden="true"></i>
+          <p id="dataset-placeholder-title" class="empty-title">Data not added yet</p>
+          <p id="dataset-placeholder-body" class="empty-body">This dataset will be connected later. No observations are shown for it yet.</p>
+        </div>
       </div>
     </section>
   </div>
@@ -529,9 +544,6 @@
   <div id="toolbar" hidden>
     <button id="menu-btn" class="tool-btn" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="menu-panel">
       <i class="ph ph-list" aria-hidden="true"></i>
-    </button>
-    <button id="history-btn" class="tool-btn" type="button" aria-label="Open historical imagery" aria-expanded="false" aria-controls="timeline">
-      <i class="ph ph-calendar-blank" aria-hidden="true"></i>
     </button>
     <nav id="menu-panel" aria-label="Main menu" hidden>
       <div class="menu-heading">
@@ -542,11 +554,6 @@
       <button id="settings-btn" class="menu-item" type="button" aria-expanded="false" aria-controls="settings-panel">
         <span class="menu-icon"><i class="ph ph-sliders-horizontal" aria-hidden="true"></i></span>
         <span class="menu-copy"><strong>Settings</strong><small>Earth display and appearance</small></span>
-        <i class="ph ph-caret-right menu-arrow" aria-hidden="true"></i>
-      </button>
-      <button id="menu-history-btn" class="menu-item" type="button">
-        <span class="menu-icon"><i class="ph ph-calendar-blank" aria-hidden="true"></i></span>
-        <span class="menu-copy"><strong>Historical imagery</strong><small>Browse available observation dates</small></span>
         <i class="ph ph-caret-right menu-arrow" aria-hidden="true"></i>
       </button>
       <div class="menu-divider"></div>
@@ -595,14 +602,14 @@
         <button id="cal-next" class="icon-btn" type="button" aria-label="Next month"><i class="ph ph-caret-right" aria-hidden="true"></i></button>
       </div>
       <div class="cal-weekdays" aria-hidden="true"><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span></div>
-      <div id="cal-grid" role="group" aria-label="Days with NISAR data are enabled"></div>
+      <div id="cal-grid" role="group" aria-label="Days that start or end a NISAR date pair are enabled"></div>
 
       <div class="cal-jump">
         <button id="date-prev" class="text-btn" type="button"><i class="ph ph-arrow-left" aria-hidden="true"></i><span>Earlier</span></button>
         <button id="date-next" class="text-btn" type="button"><span>Later</span><i class="ph ph-arrow-right" aria-hidden="true"></i></button>
       </div>
 
-      <h3 class="list-title">Worked dates</h3>
+      <h3 class="list-title">Date pairs</h3>
       <div id="calendar-dates"></div>
 
       <div id="calendar-empty" hidden>
@@ -636,6 +643,6 @@
 <script src="astro.js"></script>
 <script src="caspian-coastline.js?v=d746d94d"></script>
 
-<script src="app.js?v=hyperia-5"></script>
+<script src="app.js?v=hyperia-6"></script>
 </body>
 </html>
