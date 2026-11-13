@@ -866,7 +866,7 @@
     panelToggle.setAttribute('aria-label', collapsed ? 'Show comparison panel' : 'Hide comparison panel');
     panelToggle.querySelector('i').className = 'ph ' + (collapsed ? 'ph-caret-right' : 'ph-caret-left');
   }
-  panelToggle.addEventListener('click', () => setPanelCollapsed(!panelBody.hidden));
+  panelToggle.addEventListener('click', () => setPanelCollapsed(!nisarPanel.classList.contains('is-collapsed')));
 
   // Dataset tabs. GRACE-FO and Sentinel-2 are UI placeholders until their data is supplied.
   function setDataset(name) {
