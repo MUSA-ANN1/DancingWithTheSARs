@@ -45,6 +45,7 @@
   const historyClose = $('#history-close');
   const timeline = $('#timeline');
   const nisarPanel = $('#nisar-panel');
+  const datasetChangeSummary = $('#dataset-change-summary');
   const panelBody = $('#panel-body');
   const panelToggle = $('#panel-toggle');
   const panelReopen = $('#panel-reopen');
@@ -930,6 +931,9 @@
   async function showExternalDataset(name) {
     const cfg = externalDatasetConfigs[name];
     if (!cfg) return;
+    datasetChangeSummary.textContent = name === 'grace-fo'
+      ? 'Change shown: long-term changes in gravity-derived mass anomalies over the Caspian region. This is not a direct sea-level measurement.'
+      : 'Change shown: annual water-index patterns and possible shoreline-position differences. Cloud, quality and index-agreement checks are needed before interpreting a trend.';
     const token = ++externalDatasetToken;
     closeHistory();
     pairBtn.hidden = true;
@@ -1021,6 +1025,7 @@
     datasetDetails.hidden = true;
     datasetPlaceholder.hidden = isNisar || external;
     if (isNisar) {
+      datasetChangeSummary.textContent = 'Change shown: radar backscatter differences between the selected Before and After acquisitions. Highlighted pixels are screening candidates, not confirmed shoreline movement.';
       panelTitle.textContent = 'Caspian Sea comparison';
       nisarLink.href = 'https://search.asf.alaska.edu/';
       nisarLink.querySelector('span').textContent = 'Open in ASF Vertex';
