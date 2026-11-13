@@ -1,4 +1,3 @@
-
 'use strict';
 
 (function () {
@@ -36,11 +35,9 @@
   const introOv = $('#intro-overlay');
   const mainHead = $('#main-head');
   const toolbar = $('#toolbar');
-  const historyBtn = $('#history-btn');
   const menuBtn = $('#menu-btn');
   const menuPanel = $('#menu-panel');
   const settingsBtn = $('#settings-btn');
-  const menuHistoryBtn = $('#menu-history-btn');
   const settingsClose = $('#settings-close');
   const settingsPanel = $('#settings-panel');
   const themeInputs = Array.from(document.querySelectorAll('input[name="earth-theme"]'));
@@ -685,10 +682,6 @@
     menuPanel.hidden = !opening;
     menuBtn.setAttribute('aria-expanded', String(opening));
   });
-  menuHistoryBtn.addEventListener('click', () => {
-    closeMenu();
-    openHistory();
-  });
   settingsBtn.addEventListener('click', () => {
     closeMenu();
     closeHistory();
@@ -751,21 +744,43 @@
     });
   }
 
-  
-  const DATA_BASE = 'https://raw.githubusercontent.com/MUSA-ANN1/DancingWithTheSARs/data/regions/caspian-sea/';
-  const ACCENT_RGB = [252, 61, 33];          
 
-  let meta = null;
-  let metaReady = Promise.resolve();
-  let mosaicSide = 'before';                 
-  let days = [];
-  let dayByMs = new Map();
-  let currentIdx = -1;
-  let datesState = 'idle';                   
+  // ---------------------------------------------------------------------
+  // Processed data (data branch). Layout, as published by server/caspian_mosaic.py:
+  //   regions/caspian-sea/index.json              region-level pair index { pairs: [{ id, folder, before, after, pol, updated, images }] }
+  //   regions/caspian-sea/pairs/<id>/meta.json    per-pair metadata (windows, stats, bbox, images)
+  //   regions/caspian-sea/pairs/<id>/*.png        per-pair images, file names from meta.images
+  //   regions/caspian-sea/meta.json               newest pair only, kept for backward compatibility
+  const REGION_ID = 'caspian-sea';
+  const REGION_BASE = 'https://raw.githubusercontent.com/MUSA-ANN1/DancingWithTheSARs/data/regions/' + REGION_ID + '/';
+  const DATA_TREE = 'https://github.com/MUSA-ANN1/DancingWithTheSARs/tree/data/regions/' + REGION_ID + '/';
+  const ACCENT_RGB = [252, 61, 33];
+
+  const compareFigure = $('#compare-figure');
+  const compareBar = $('.compare-bar');
+  const readoutEl = $('.readout');
+  const factsEl = $('.facts');
+  const pairBtn = $('#pair-btn');
+  const pairBtnLabel = $('#pair-btn-label');
+  const datasetTabs = Array.from(document.querySelectorAll('.dataset-tab'));
+  const datasetPlaceholder = $('#dataset-placeholder');
+  const placeholderTitle = $('#dataset-placeholder-title');
+  const placeholderBody = $('#dataset-placeholder-body');
+
+  let pairs = [];                            // date pairs, oldest first (by after date, then before date)
+  let pairIdx = -1;                          // selected pair
+  let meta = null;                           // meta.json of the selected pair
+  const metaCache = new Map();               // pair folder -> meta.json
+  let dayPairs = new Map();                  // UTC day ms -> indices of pairs that start or end on that day
+  let mosaicSide = 'before';
+  let pairsState = 'idle';
   let calYear = new Date().getUTCFullYear();
   let calMonth = new Date().getUTCMonth();
   let imgToken = 0;
+  let selectToken = 0;
 
+  const ISO_RE = /^\d{4}-\d{2}-\d{2}$/;
+  const isoDay = v => (typeof v === 'string' && ISO_RE.test(v.slice(0, 10)) && Number.isFinite(Date.parse(v.slice(0, 10) + 'T00:00:00Z'))) ? v.slice(0, 10) : null;
   const dayMs = iso => Date.parse(String(iso).slice(0, 10) + 'T00:00:00Z');
   const fmtDate = ms => new Date(ms).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
   const fmtIso = iso => fmtDate(dayMs(iso));
@@ -786,7 +801,34 @@
     return `${f(b[0])} to ${f(b[2])}°E, ${f(b[1])} to ${f(b[3])}°N`;
   }
 
-  
+  // Only relative folders / plain file names from the data branch are followed.
+  function safeFolder(f) {
+    if (f === '' || f === undefined || f === null) return '';
+    if (typeof f !== 'string' || f.includes('..') || !/^[A-Za-z0-9_\-./]+$/.test(f) || f.startsWith('/')) return null;
+    return f.endsWith('/') ? f : f + '/';
+  }
+  const safeFile = name => (typeof name === 'string' && /^[A-Za-z0-9_\-.]+$/.test(name) && !name.includes('..')) ? name : null;
+
+  function normalizePair(p) {
+    if (!p || typeof p !== 'object') return null;
+    const before = isoDay(p.before), after = isoDay(p.after), folder = safeFolder(p.folder);
+    if (!before || !after || folder === null) return null;
+    return {
+      id: String(p.id || folder || 'latest'),
+      folder,
+      before,
+      after,
+      pol: typeof p.pol === 'string' ? p.pol : null,
+      images: (p.images && typeof p.images === 'object') ? p.images : {}
+    };
+  }
+  const pairBase = pair => REGION_BASE + pair.folder;
+  function imageFile(pair, pairMeta, key) {
+    return safeFile(pairMeta && pairMeta.images && pairMeta.images[key])
+      || safeFile(pair.images[key])
+      || key + '.png';
+  }
+
   function paintEmpty(icon, title, body) {
     emptyIcon.className = 'ph ' + icon;
     emptyTitle.textContent = title;
@@ -811,18 +853,52 @@
     compareImg.onerror = () => {
       if (token !== imgToken) return;
       paintEmpty('ph-warning', 'This image did not load',
-        'The server may be updating or the preview may need a login. Open it in ASF Vertex, or pick another date.');
+        'The server may be updating. Try again in a minute, or pick another date pair.');
     };
     compareImg.src = url;
   }
 
+  // Collapse: the class shrinks the whole card to its header in every layout.
   function setPanelCollapsed(collapsed) {
     panelBody.hidden = collapsed;
+    nisarPanel.classList.toggle('is-collapsed', collapsed);
     panelToggle.setAttribute('aria-expanded', String(!collapsed));
     panelToggle.setAttribute('aria-label', collapsed ? 'Expand comparison panel' : 'Collapse comparison panel');
     panelToggle.querySelector('i').className = 'ph ' + (collapsed ? 'ph-caret-down' : 'ph-caret-up');
   }
   panelToggle.addEventListener('click', () => setPanelCollapsed(!panelBody.hidden));
+
+  // Dataset tabs. GRACE-FO and Sentinel-2 are UI placeholders until their data is supplied.
+  function setDataset(name) {
+    const tab = datasetTabs.find(t => t.dataset.dataset === name) || datasetTabs[0];
+    datasetTabs.forEach(t => {
+      const on = t === tab;
+      t.classList.toggle('is-active', on);
+      t.setAttribute('aria-selected', String(on));
+      t.tabIndex = on ? 0 : -1;
+    });
+    const isNisar = tab.dataset.dataset === 'nisar';
+    [compareFigure, compareBar, readoutEl, factsEl, explanation, nisarLink].forEach(el => { el.hidden = !isNisar; });
+    datasetPlaceholder.hidden = isNisar;
+    if (!isNisar) {
+      const label = tab.dataset.label || tab.textContent.trim();
+      placeholderTitle.textContent = `${label} data not added yet`;
+      placeholderBody.textContent = `${label} will be connected to this comparison later. No ${label} observations are shown yet.`;
+      closeHistory();
+    }
+    if (panelBody.hidden) setPanelCollapsed(false);
+  }
+  datasetTabs.forEach((tab, i) => {
+    tab.addEventListener('click', () => setDataset(tab.dataset.dataset));
+    tab.addEventListener('keydown', e => {
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      e.preventDefault();
+      e.stopPropagation();
+      const next = datasetTabs[(i + (e.key === 'ArrowRight' ? 1 : -1) + datasetTabs.length) % datasetTabs.length];
+      next.focus();
+      setDataset(next.dataset.dataset);
+    });
+  });
 
   function mosaicText() {
     const base = 'NISAR radar backscatter over the Caspian basin, merged from repeat passes. Dark is smooth water, bright is rougher surface.';
@@ -836,66 +912,157 @@
     return base + change + ' Screening result, not a confirmed shoreline change.';
   }
 
-  function showMosaic(side, selectedDate = null) {
+  function showMosaic(side) {
     mosaicSide = side;
-    currentIdx = selectedDate ? currentIdx : -1;
     comparisonButtons.forEach(b => {
-      const on = b.dataset.image === side && !selectedDate;
+      const on = b.dataset.image === side;
       b.classList.toggle('is-active', on);
       b.setAttribute('aria-pressed', String(on));
     });
-    readoutLabel.textContent = selectedDate
-      ? `GitHub processed · ${side === 'before' ? 'Before' : 'After'}`
-      : (side === 'before' ? 'Before' : 'After');
-    nisarLink.href = 'https://github.com/MUSA-ANN1/DancingWithTheSARs/tree/data/regions/caspian-sea';
-    explanation.textContent = selectedDate
-      ? `Calendar selection: ${fmtIso(selectedDate)}. The panel continues to show the GitHub-processed ${side} composite; individual raw ASF browse images are not displayed.`
-      : mosaicText();
+    readoutLabel.textContent = side === 'before' ? 'Before' : 'After';
+    const pair = pairs[pairIdx];
+    nisarLink.href = DATA_TREE + (pair ? pair.folder : '');
+    explanation.textContent = mosaicText();
     markSelection();
 
-    if (!meta) {
+    if (!meta || !pair) {
       readoutDate.textContent = 'No date yet';
       setPanelEmpty('ph-warning', 'Comparison not available',
         'The processed radar mosaics could not be reached. Reload the page in a minute.');
       return;
     }
     const win = side === 'before' ? meta.before_date_window : meta.after_date_window;
-    const one = side === 'before' ? meta.before : meta.after;
-    readoutDate.textContent = win ? fmtRange(win[0], win[1]) : fmtRange(one);
+    const one = (side === 'before' ? meta.before : meta.after) || pair[side];
+    readoutDate.textContent = Array.isArray(win) && win.length >= 2 ? fmtRange(win[0], win[1]) : fmtRange(one);
     factProduct.textContent = ['GitHub processed GCOV', meta.pol].filter(Boolean).join(' · ');
     factArea.textContent = Array.isArray(meta.bbox) ? fmtArea(meta.bbox) : 'Caspian Sea basin';
-    const file = (meta.images && meta.images[side]) || side + '.png';
-    setPanelImage(DATA_BASE + file, `GitHub-processed NISAR radar mosaic of the Caspian Sea, ${side} composite`);
+    setPanelImage(pairBase(pair) + imageFile(pair, meta, side),
+      `GitHub-processed NISAR radar mosaic of the Caspian Sea, ${side} composite of the ${fmtRange(pair.before, pair.after)} pair`);
   }
-  comparisonButtons.forEach(b => b.addEventListener('click', () => showMosaic(b.dataset.image)));
+  comparisonButtons.forEach(b => b.addEventListener('click', () => {
+    if (pairIdx < 0) return showMosaic(b.dataset.image);
+    selectPair(pairIdx, b.dataset.image);
+  }));
 
-  async function loadMeta() {
-    try {
-      const res = await fetch(DATA_BASE + 'meta.json');
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      meta = await res.json();
-    } catch (e) {
-      meta = null;
-      setStatus('Processed NISAR mosaics are unavailable right now.', 6000);
+  async function loadPairIndex() {
+    let list = null;
+    const index = await fetchJSON([REGION_BASE + 'index.json']);
+    if (index && Array.isArray(index.pairs)) list = index.pairs;
+    if (!list || !list.length) {
+      // Backward compatibility: the region-level meta.json holds the newest pair
+      // and, in the new layout, an available_pairs copy of the index.
+      const root = await fetchJSON([REGION_BASE + 'meta.json']);
+      if (root && Array.isArray(root.available_pairs) && root.available_pairs.length) {
+        list = root.available_pairs;
+      } else if (root && root.before && root.after) {
+        list = [{ id: root.pair_id || 'latest', folder: '', before: root.before, after: root.after, pol: root.pol, images: root.images }];
+        metaCache.set('', root);
+      }
     }
+    const seen = new Set();
+    pairs = (list || [])
+      .map(normalizePair)
+      .filter(p => p && !seen.has(p.folder) && seen.add(p.folder))
+      .sort((a, b) => a.after.localeCompare(b.after) || a.before.localeCompare(b.before));
+    dayPairs = new Map();
+    pairs.forEach((p, i) => {
+      [p.before, p.after].forEach(iso => {
+        const ms = dayMs(iso);
+        const arr = dayPairs.get(ms) || [];
+        if (!arr.includes(i)) arr.push(i);
+        dayPairs.set(ms, arr);
+      });
+    });
+  }
+
+  async function loadPairMeta(pair) {
+    if (metaCache.has(pair.folder)) return metaCache.get(pair.folder);
+    const m = await fetchJSON([pairBase(pair) + 'meta.json']);
+    if (m && typeof m === 'object') { metaCache.set(pair.folder, m); return m; }
+    return null;
+  }
+
+  async function selectPair(idx, side) {
+    if (!pairs.length) return;
+    idx = clamp(idx, 0, pairs.length - 1);
+    const token = ++selectToken;
+    const changedPair = idx !== pairIdx;
+    pairIdx = idx;
+    if (side) mosaicSide = side;
+    const pair = pairs[idx];
+    pairBtnLabel.textContent = fmtRange(pair.before, pair.after);
+    calYear = new Date(dayMs(pair[mosaicSide])).getUTCFullYear();
+    calMonth = new Date(dayMs(pair[mosaicSide])).getUTCMonth();
+    if (panelBody.hidden && !timeline.hidden) setPanelCollapsed(false);
+
+    meta = metaCache.get(pair.folder) || null;
+    if (!meta) {
+      markSelection();
+      readoutLabel.textContent = mosaicSide === 'before' ? 'Before' : 'After';
+      readoutDate.textContent = fmtIso(pair[mosaicSide]);
+      setPanelEmpty('ph-circle-notch', 'Loading date pair', 'Reading the processing details for this date pair.');
+      const loaded = await loadPairMeta(pair);
+      if (token !== selectToken) return;
+      meta = loaded;
+      if (!meta) setStatus('This date pair could not be loaded.', 6000);
+    }
+    showMosaic(mosaicSide);
+    if (changedPair || !changeMesh) updateChangeOverlay();
+    const row = dateList.querySelector(`.date-row[data-idx="${idx}"]`);
+    if (row && !timeline.hidden) row.scrollIntoView({ block: 'nearest' });
+  }
+
+  // Calendar day: a day may end one pair and start the next. Keep the selected
+  // pair when it contains the day, otherwise open the newest pair that does.
+  function selectDate(ms) {
+    const list = dayPairs.get(ms);
+    if (!list || !list.length) return;
+    const iso = new Date(ms).toISOString().slice(0, 10);
+    const idx = list.includes(pairIdx) ? pairIdx : Math.max(...list);
+    const pair = pairs[idx];
+    selectPair(idx, pair.before === iso ? 'before' : 'after');
   }
 
   
   let changeMesh = null;
+  let overlayToken = 0;
 
-  function loadChangeOverlay() {
-    if (!meta || !Array.isArray(meta.bbox) || changeMesh) return;
+  function clearChangeOverlay() {
+    if (!changeMesh) return;
+    scene.remove(changeMesh);
+    changeMesh.geometry.dispose();
+    if (changeMesh.material.map) changeMesh.material.map.dispose();
+    changeMesh.material.dispose();
+    changeMesh = null;
+  }
+
+  function updateChangeOverlay() {
+    const token = ++overlayToken;
+    const pair = pairs[pairIdx];
+    if (!meta || !pair || !Array.isArray(meta.bbox)) {
+      clearChangeOverlay();
+      changeLegend.hidden = true;
+      return;
+    }
+    const bbox = meta.bbox.slice(0, 4);
     const img = new Image();
     img.crossOrigin = 'anonymous';
     img.onload = () => {
-      try { buildChangeOverlay(img); }
+      if (token !== overlayToken) return;
+      clearChangeOverlay();
+      try { buildChangeOverlay(img, bbox); }
       catch (e) { setStatus('The change layer could not be drawn.', 6000); }
     };
-    img.onerror = () => setStatus('The change layer could not be loaded.', 6000);
-    img.src = DATA_BASE + ((meta.images && meta.images.change) || 'change.png');
+    img.onerror = () => {
+      if (token !== overlayToken) return;
+      clearChangeOverlay();
+      changeLegend.hidden = true;
+      setStatus('The change layer could not be loaded.', 6000);
+    };
+    img.src = pairBase(pair) + imageFile(pair, meta, 'change');
   }
 
-  function buildChangeOverlay(img) {
+  function buildChangeOverlay(img, bbox) {
     const w = img.naturalWidth, h = img.naturalHeight;
     const src = document.createElement('canvas');
     src.width = w; src.height = h;
@@ -928,7 +1095,7 @@
     tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
 
     
-    const [west, south, east, north] = meta.bbox;
+    const [west, south, east, north] = bbox;
     const nx = 96, ny = 128;
     const pos = new Float32Array((nx + 1) * (ny + 1) * 3);
     const uv = new Float32Array((nx + 1) * (ny + 1) * 2);
@@ -963,19 +1130,6 @@
   }
 
   
-  function mosaicDays() {
-    if (!meta || !Array.isArray(meta.frame_pair_dates)) return [];
-    const set = new Set();
-    meta.frame_pair_dates.forEach(pair => {
-      if (pair.before) set.add(String(pair.before).slice(0, 10));
-      if (pair.after) set.add(String(pair.after).slice(0, 10));
-    });
-    return [...set]
-      .filter(date => /^\d{4}-\d{2}-\d{2}$/.test(date) && Number.isFinite(dayMs(date)))
-      .sort()
-      .map(date => ({ date, ms: dayMs(date), items: [], pick: null, levels: ['GCOV'] }));
-  }
-
   function showCalendarState(kind, title, body) {
     const empty = !!kind;
     calParts.forEach(el => { el.hidden = empty; });
@@ -986,43 +1140,14 @@
     calEmptyBody.textContent = body;
   }
 
-  async function loadDates() {
-    if (datesState === 'loading' || datesState === 'ready') return;
-    datesState = 'loading';
-    calStatus.textContent = 'Loading processed dates';
-    showCalendarState('loading', 'Loading processed dates',
-      'Reading the acquisition dates used by the latest NISAR processing run.');
-
-    await metaReady;
-    const list = mosaicDays();
-
-    if (!list.length) {
-      datesState = 'error';
-      calStatus.textContent = 'No processed dates available';
-      showCalendarState('error', 'No processed dates available',
-        'The latest processing metadata does not contain matched acquisition dates.');
-      return;
-    }
-
-    days = list;
-    dayByMs = new Map(days.map((d, i) => [d.ms, i]));
-    datesState = 'ready';
-    const last = days[days.length - 1];
-    calYear = new Date(last.ms).getUTCFullYear();
-    calMonth = new Date(last.ms).getUTCMonth();
-    calStatus.textContent = `${days.length} worked acquisition dates · ${fmtDate(days[0].ms)} to ${fmtDate(last.ms)}`;
-    showCalendarState(null);
-    buildList();
-    renderCalendar();
-    markSelection();
-  }
-
-  
   function renderCalendar() {
+    if (!pairs.length) return;
     const first = new Date(Date.UTC(calYear, calMonth, 1));
     calTitle.textContent = first.toLocaleDateString('en-GB', { month: 'long', year: 'numeric', timeZone: 'UTC' });
     const lead = (first.getUTCDay() + 6) % 7;                       
     const count = new Date(Date.UTC(calYear, calMonth + 1, 0)).getUTCDate();
+    const pair = pairs[pairIdx];
+    const selected = pair ? [dayMs(pair.before), dayMs(pair.after)] : [];
     calGrid.replaceChildren();
     for (let i = 0; i < lead; i++) {
       const blank = document.createElement('span');
@@ -1031,23 +1156,24 @@
     }
     for (let d = 1; d <= count; d++) {
       const ms = Date.UTC(calYear, calMonth, d);
-      const idx = dayByMs.get(ms);
+      const list = dayPairs.get(ms);
       const cell = document.createElement('button');
       cell.type = 'button';
       cell.className = 'cal-day';
       cell.textContent = String(d);
-      if (idx === undefined) {
+      if (!list) {
         cell.disabled = true;
         cell.setAttribute('aria-label', `${fmtDate(ms)}, no data`);
       } else {
         cell.classList.add('has-data');
-        cell.setAttribute('aria-label', `${fmtDate(ms)}, NISAR data available`);
-        cell.setAttribute('aria-pressed', String(idx === currentIdx));
-        cell.addEventListener('click', () => selectDay(idx));
+        cell.setAttribute('aria-label', `${fmtDate(ms)}, NISAR date pair ${list.length > 1 ? 'dates' : 'date'} available`);
+        cell.setAttribute('aria-pressed', String(selected.includes(ms)));
+        cell.addEventListener('click', () => selectDate(ms));
       }
       calGrid.appendChild(cell);
     }
-    const firstMonth = new Date(days[0].ms), lastMonth = new Date(days[days.length - 1].ms);
+    const earliest = Math.min(...pairs.map(p => dayMs(p.before)));
+    const firstMonth = new Date(earliest);
     const key = calYear * 12 + calMonth;
     calPrev.disabled = key <= firstMonth.getUTCFullYear() * 12 + firstMonth.getUTCMonth();
     const now = new Date();
@@ -1064,100 +1190,69 @@
   calPrev.addEventListener('click', () => shiftMonth(-1));
   calNext.addEventListener('click', () => shiftMonth(1));
 
-  const inWindow = (iso, w) => !!w && iso >= w[0] && iso <= w[1];
-
   function buildList() {
     dateList.replaceChildren();
-    for (let i = days.length - 1; i >= 0; i--) {
-      const d = days[i];
+    for (let i = pairs.length - 1; i >= 0; i--) {
+      const p = pairs[i];
       const row = document.createElement('button');
       row.type = 'button';
       row.className = 'date-row';
       row.dataset.idx = String(i);
       const when = document.createElement('span');
-      when.textContent = fmtDate(d.ms);
+      when.textContent = fmtRange(p.before, p.after);
       const count = document.createElement('span');
       count.className = 'count';
-      count.textContent = d.items.length ? `${d.items.length} ${d.items.length === 1 ? 'product' : 'products'}` : (d.levels[0] || 'GCOV');
+      count.textContent = p.pol || 'GCOV';
       row.append(when, count);
-      const tag = meta && (inWindow(d.date, meta.before_date_window) ? 'Nearest processed window: before'
-        : inWindow(d.date, meta.after_date_window) ? 'Nearest processed window: after' : 'Opens nearest GitHub composite');
-      if (tag) {
-        const t = document.createElement('span');
-        t.className = 'tag';
-        t.textContent = tag;
-        row.appendChild(t);
-      }
-      row.addEventListener('click', () => selectDay(i));
+      row.addEventListener('click', () => selectPair(i, mosaicSide));
       dateList.appendChild(row);
     }
   }
 
   function markSelection() {
     dateList.querySelectorAll('.date-row').forEach(row => {
-      row.setAttribute('aria-pressed', String(Number(row.dataset.idx) === currentIdx));
+      row.setAttribute('aria-pressed', String(Number(row.dataset.idx) === pairIdx));
     });
-    if (days.length) {
+    if (pairs.length) {
       renderCalendar();
-      datePrev.disabled = currentIdx === 0;
-      dateNext.disabled = currentIdx === days.length - 1;
+      datePrev.disabled = pairIdx <= 0;
+      dateNext.disabled = pairIdx === pairs.length - 1;
     }
   }
 
-  function selectDay(idx) {
-    if (!days.length) return;
-    idx = clamp(idx, 0, days.length - 1);
-    currentIdx = idx;
-    mosaicSide = null;
-    const d = days[idx];
-    calYear = new Date(d.ms).getUTCFullYear();
-    calMonth = new Date(d.ms).getUTCMonth();
-    comparisonButtons.forEach(b => { b.classList.remove('is-active'); b.setAttribute('aria-pressed', 'false'); });
-    if (panelBody.hidden) setPanelCollapsed(false);
-
-    
-    
-    const distanceToWindow = (date, window) => {
-      if (!window || window.length < 2) return Number.POSITIVE_INFINITY;
-      if (date >= window[0] && date <= window[1]) return 0;
-      return Math.min(Math.abs(dayMs(date) - dayMs(window[0])), Math.abs(dayMs(date) - dayMs(window[1])));
-    };
-    const beforeDistance = distanceToWindow(d.date, meta && meta.before_date_window);
-    const afterDistance = distanceToWindow(d.date, meta && meta.after_date_window);
-    const side = beforeDistance <= afterDistance ? 'before' : 'after';
-    showMosaic(side, d.date);
-    markSelection();
-    const row = dateList.querySelector(`.date-row[data-idx="${idx}"]`);
-    if (row) row.scrollIntoView({ block: 'nearest' });
+  function stepPair(dir) {
+    if (!pairs.length) return;
+    const next = pairIdx < 0 ? pairs.length - 1 : pairIdx + dir;
+    if (next < 0 || next >= pairs.length) return;
+    selectPair(next, mosaicSide);
   }
-
-  function stepDate(dir) {
-    if (!days.length) return;
-    const next = currentIdx < 0 ? days.length - 1 : currentIdx + dir;
-    if (next < 0 || next >= days.length) return;
-    selectDay(next);
-  }
-  datePrev.addEventListener('click', () => stepDate(-1));
-  dateNext.addEventListener('click', () => stepDate(1));
+  datePrev.addEventListener('click', () => stepPair(-1));
+  dateNext.addEventListener('click', () => stepPair(1));
   document.addEventListener('keydown', e => {
     if (timeline.hidden || (e.target && e.target.tagName === 'INPUT')) return;
-    if (e.key === 'ArrowLeft') { e.preventDefault(); stepDate(-1); }
-    if (e.key === 'ArrowRight') { e.preventDefault(); stepDate(1); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); stepPair(-1); }
+    if (e.key === 'ArrowRight') { e.preventDefault(); stepPair(1); }
   });
 
   
+  // The historical-imagery card now opens from the comparison panel's date-pair button.
   function openHistory() {
     closeMenu();
     closeSettings();
+    const pair = pairs[pairIdx];
+    if (pair) {
+      calYear = new Date(dayMs(pair[mosaicSide])).getUTCFullYear();
+      calMonth = new Date(dayMs(pair[mosaicSide])).getUTCMonth();
+      renderCalendar();
+    }
     timeline.hidden = false;
-    historyBtn.setAttribute('aria-expanded', 'true');
-    loadDates();
+    pairBtn.setAttribute('aria-expanded', 'true');
   }
   function closeHistory() {
     timeline.hidden = true;
-    historyBtn.setAttribute('aria-expanded', 'false');
+    pairBtn.setAttribute('aria-expanded', 'false');
   }
-  historyBtn.addEventListener('click', () => (timeline.hidden ? openHistory() : closeHistory()));
+  pairBtn.addEventListener('click', () => (timeline.hidden ? openHistory() : closeHistory()));
   historyClose.addEventListener('click', closeHistory);
 
   
@@ -1170,11 +1265,34 @@
   }
 
   async function initData() {
-    metaReady = loadMeta();
-    await metaReady;
-    showMosaic('before');
-    loadChangeOverlay();
-    loadDates();
+    pairsState = 'loading';
+    pairBtnLabel.textContent = 'Loading date pairs';
+    calStatus.textContent = 'Loading processed date pairs';
+    showCalendarState('loading', 'Loading processed date pairs',
+      'Reading the date-pair index published by the NISAR processing runs.');
+    setPanelEmpty('ph-circle-notch', 'Loading comparison', 'Fetching the latest radar mosaics.');
+
+    await loadPairIndex();
+
+    if (!pairs.length) {
+      pairsState = 'error';
+      pairBtnLabel.textContent = 'No date pairs';
+      calStatus.textContent = 'No processed date pairs available';
+      showCalendarState('error', 'No processed date pairs available',
+        'The processed data index could not be reached or lists no date pairs.');
+      meta = null;
+      showMosaic('before');
+      setStatus('Processed NISAR mosaics are unavailable right now.', 6000);
+      return;
+    }
+
+    pairsState = 'ready';
+    const earliest = pairs.reduce((m, p) => (p.before < m ? p.before : m), pairs[0].before);
+    const latest = pairs.reduce((m, p) => (p.after > m ? p.after : m), pairs[0].after);
+    calStatus.textContent = `${pairs.length} date ${pairs.length === 1 ? 'pair' : 'pairs'} · ${fmtIso(earliest)} to ${fmtIso(latest)}`;
+    showCalendarState(null);
+    buildList();
+    selectPair(pairs.length - 1, 'before');
   }
 
   function frame(now) {
