@@ -859,13 +859,13 @@
     compareImg.src = url;
   }
 
-  // Collapse: the class shrinks the whole card to its header in every layout.
+  // Slide the comparison panel off-canvas while keeping its arrow handle reachable.
   function setPanelCollapsed(collapsed) {
     panelBody.hidden = collapsed;
     nisarPanel.classList.toggle('is-collapsed', collapsed);
     panelToggle.setAttribute('aria-expanded', String(!collapsed));
-    panelToggle.setAttribute('aria-label', collapsed ? 'Expand comparison panel' : 'Collapse comparison panel');
-    panelToggle.querySelector('i').className = 'ph ' + (collapsed ? 'ph-caret-down' : 'ph-caret-up');
+    panelToggle.setAttribute('aria-label', collapsed ? 'Show comparison panel' : 'Hide comparison panel');
+    panelToggle.querySelector('i').className = 'ph ' + (collapsed ? 'ph-caret-right' : 'ph-caret-left');
   }
   panelToggle.addEventListener('click', () => setPanelCollapsed(!panelBody.hidden));
 
