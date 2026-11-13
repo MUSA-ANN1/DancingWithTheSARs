@@ -124,9 +124,6 @@
 
   #panel-body { gap: 0.75rem; overscroll-behavior: contain; }
 
-  /* Collapsed state: the sheet shrinks to its header */
-  #nisar-panel:has(#panel-toggle[aria-expanded="false"]) #panel-body { display: none; }
-  #nisar-panel:has(#panel-toggle[aria-expanded="false"]) { padding-bottom: 0.75rem; }
 
   #compare-figure {
     flex: none;
@@ -335,8 +332,6 @@
   #nisar-panel .kicker { font-size: 0.75rem; }
   #panel-body { gap: 0.625rem; overscroll-behavior: contain; }
 
-  #nisar-panel:has(#panel-toggle[aria-expanded="false"]) { flex: 0 0 auto; }
-  #nisar-panel:has(#panel-toggle[aria-expanded="false"]) #panel-body { display: none; }
 
   #compare-figure {
     flex: none;
