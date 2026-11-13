@@ -638,3 +638,16 @@ h3 { font-size: var(--step--1); font-weight: 600; color: var(--muted); }
 }
 .dataset-details dt { color: var(--muted); }
 .dataset-details dd { font-weight: 500; overflow-wrap: anywhere; }
+
+
+/* Explain the type of change represented by the selected dataset tab. */
+.dataset-change-summary {
+  max-width: 34rem;
+  margin: 0.45rem 0 0;
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
+@media (max-width: 40rem) {
+  .dataset-change-summary { max-width: 100%; font-size: 0.68rem; }
+}
