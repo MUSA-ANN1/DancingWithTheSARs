@@ -102,7 +102,7 @@ The project uses NISAR Level-2 GCOV products distributed through the Alaska Sate
 
 ## Team
 
-**Team Hyperia** — NASA Space Apps Challenge 2026, Ashgabat.
+**Team Hyperia** — NASA Space Apps Challenge 2026, Ashgabat:
 
 - Alyhan Bayryyev — Team leader
 - Abdullah Bayryyev — Team member
