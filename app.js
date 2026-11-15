@@ -1175,9 +1175,21 @@
     buildList();
     markSelection();
     if (pairIdx >= 0 && !pairMatchesFilter(pairs[pairIdx])) {
-      const replacement = nextMatchingPair(changeFilter === 'default' ? -1 : pairs.length, -1);
-      if (replacement >= 0) selectPair(replacement, mosaicSide);
-      else setStatus('No date pairs match this change category.', 5000);
+      const replacement = nextMatchingPair(pairs.length, -1);
+      if (replacement >= 0) {
+        selectPair(replacement, mosaicSide);
+      } else {
+        pairIdx = -1;
+        meta = null;
+        pairBtnLabel.textContent = 'No matching date pairs';
+        readoutLabel.textContent = 'Filtered archive';
+        readoutDate.textContent = 'No matching dates';
+        setPanelEmpty('ph-funnel', 'No matching date pairs', 'Choose another change category to see archived observations.');
+        clearChangeOverlay();
+        changeLegend.hidden = true;
+        markSelection();
+        setStatus('No date pairs match this change category.', 5000);
+      }
     }
   });
 
