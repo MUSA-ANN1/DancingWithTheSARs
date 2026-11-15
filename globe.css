@@ -648,7 +648,8 @@ h3 { font-size: var(--step--1); font-weight: 600; color: var(--muted); }
 /* Historical imagery change-category filter */
 .history-actions {
   display: flex;
-  align-items: center;
+  flex-direction: column-reverse;
+  align-items: flex-end;
   gap: var(--s1);
   flex: none;
 }
@@ -673,5 +674,9 @@ h3 { font-size: var(--step--1); font-weight: 600; color: var(--muted); }
 .date-row:disabled { pointer-events: none; }
 @media (max-width: 520px) {
   #history-filter { min-width: 6.5rem; max-width: 7.5rem; font-size: 0.72rem; }
-  .history-actions { gap: 0.35rem; }
+  .history-actions {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.35rem;
+  }
 }
