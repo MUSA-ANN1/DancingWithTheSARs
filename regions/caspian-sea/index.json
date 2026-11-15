@@ -1,0 +1,208 @@
+{
+ "name": "caspian-sea",
+ "generated": "2026-11-14T12:31:54+00:00",
+ "count": 11,
+ "pairs": [
+  {
+   "id": "oct23-nov04-2026",
+   "folder": "pairs/oct23-nov04-2026/",
+   "before": "2026-10-23",
+   "after": "2026-11-04",
+   "pol": "HHHH",
+   "updated": "2026-11-12T13:53:05+00:00",
+   "images": {
+    "before": "before.png",
+    "after": "after.png",
+    "water_before": "water_before.png",
+    "water_after": "water_after.png",
+    "change": "change.png",
+    "coverage": "coverage.png",
+    "reference": "reference.png"
+   }
+  },
+  {
+   "id": "oct19-oct31-2026",
+   "folder": "pairs/oct19-oct31-2026/",
+   "before": "2026-10-19",
+   "after": "2026-10-31",
+   "pol": "HHHH",
+   "updated": "2026-11-14T12:29:03+00:00",
+   "images": {
+    "before": "before.png",
+    "after": "after.png",
+    "water_before": "water_before.png",
+    "water_after": "water_after.png",
+    "change": "change.png",
+    "coverage": "coverage.png",
+    "reference": "reference.png"
+   }
+  },
+  {
+   "id": "oct18-oct30-2026",
+   "folder": "pairs/oct18-oct30-2026/",
+   "before": "2026-10-18",
+   "after": "2026-10-30",
+   "pol": "HHHH",
+   "updated": "2026-11-12T14:21:38+00:00",
+   "images": {
+    "before": "before.png",
+    "after": "after.png",
+    "water_before": "water_before.png",
+    "water_after": "water_after.png",
+    "change": "change.png",
+    "coverage": "coverage.png",
+    "reference": "reference.png"
+   }
+  },
+  {
+   "id": "oct16-oct28-2026",
+   "folder": "pairs/oct16-oct28-2026/",
+   "before": "2026-10-16",
+   "after": "2026-10-28",
+   "pol": "HHHH",
+   "updated": "2026-11-11T17:02:15+00:00",
+   "images": {
+    "before": "before.png",
+    "after": "after.png",
+    "water_before": "water_before.png",
+    "water_after": "water_after.png",
+    "change": "change.png",
+    "coverage": "coverage.png",
+    "reference": "reference.png"
+   }
+  },
+  {
+   "id": "oct14-oct26-2026",
+   "folder": "pairs/oct14-oct26-2026/",
+   "before": "2026-10-14",
+   "after": "2026-10-26",
+   "pol": "HHHH",
+   "updated": "2026-11-13T05:25:27+00:00",
+   "images": {
+    "before": "before.png",
+    "after": "after.png",
+    "water_before": "water_before.png",
+    "water_after": "water_after.png",
+    "change": "change.png",
+    "coverage": "coverage.png",
+    "reference": "reference.png"
+   }
+  },
+  {
+   "id": "oct01-oct25-2026",
+   "folder": "pairs/oct01-oct25-2026/",
+   "before": "2026-10-01",
+   "after": "2026-10-25",
+   "pol": "HHHH",
+   "updated": "2026-11-11T17:36:56+00:00",
+   "images": {
+    "before": "before.png",
+    "after": "after.png",
+    "water_before": "water_before.png",
+    "water_after": "water_after.png",
+    "change": "change.png",
+    "coverage": "coverage.png",
+    "reference": "reference.png"
+   }
+  },
+  {
+   "id": "oct12-oct24-2026",
+   "folder": "pairs/oct12-oct24-2026/",
+   "before": "2026-10-12",
+   "after": "2026-10-24",
+   "pol": "HHHH",
+   "updated": "2026-11-11T17:49:43+00:00",
+   "images": {
+    "before": "before.png",
+    "after": "after.png",
+    "water_before": "water_before.png",
+    "water_after": "water_after.png",
+    "change": "change.png",
+    "coverage": "coverage.png",
+    "reference": "reference.png"
+   }
+  },
+  {
+   "id": "oct11-oct23-2026",
+   "folder": "pairs/oct11-oct23-2026/",
+   "before": "2026-10-11",
+   "after": "2026-10-23",
+   "pol": "HHHH",
+   "updated": "2026-11-11T18:16:36+00:00",
+   "images": {
+    "before": "before.png",
+    "after": "after.png",
+    "water_before": "water_before.png",
+    "water_after": "water_after.png",
+    "change": "change.png",
+    "coverage": "coverage.png",
+    "reference": "reference.png"
+   }
+  },
+  {
+   "id": "oct09-oct21-2026",
+   "folder": "pairs/oct09-oct21-2026/",
+   "before": "2026-10-09",
+   "after": "2026-10-21",
+   "pol": "HHHH",
+   "updated": "2026-11-12T14:49:37+00:00",
+   "images": {
+    "before": "before.png",
+    "after": "after.png",
+    "water_before": "water_before.png",
+    "water_after": "water_after.png",
+    "change": "change.png",
+    "coverage": "coverage.png",
+    "reference": "reference.png"
+   }
+  },
+  {
+   "id": "oct07-oct19-2026",
+   "folder": "pairs/oct07-oct19-2026/",
+   "before": "2026-10-07",
+   "after": "2026-10-19",
+   "pol": "HHHH",
+   "updated": "2026-11-13T06:51:57+00:00",
+   "images": {
+    "before": "before.png",
+    "after": "after.png",
+    "water_before": "water_before.png",
+    "water_after": "water_after.png",
+    "change": "change.png",
+    "coverage": "coverage.png",
+    "reference": "reference.png"
+   }
+  },
+  {
+   "id": "oct06-oct18-2026",
+   "folder": "pairs/oct06-oct18-2026/",
+   "before": "2026-10-06",
+   "after": "2026-10-18",
+   "pol": "HHHH",
+   "updated": "2026-11-13T08:10:00+00:00",
+   "images": {
+    "before": "before.png",
+    "after": "after.png",
+    "water_before": "water_before.png",
+    "water_after": "water_after.png",
+    "change": "change.png",
+    "coverage": "coverage.png",
+    "reference": "reference.png"
+   }
+  }
+ ],
+ "errors": [
+  {
+   "id": "oct20-nov01-2026",
+   "before": "2026-10-20",
+   "after": "2026-11-01",
+   "error": "All-NaN slice encountered"
+  },
+  {
+   "id": "oct17-oct29-2026",
+   "before": "2026-10-17",
+   "after": "2026-10-29",
+   "error": "All-NaN slice encountered"
+  }
+ ]
+}
