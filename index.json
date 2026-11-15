@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-14T12:31:54+00:00",
+ "generated": "2026-11-15T08:50:35+00:00",
  "regions": [
   {
    "type": "mosaic",
@@ -121,6 +121,23 @@
      "after": "2026-11-04",
      "pol": "HHHH",
      "updated": "2026-11-12T13:53:05+00:00",
+     "images": {
+      "before": "before.png",
+      "after": "after.png",
+      "water_before": "water_before.png",
+      "water_after": "water_after.png",
+      "change": "change.png",
+      "coverage": "coverage.png",
+      "reference": "reference.png"
+     }
+    },
+    {
+     "id": "oct21-nov02-2026",
+     "folder": "pairs/oct21-nov02-2026/",
+     "before": "2026-10-21",
+     "after": "2026-11-02",
+     "pol": "HHHH",
+     "updated": "2026-11-15T08:45:05+00:00",
      "images": {
       "before": "before.png",
       "after": "after.png",
