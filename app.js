@@ -43,6 +43,7 @@
   const settingsPanel = $('#settings-panel');
   const themeInputs = Array.from(document.querySelectorAll('input[name="earth-theme"]'));
   const historyClose = $('#history-close');
+  const historyFilter = $('#history-filter');
   const timeline = $('#timeline');
   const nisarPanel = $('#nisar-panel');
   const datasetChangeSummary = $('#dataset-change-summary');
@@ -771,6 +772,7 @@
   const placeholderBody = $('#dataset-placeholder-body');
 
   let pairs = [];                            // date pairs, oldest first (by after date, then before date)
+  let changeFilter = 'default';
   let pairIdx = -1;                          // selected pair
   let meta = null;                           // meta.json of the selected pair
   const metaCache = new Map();               // pair folder -> meta.json
@@ -1137,6 +1139,48 @@
     return null;
   }
 
+  function classifyChange(meta) {
+    const stats = meta && meta.stats;
+    if (!stats) return 'unknown';
+    const retreat = Number(stats.retreat_candidate_pixels);
+    const advance = Number(stats.advance_candidate_pixels);
+    const coastalPixels = Number(stats.coastal_zone_common_pixels);
+    if (!Number.isFinite(retreat) || !Number.isFinite(advance) || retreat < 0 || advance < 0) return 'unknown';
+    const changed = retreat + advance;
+    if (changed === 0) return 'no-change';
+    if (!Number.isFinite(coastalPixels) || coastalPixels <= 0) return 'unknown';
+    return (changed / coastalPixels) * 100 >= 0.5 ? 'big-change' : 'small-change';
+  }
+
+  async function classifyPairs() {
+    await Promise.all(pairs.map(async pair => {
+      const pairMeta = await loadPairMeta(pair);
+      pair.changeCategory = classifyChange(pairMeta);
+    }));
+  }
+
+  function pairMatchesFilter(pair) {
+    return changeFilter === 'default' || !!pair && pair.changeCategory === changeFilter;
+  }
+
+  function nextMatchingPair(from, direction) {
+    for (let i = from + direction; i >= 0 && i < pairs.length; i += direction) {
+      if (pairMatchesFilter(pairs[i])) return i;
+    }
+    return -1;
+  }
+
+  historyFilter.addEventListener('change', () => {
+    changeFilter = historyFilter.value;
+    buildList();
+    markSelection();
+    if (pairIdx >= 0 && !pairMatchesFilter(pairs[pairIdx])) {
+      const replacement = nextMatchingPair(changeFilter === 'default' ? -1 : pairs.length, -1);
+      if (replacement >= 0) selectPair(replacement, mosaicSide);
+      else setStatus('No date pairs match this change category.', 5000);
+    }
+  });
+
   async function selectPair(idx, side) {
     if (!pairs.length) return;
     idx = clamp(idx, 0, pairs.length - 1);
@@ -1170,7 +1214,8 @@
   // Calendar day: a day may end one pair and start the next. Keep the selected
   // pair when it contains the day, otherwise open the newest pair that does.
   function selectDate(ms) {
-    const list = dayPairs.get(ms);
+    const allPairs = dayPairs.get(ms);
+    const list = allPairs ? allPairs.filter(index => pairMatchesFilter(pairs[index])) : null;
     if (!list || !list.length) return;
     const iso = new Date(ms).toISOString().slice(0, 10);
     const idx = list.includes(pairIdx) ? pairIdx : Math.max(...list);
@@ -1311,14 +1356,20 @@
     }
     for (let d = 1; d <= count; d++) {
       const ms = Date.UTC(calYear, calMonth, d);
-      const list = dayPairs.get(ms);
+      const allPairs = dayPairs.get(ms);
+      const list = allPairs ? allPairs.filter(index => pairMatchesFilter(pairs[index])) : null;
       const cell = document.createElement('button');
       cell.type = 'button';
       cell.className = 'cal-day';
       cell.textContent = String(d);
-      if (!list) {
+      if (!list || !list.length) {
         cell.disabled = true;
-        cell.setAttribute('aria-label', `${fmtDate(ms)}, no data`);
+        if (allPairs && allPairs.length) {
+          cell.classList.add('is-filtered-out');
+          cell.setAttribute('aria-label', `${fmtDate(ms)}, hidden by change category filter`);
+        } else {
+          cell.setAttribute('aria-label', `${fmtDate(ms)}, no data`);
+        }
       } else {
         cell.classList.add('has-data');
         cell.setAttribute('aria-label', `${fmtDate(ms)}, NISAR date pair ${list.length > 1 ? 'dates' : 'date'} available`);
@@ -1353,6 +1404,8 @@
       row.type = 'button';
       row.className = 'date-row';
       row.dataset.idx = String(i);
+      row.disabled = !pairMatchesFilter(p);
+      row.classList.toggle('is-filtered-out', row.disabled);
       const when = document.createElement('span');
       when.textContent = fmtRange(p.before, p.after);
       const count = document.createElement('span');
@@ -1366,19 +1419,22 @@
 
   function markSelection() {
     dateList.querySelectorAll('.date-row').forEach(row => {
-      row.setAttribute('aria-pressed', String(Number(row.dataset.idx) === pairIdx));
+      const idx = Number(row.dataset.idx);
+      row.disabled = !pairMatchesFilter(pairs[idx]);
+      row.classList.toggle('is-filtered-out', row.disabled);
+      row.setAttribute('aria-pressed', String(idx === pairIdx));
     });
     if (pairs.length) {
       renderCalendar();
-      datePrev.disabled = pairIdx <= 0;
-      dateNext.disabled = pairIdx === pairs.length - 1;
+      datePrev.disabled = nextMatchingPair(pairIdx, -1) < 0;
+      dateNext.disabled = nextMatchingPair(pairIdx, 1) < 0;
     }
   }
 
   function stepPair(dir) {
     if (!pairs.length) return;
-    const next = pairIdx < 0 ? pairs.length - 1 : pairIdx + dir;
-    if (next < 0 || next >= pairs.length) return;
+    const next = pairIdx < 0 ? (dir > 0 ? 0 : pairs.length - 1) : nextMatchingPair(pairIdx, dir);
+    if (next < 0 || !pairMatchesFilter(pairs[next])) return;
     selectPair(next, mosaicSide);
   }
   datePrev.addEventListener('click', () => stepPair(-1));
@@ -1443,6 +1499,8 @@
       return;
     }
 
+    calStatus.textContent = 'Classifying archived changes';
+    await classifyPairs();
     pairsState = 'ready';
     const earliest = pairs.reduce((m, p) => (p.before < m ? p.before : m), pairs[0].before);
     const latest = pairs.reduce((m, p) => (p.after > m ? p.after : m), pairs[0].after);
