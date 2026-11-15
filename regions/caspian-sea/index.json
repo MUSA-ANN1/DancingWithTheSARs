@@ -1,8 +1,25 @@
 {
  "name": "caspian-sea",
- "generated": "2026-11-15T08:50:35+00:00",
- "count": 12,
+ "generated": "2026-11-15T17:49:04+00:00",
+ "count": 13,
  "pairs": [
+  {
+   "id": "oct24-nov05-2026",
+   "folder": "pairs/oct24-nov05-2026/",
+   "before": "2026-10-24",
+   "after": "2026-11-05",
+   "pol": "HHHH",
+   "updated": "2026-11-15T17:43:30+00:00",
+   "images": {
+    "before": "before.png",
+    "after": "after.png",
+    "water_before": "water_before.png",
+    "water_after": "water_after.png",
+    "change": "change.png",
+    "coverage": "coverage.png",
+    "reference": "reference.png"
+   }
+  },
   {
    "id": "oct23-nov04-2026",
    "folder": "pairs/oct23-nov04-2026/",
