@@ -648,11 +648,13 @@ h3 { font-size: var(--step--1); font-weight: 600; color: var(--muted); }
 /* Historical imagery change-category filter */
 .history-actions {
   display: flex;
-  flex-direction: column-reverse;
+  flex-direction: column;
   align-items: flex-end;
   gap: var(--s1);
   flex: none;
 }
+#history-close { order: 0; }
+#history-filter { order: 1; }
 #history-filter {
   min-width: 7.5rem;
   max-width: 9rem;
@@ -679,4 +681,6 @@ h3 { font-size: var(--step--1); font-weight: 600; color: var(--muted); }
     align-items: center;
     gap: 0.35rem;
   }
+  #history-filter { order: 0; }
+  #history-close { order: 1; }
 }
