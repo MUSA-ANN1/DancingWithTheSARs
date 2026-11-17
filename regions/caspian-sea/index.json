@@ -1,8 +1,42 @@
 {
  "name": "caspian-sea",
- "generated": "2026-11-16T13:53:44+00:00",
- "count": 13,
+ "generated": "2026-11-17T15:13:24+00:00",
+ "count": 15,
  "pairs": [
+  {
+   "id": "oct28-nov09-2026",
+   "folder": "pairs/oct28-nov09-2026/",
+   "before": "2026-10-28",
+   "after": "2026-11-09",
+   "pol": "HHHH",
+   "updated": "2026-11-17T14:59:47+00:00",
+   "images": {
+    "before": "before.png",
+    "after": "after.png",
+    "water_before": "water_before.png",
+    "water_after": "water_after.png",
+    "change": "change.png",
+    "coverage": "coverage.png",
+    "reference": "reference.png"
+   }
+  },
+  {
+   "id": "oct26-nov07-2026",
+   "folder": "pairs/oct26-nov07-2026/",
+   "before": "2026-10-26",
+   "after": "2026-11-07",
+   "pol": "HHHH",
+   "updated": "2026-11-17T15:13:24+00:00",
+   "images": {
+    "before": "before.png",
+    "after": "after.png",
+    "water_before": "water_before.png",
+    "water_after": "water_after.png",
+    "change": "change.png",
+    "coverage": "coverage.png",
+    "reference": "reference.png"
+   }
+  },
   {
    "id": "oct24-nov05-2026",
    "folder": "pairs/oct24-nov05-2026/",
@@ -227,21 +261,9 @@
  ],
  "errors": [
   {
-   "id": "oct20-nov01-2026",
-   "before": "2026-10-20",
-   "after": "2026-11-01",
-   "error": "All-NaN slice encountered"
-  },
-  {
-   "id": "oct17-oct29-2026",
-   "before": "2026-10-17",
-   "after": "2026-10-29",
-   "error": "All-NaN slice encountered"
-  },
-  {
-   "id": "oct08-oct20-2026",
-   "before": "2026-10-08",
-   "after": "2026-10-20",
+   "id": "oct30-nov11-2026",
+   "before": "2026-10-30",
+   "after": "2026-11-11",
    "error": "All-NaN slice encountered"
   }
  ]
