@@ -1,11 +1,11 @@
 {
- "generated": "2026-11-19T14:29:31+00:00",
+ "generated": "2026-11-20T15:38:10+00:00",
  "regions": [
   {
    "type": "mosaic",
    "mode": "shore",
-   "before": "2026-10-28",
-   "after": "2026-11-09",
+   "before": "2026-11-04",
+   "after": "2026-11-16",
    "bbox": [
     46.5,
     36.4,
@@ -18,103 +18,82 @@
    ],
    "pol": "HHHH",
    "quality_mask": "Applied before downsampling; mask values 1..254 valid, 0 and 255 excluded",
-   "quality_masked_scene_count": 28,
+   "quality_masked_scene_count": 22,
    "frame_pair_dates": [
     {
-     "before": "2026-10-28",
-     "after": "2026-11-09",
-     "track": "056",
-     "direction": "A",
-     "frame": "020"
-    },
-    {
-     "before": "2026-10-28",
-     "after": "2026-11-09",
-     "track": "056",
+     "before": "2026-11-04",
+     "after": "2026-11-16",
+     "track": "157",
      "direction": "A",
      "frame": "021"
     },
     {
-     "before": "2026-10-28",
-     "after": "2026-11-09",
-     "track": "056",
+     "before": "2026-11-04",
+     "after": "2026-11-16",
+     "track": "157",
      "direction": "A",
      "frame": "022"
     },
     {
-     "before": "2026-10-28",
-     "after": "2026-11-09",
-     "track": "056",
+     "before": "2026-11-04",
+     "after": "2026-11-16",
+     "track": "157",
      "direction": "A",
      "frame": "023"
     },
     {
-     "before": "2026-10-28",
-     "after": "2026-11-09",
-     "track": "056",
+     "before": "2026-11-04",
+     "after": "2026-11-16",
+     "track": "157",
      "direction": "A",
      "frame": "024"
     },
     {
-     "before": "2026-10-28",
-     "after": "2026-11-09",
-     "track": "056",
-     "direction": "A",
-     "frame": "025"
-    },
-    {
-     "before": "2026-10-28",
-     "after": "2026-11-09",
-     "track": "056",
-     "direction": "A",
-     "frame": "026"
-    },
-    {
-     "before": "2026-10-28",
-     "after": "2026-11-09",
-     "track": "064",
+     "before": "2026-11-04",
+     "after": "2026-11-16",
+     "track": "165",
      "direction": "D",
      "frame": "064"
     },
     {
-     "before": "2026-10-28",
-     "after": "2026-11-09",
-     "track": "064",
+     "before": "2026-11-04",
+     "after": "2026-11-16",
+     "track": "165",
      "direction": "D",
      "frame": "065"
     },
     {
-     "before": "2026-10-28",
-     "after": "2026-11-09",
-     "track": "064",
+     "before": "2026-11-04",
+     "after": "2026-11-16",
+     "track": "165",
      "direction": "D",
      "frame": "066"
     },
     {
-     "before": "2026-10-28",
-     "after": "2026-11-09",
-     "track": "064",
+     "before": "2026-11-04",
+     "after": "2026-11-16",
+     "track": "165",
      "direction": "D",
      "frame": "067"
     },
     {
-     "before": "2026-10-28",
-     "after": "2026-11-09",
-     "track": "064",
+     "before": "2026-11-04",
+     "after": "2026-11-16",
+     "track": "165",
      "direction": "D",
      "frame": "068"
     },
     {
-     "before": "2026-10-28",
-     "after": "2026-11-09",
-     "track": "064",
+     "before": "2026-11-04",
+     "after": "2026-11-16",
+     "track": "165",
      "direction": "D",
      "frame": "069"
     },
     {
-     "before": "2026-10-28",
-     "after": "2026-11-09",
-     "track": "064",
+     "before": "2026-11-04",
+     "after": "2026-11-16",
+     "track": "165",
      "direction": "D",
      "frame": "070"
     }
@@ -125,8 +104,8 @@
     0.0
    ],
    "threshold": [
-    -2.9,
-    -2.6
+    -3.4,
+    -3.1
    ],
    "stats": {
     "common_coverage_pct": 100.0,
@@ -134,14 +113,14 @@
     "after_coverage_pct": 100.0,
     "coastal_zone_common_pixels": 108021,
     "coastal_zone_coverage_pct_of_grid": 23.92,
-    "confident_coastal_pixels": 170,
-    "retreat_candidate_pixels": 101,
-    "advance_candidate_pixels": 2,
-    "retreat_pct_of_confident_coastal": 59.412,
-    "advance_pct_of_confident_coastal": 1.176,
+    "confident_coastal_pixels": 328,
+    "retreat_candidate_pixels": 5,
+    "advance_candidate_pixels": 0,
+    "retreat_pct_of_confident_coastal": 1.524,
+    "advance_pct_of_confident_coastal": 0.0,
     "threshold_db": [
-     -2.9,
-     -2.6
+     -3.4,
+     -3.1
     ],
     "confidence_rules": {
      "threshold_margin_db": 2.0,
@@ -159,187 +138,151 @@
     "All contributing scenes use one consistent polarization (HHHH preferred, otherwise HVHV) and require the GCOV mask; mask values 0 and 255 are excluded before downsampling.",
     "Water classification is exploratory; wind, waves, vegetation, soil moisture and radar geometry can mimic shoreline change.",
     "coverage.png shows valid NISAR observation availability, not the shoreline. reference.png is Natural Earth reference geography, not an observation.",
-    "Processed 14 frame pairs; tile dates range from 2026-10-28 to 2026-11-09."
+    "Processed 11 frame pairs; tile dates range from 2026-11-04 to 2026-11-16."
    ],
    "scenes": [
-    "NISAR_L2_PR_GCOV_034_056_A_020_2005_DHDH_A_20261028T014624_20261028T014659_P05036_N_F_J_001",
-    "NISAR_L2_PR_GCOV_035_056_A_020_2005_DHDH_A_20261109T014625_20261109T014659_P05036_N_F_J_001",
-    "NISAR_L2_PR_GCOV_034_056_A_021_2005_DHDH_M_20261028T014658_20261028T014733_P05036_N_F_J_001",
-    "NISAR_L2_PR_GCOV_035_056_A_021_2005_DHDH_M_20261109T014658_20261109T014733_P05036_N_F_J_001",
-    "NISAR_L2_PR_GCOV_034_056_A_022_4005_DHDH_A_20261028T014732_20261028T014807_P05036_N_F_J_001",
-    "NISAR_L2_PR_GCOV_035_056_A_022_4005_DHDH_A_20261109T014729_20261109T014807_P05036_N_F_J_001",
-    "NISAR_L2_PR_GCOV_034_056_A_023_4005_DHDH_A_20261028T014806_20261028T014845_P05036_N_F_J_001",
-    "NISAR_L2_PR_GCOV_035_056_A_023_4005_DHDH_A_20261109T014806_20261109T014841_P05036_N_F_J_001",
-    "NISAR_L2_PR_GCOV_034_056_A_024_4005_DHDH_A_20261028T014840_20261028T014845_P05036_N_P_J_001",
-    "NISAR_L2_PR_GCOV_035_056_A_024_4005_DHDH_A_20261109T014840_20261109T014846_P05036_N_P_J_001",
-    "NISAR_L2_PR_GCOV_034_056_A_025_2005_DHDH_M_20261028T014914_20261028T014949_P05036_N_F_J_001",
-    "NISAR_L2_PR_GCOV_035_056_A_025_2005_DHDH_M_20261109T014914_20261109T014949_P05036_N_F_J_001",
-    "NISAR_L2_PR_GCOV_034_056_A_026_4005_DHDH_A_20261028T014948_20261028T015023_P05036_N_F_J_001",
-    "NISAR_L2_PR_GCOV_035_056_A_026_4005_DHDH_A_20261109T014945_20261109T015023_P05036_N_F_J_001",
-    "NISAR_L2_PR_GCOV_034_064_D_064_2005_DHDH_A_20261028T153042_20261028T153117_P05036_N_F_J_001",
-    "NISAR_L2_PR_GCOV_035_064_D_064_2005_DHDH_A_20261109T153043_20261109T153118_P05036_N_F_J_001",
-    "NISAR_L2_PR_GCOV_034_064_D_065_2005_DHDH_A_20261028T153116_20261028T153151_P05036_N_F_J_001",
-    "NISAR_L2_PR_GCOV_035_064_D_065_2005_DHDH_A_20261109T153117_20261109T153152_P05036_N_F_J_001",
-    "NISAR_L2_PR_GCOV_034_064_D_066_2005_DHDH_A_20261028T153150_20261028T153225_P05036_N_F_J_001",
-    "NISAR_L2_PR_GCOV_035_064_D_066_2005_DHDH_A_20261109T153151_20261109T153226_P05036_N_F_J_001",
-    "NISAR_L2_PR_GCOV_034_064_D_067_2005_DHDH_A_20261028T153224_20261028T153259_P05036_N_F_J_001",
-    "NISAR_L2_PR_GCOV_035_064_D_067_2005_DHDH_A_20261109T153225_20261109T153300_P05036_N_F_J_001",
-    "NISAR_L2_PR_GCOV_034_064_D_068_2005_DHDH_A_20261028T153258_20261028T153333_P05036_N_F_J_001",
-    "NISAR_L2_PR_GCOV_035_064_D_068_2005_DHDH_A_20261109T153259_20261109T153334_P05036_N_F_J_001",
-    "NISAR_L2_PR_GCOV_034_064_D_069_2005_DHDH_A_20261028T153332_20261028T153407_P05036_N_F_J_001",
-    "NISAR_L2_PR_GCOV_035_064_D_069_2005_DHDH_A_20261109T153333_20261109T153408_P05036_N_F_J_001",
-    "NISAR_L2_PR_GCOV_034_064_D_070_2005_DHDH_A_20261028T153406_20261028T153441_P05036_N_F_J_001",
-    "NISAR_L2_PR_GCOV_035_064_D_070_2005_DHDH_A_20261109T153407_20261109T153441_P05036_N_F_J_001"
+    "NISAR_L2_PR_GCOV_034_157_A_021_2005_DHDH_M_20261104T015517_20261104T015552_P05036_N_F_J_001",
+    "NISAR_L2_PR_GCOV_035_157_A_021_2005_DHDH_M_20261116T015518_20261116T015553_P05036_N_F_J_001",
+    "NISAR_L2_PR_GCOV_034_157_A_022_4005_DHDH_A_20261104T015549_20261104T015626_P05036_N_F_J_001",
+    "NISAR_L2_PR_GCOV_035_157_A_022_4005_DHDH_A_20261116T015549_20261116T015627_P05036_N_F_J_001",
+    "NISAR_L2_PR_GCOV_034_157_A_023_4005_DHDH_A_20261104T015625_20261104T015700_P05036_N_F_J_001",
+    "NISAR_L2_PR_GCOV_035_157_A_023_4005_DHDH_A_20261116T015626_20261116T015701_P05036_N_F_J_001",
+    "NISAR_L2_PR_GCOV_034_157_A_024_4005_DHDH_A_20261104T015659_20261104T015706_P05036_N_P_J_001",
+    "NISAR_L2_PR_GCOV_035_157_A_024_4005_DHDH_A_20261116T015700_20261116T015706_P05036_N_P_J_001",
+    "NISAR_L2_PR_GCOV_034_165_D_064_2005_DHDH_A_20261104T153902_20261104T153937_P05036_N_F_J_001",
+    "NISAR_L2_PR_GCOV_035_165_D_064_2005_DHDH_A_20261116T153902_20261116T153937_P05036_N_F_J_001",
+    "NISAR_L2_PR_GCOV_034_165_D_065_2005_DHDH_A_20261104T153936_20261104T154011_P05036_N_F_J_001",
+    "NISAR_L2_PR_GCOV_035_165_D_065_2005_DHDH_A_20261116T153936_20261116T154011_P05036_N_F_J_001",
+    "NISAR_L2_PR_GCOV_034_165_D_066_2005_DHDH_A_20261104T154010_20261104T154045_P05036_N_F_J_001",
+    "NISAR_L2_PR_GCOV_035_165_D_066_2005_DHDH_A_20261116T154010_20261116T154045_P05036_N_F_J_001",
+    "NISAR_L2_PR_GCOV_034_165_D_067_2005_DHDH_A_20261104T154044_20261104T154114_P05036_N_F_J_001",
+    "NISAR_L2_PR_GCOV_035_165_D_067_2005_DHDH_A_20261116T154044_20261116T154114_P05036_N_F_J_001",
+    "NISAR_L2_PR_GCOV_034_165_D_068_4005_DHDH_A_20261104T154117_20261104T154153_P05036_N_F_J_001",
+    "NISAR_L2_PR_GCOV_035_165_D_068_4005_DHDH_A_20261116T154117_20261116T154153_P05036_N_F_J_001",
+    "NISAR_L2_PR_GCOV_034_165_D_069_4005_DHDH_A_20261104T154152_20261104T154158_P05036_N_P_J_001",
+    "NISAR_L2_PR_GCOV_035_165_D_069_4005_DHDH_A_20261116T154152_20261116T154158_P05036_N_P_J_001",
+    "NISAR_L2_PR_GCOV_034_165_D_070_2005_DHDH_A_20261104T154225_20261104T154300_P05036_N_F_J_001",
+    "NISAR_L2_PR_GCOV_035_165_D_070_2005_DHDH_A_20261116T154226_20261116T154301_P05036_N_F_J_001"
    ],
-   "frame_pairs": 14,
-   "pair_id": "oct28-nov09-2026",
+   "frame_pairs": 11,
+   "pair_id": "nov04-nov16-2026",
    "before_date_window": [
-    "2026-10-28",
-    "2026-10-28"
+    "2026-11-04",
+    "2026-11-04"
    ],
    "after_date_window": [
-    "2026-11-09",
-    "2026-11-09"
+    "2026-11-16",
+    "2026-11-16"
    ],
    "max_composite_span_days": 7,
    "input_audits": [
     {
-     "scene": "NISAR_L2_PR_GCOV_034_056_A_020_2005_DHDH_A_20261028T014624_20261028T014659_P05036_N_F_J_001",
+     "scene": "NISAR_L2_PR_GCOV_034_157_A_021_2005_DHDH_M_20261104T015517_20261104T015552_P05036_N_F_J_001",
      "polarization": "HHHH",
      "quality_mask_used": true
     },
     {
-     "scene": "NISAR_L2_PR_GCOV_035_056_A_020_2005_DHDH_A_20261109T014625_20261109T014659_P05036_N_F_J_001",
+     "scene": "NISAR_L2_PR_GCOV_035_157_A_021_2005_DHDH_M_20261116T015518_20261116T015553_P05036_N_F_J_001",
      "polarization": "HHHH",
      "quality_mask_used": true
     },
     {
-     "scene": "NISAR_L2_PR_GCOV_034_056_A_021_2005_DHDH_M_20261028T014658_20261028T014733_P05036_N_F_J_001",
+     "scene": "NISAR_L2_PR_GCOV_034_157_A_022_4005_DHDH_A_20261104T015549_20261104T015626_P05036_N_F_J_001",
      "polarization": "HHHH",
      "quality_mask_used": true
     },
     {
-     "scene": "NISAR_L2_PR_GCOV_035_056_A_021_2005_DHDH_M_20261109T014658_20261109T014733_P05036_N_F_J_001",
+     "scene": "NISAR_L2_PR_GCOV_035_157_A_022_4005_DHDH_A_20261116T015549_20261116T015627_P05036_N_F_J_001",
      "polarization": "HHHH",
      "quality_mask_used": true
     },
     {
-     "scene": "NISAR_L2_PR_GCOV_034_056_A_022_4005_DHDH_A_20261028T014732_20261028T014807_P05036_N_F_J_001",
+     "scene": "NISAR_L2_PR_GCOV_034_157_A_023_4005_DHDH_A_20261104T015625_20261104T015700_P05036_N_F_J_001",
      "polarization": "HHHH",
      "quality_mask_used": true
     },
     {
-     "scene": "NISAR_L2_PR_GCOV_035_056_A_022_4005_DHDH_A_20261109T014729_20261109T014807_P05036_N_F_J_001",
+     "scene": "NISAR_L2_PR_GCOV_035_157_A_023_4005_DHDH_A_20261116T015626_20261116T015701_P05036_N_F_J_001",
      "polarization": "HHHH",
      "quality_mask_used": true
     },
     {
-     "scene": "NISAR_L2_PR_GCOV_034_056_A_023_4005_DHDH_A_20261028T014806_20261028T014845_P05036_N_F_J_001",
+     "scene": "NISAR_L2_PR_GCOV_034_157_A_024_4005_DHDH_A_20261104T015659_20261104T015706_P05036_N_P_J_001",
      "polarization": "HHHH",
      "quality_mask_used": true
     },
     {
-     "scene": "NISAR_L2_PR_GCOV_035_056_A_023_4005_DHDH_A_20261109T014806_20261109T014841_P05036_N_F_J_001",
+     "scene": "NISAR_L2_PR_GCOV_035_157_A_024_4005_DHDH_A_20261116T015700_20261116T015706_P05036_N_P_J_001",
      "polarization": "HHHH",
      "quality_mask_used": true
     },
     {
-     "scene": "NISAR_L2_PR_GCOV_034_056_A_024_4005_DHDH_A_20261028T014840_20261028T014845_P05036_N_P_J_001",
+     "scene": "NISAR_L2_PR_GCOV_034_165_D_064_2005_DHDH_A_20261104T153902_20261104T153937_P05036_N_F_J_001",
      "polarization": "HHHH",
      "quality_mask_used": true
     },
     {
-     "scene": "NISAR_L2_PR_GCOV_035_056_A_024_4005_DHDH_A_20261109T014840_20261109T014846_P05036_N_P_J_001",
+     "scene": "NISAR_L2_PR_GCOV_035_165_D_064_2005_DHDH_A_20261116T153902_20261116T153937_P05036_N_F_J_001",
      "polarization": "HHHH",
      "quality_mask_used": true
     },
     {
-     "scene": "NISAR_L2_PR_GCOV_034_056_A_025_2005_DHDH_M_20261028T014914_20261028T014949_P05036_N_F_J_001",
+     "scene": "NISAR_L2_PR_GCOV_034_165_D_065_2005_DHDH_A_20261104T153936_20261104T154011_P05036_N_F_J_001",
      "polarization": "HHHH",
      "quality_mask_used": true
     },
     {
-     "scene": "NISAR_L2_PR_GCOV_035_056_A_025_2005_DHDH_M_20261109T014914_20261109T014949_P05036_N_F_J_001",
+     "scene": "NISAR_L2_PR_GCOV_035_165_D_065_2005_DHDH_A_20261116T153936_20261116T154011_P05036_N_F_J_001",
      "polarization": "HHHH",
      "quality_mask_used": true
     },
     {
-     "scene": "NISAR_L2_PR_GCOV_034_056_A_026_4005_DHDH_A_20261028T014948_20261028T015023_P05036_N_F_J_001",
+     "scene": "NISAR_L2_PR_GCOV_034_165_D_066_2005_DHDH_A_20261104T154010_20261104T154045_P05036_N_F_J_001",
      "polarization": "HHHH",
      "quality_mask_used": true
     },
     {
-     "scene": "NISAR_L2_PR_GCOV_035_056_A_026_4005_DHDH_A_20261109T014945_20261109T015023_P05036_N_F_J_001",
+     "scene": "NISAR_L2_PR_GCOV_035_165_D_066_2005_DHDH_A_20261116T154010_20261116T154045_P05036_N_F_J_001",
      "polarization": "HHHH",
      "quality_mask_used": true
     },
     {
-     "scene": "NISAR_L2_PR_GCOV_034_064_D_064_2005_DHDH_A_20261028T153042_20261028T153117_P05036_N_F_J_001",
+     "scene": "NISAR_L2_PR_GCOV_034_165_D_067_2005_DHDH_A_20261104T154044_20261104T154114_P05036_N_F_J_001",
      "polarization": "HHHH",
      "quality_mask_used": true
     },
     {
-     "scene": "NISAR_L2_PR_GCOV_035_064_D_064_2005_DHDH_A_20261109T153043_20261109T153118_P05036_N_F_J_001",
+     "scene": "NISAR_L2_PR_GCOV_035_165_D_067_2005_DHDH_A_20261116T154044_20261116T154114_P05036_N_F_J_001",
      "polarization": "HHHH",
      "quality_mask_used": true
     },
     {
-     "scene": "NISAR_L2_PR_GCOV_034_064_D_065_2005_DHDH_A_20261028T153116_20261028T153151_P05036_N_F_J_001",
+     "scene": "NISAR_L2_PR_GCOV_034_165_D_068_4005_DHDH_A_20261104T154117_20261104T154153_P05036_N_F_J_001",
      "polarization": "HHHH",
      "quality_mask_used": true
     },
     {
-     "scene": "NISAR_L2_PR_GCOV_035_064_D_065_2005_DHDH_A_20261109T153117_20261109T153152_P05036_N_F_J_001",
+     "scene": "NISAR_L2_PR_GCOV_035_165_D_068_4005_DHDH_A_20261116T154117_20261116T154153_P05036_N_F_J_001",
      "polarization": "HHHH",
      "quality_mask_used": true
     },
     {
-     "scene": "NISAR_L2_PR_GCOV_034_064_D_066_2005_DHDH_A_20261028T153150_20261028T153225_P05036_N_F_J_001",
+     "scene": "NISAR_L2_PR_GCOV_034_165_D_069_4005_DHDH_A_20261104T154152_20261104T154158_P05036_N_P_J_001",
      "polarization": "HHHH",
      "quality_mask_used": true
     },
     {
-     "scene": "NISAR_L2_PR_GCOV_035_064_D_066_2005_DHDH_A_20261109T153151_20261109T153226_P05036_N_F_J_001",
+     "scene": "NISAR_L2_PR_GCOV_035_165_D_069_4005_DHDH_A_20261116T154152_20261116T154158_P05036_N_P_J_001",
      "polarization": "HHHH",
      "quality_mask_used": true
     },
     {
-     "scene": "NISAR_L2_PR_GCOV_034_064_D_067_2005_DHDH_A_20261028T153224_20261028T153259_P05036_N_F_J_001",
+     "scene": "NISAR_L2_PR_GCOV_034_165_D_070_2005_DHDH_A_20261104T154225_20261104T154300_P05036_N_F_J_001",
      "polarization": "HHHH",
      "quality_mask_used": true
     },
     {
-     "scene": "NISAR_L2_PR_GCOV_035_064_D_067_2005_DHDH_A_20261109T153225_20261109T153300_P05036_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_034_064_D_068_2005_DHDH_A_20261028T153258_20261028T153333_P05036_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_035_064_D_068_2005_DHDH_A_20261109T153259_20261109T153334_P05036_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_034_064_D_069_2005_DHDH_A_20261028T153332_20261028T153407_P05036_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_035_064_D_069_2005_DHDH_A_20261109T153333_20261109T153408_P05036_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_034_064_D_070_2005_DHDH_A_20261028T153406_20261028T153441_P05036_N_F_J_001",
-     "polarization": "HHHH",
-     "quality_mask_used": true
-    },
-    {
-     "scene": "NISAR_L2_PR_GCOV_035_064_D_070_2005_DHDH_A_20261109T153407_20261109T153441_P05036_N_F_J_001",
+     "scene": "NISAR_L2_PR_GCOV_035_165_D_070_2005_DHDH_A_20261116T154226_20261116T154301_P05036_N_F_J_001",
      "polarization": "HHHH",
      "quality_mask_used": true
     }
@@ -353,14 +296,48 @@
     "coverage": "coverage.png",
     "reference": "reference.png"
    },
-   "name": "caspian-sea/pairs/oct28-nov09-2026",
-   "label": "Caspian Sea basin-wide view \u00b7 2026-10-28 to 2026-11-09",
+   "name": "caspian-sea/pairs/nov04-nov16-2026",
+   "label": "Caspian Sea basin-wide view \u00b7 2026-11-04 to 2026-11-16",
    "lon": 50.7,
    "lat": 41.8,
    "encoding": "PNG RGBA: R=G=B=v, alpha 255 = valid, 0 = no data. value = lo + (v-1)/254*(hi-lo)",
-   "updated": "2026-11-17T14:59:47+00:00",
-   "elapsed_s": 1552.2,
+   "updated": "2026-11-20T15:23:30+00:00",
+   "elapsed_s": 4718.3,
    "available_pairs": [
+    {
+     "id": "nov04-nov16-2026",
+     "folder": "pairs/nov04-nov16-2026/",
+     "before": "2026-11-04",
+     "after": "2026-11-16",
+     "pol": "HHHH",
+     "updated": "2026-11-20T15:23:30+00:00",
+     "images": {
+      "before": "before.png",
+      "after": "after.png",
+      "water_before": "water_before.png",
+      "water_after": "water_after.png",
+      "change": "change.png",
+      "coverage": "coverage.png",
+      "reference": "reference.png"
+     }
+    },
+    {
+     "id": "nov02-nov14-2026",
+     "folder": "pairs/nov02-nov14-2026/",
+     "before": "2026-11-02",
+     "after": "2026-11-14",
+     "pol": "HHHH",
+     "updated": "2026-11-20T15:33:37+00:00",
+     "images": {
+      "before": "before.png",
+      "after": "after.png",
+      "water_before": "water_before.png",
+      "water_after": "water_after.png",
+      "change": "change.png",
+      "coverage": "coverage.png",
+      "reference": "reference.png"
+     }
+    },
     {
      "id": "oct28-nov09-2026",
      "folder": "pairs/oct28-nov09-2026/",
