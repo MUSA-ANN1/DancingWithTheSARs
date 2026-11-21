@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-20T15:38:10+00:00",
+ "generated": "2026-11-21T14:15:06+00:00",
  "regions": [
   {
    "type": "mosaic",
@@ -328,6 +328,40 @@
      "after": "2026-11-14",
      "pol": "HHHH",
      "updated": "2026-11-20T15:33:37+00:00",
+     "images": {
+      "before": "before.png",
+      "after": "after.png",
+      "water_before": "water_before.png",
+      "water_after": "water_after.png",
+      "change": "change.png",
+      "coverage": "coverage.png",
+      "reference": "reference.png"
+     }
+    },
+    {
+     "id": "oct31-nov12-2026",
+     "folder": "pairs/oct31-nov12-2026/",
+     "before": "2026-10-31",
+     "after": "2026-11-12",
+     "pol": "HHHH",
+     "updated": "2026-11-21T13:47:27+00:00",
+     "images": {
+      "before": "before.png",
+      "after": "after.png",
+      "water_before": "water_before.png",
+      "water_after": "water_after.png",
+      "change": "change.png",
+      "coverage": "coverage.png",
+      "reference": "reference.png"
+     }
+    },
+    {
+     "id": "oct30-nov11-2026",
+     "folder": "pairs/oct30-nov11-2026/",
+     "before": "2026-10-30",
+     "after": "2026-11-11",
+     "pol": "HHHH",
+     "updated": "2026-11-21T14:15:06+00:00",
      "images": {
       "before": "before.png",
       "after": "after.png",
