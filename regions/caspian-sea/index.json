@@ -1,6 +1,6 @@
 {
  "name": "caspian-sea",
- "generated": "2026-11-21T14:15:06+00:00",
+ "generated": "2026-11-22T13:46:29+00:00",
  "count": 19,
  "pairs": [
   {
@@ -333,6 +333,18 @@
    "before": "2026-11-01",
    "after": "2026-11-13",
    "error": "All-NaN slice encountered"
+  },
+  {
+   "id": "oct29-nov10-2026",
+   "before": "2026-10-29",
+   "after": "2026-11-10",
+   "error": "All-NaN slice encountered"
+  },
+  {
+   "id": "oct25-nov06-2026",
+   "before": "2026-10-25",
+   "after": "2026-11-06",
+   "error": "(\"Connection broken: BrokenPipeError(32, 'Broken pipe')\", BrokenPipeError(32, 'Broken pipe'))"
   }
  ]
 }
