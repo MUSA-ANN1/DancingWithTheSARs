@@ -393,6 +393,23 @@
    }
   },
   {
+   "id": "nov06-nov18-2026",
+   "folder": "pairs/nov06-nov18-2026/",
+   "before": "2026-11-06",
+   "after": "2026-11-18",
+   "pol": "HHHH",
+   "updated": "2026-11-25T15:54:48+00:00",
+   "images": {
+    "before": "before.png",
+    "after": "after.png",
+    "water_before": "water_before.png",
+    "water_after": "water_after.png",
+    "change": "change.png",
+    "coverage": "coverage.png",
+    "reference": "reference.png"
+   }
+  },
+  {
    "id": "nov05-nov17-2026",
    "folder": "pairs/nov05-nov17-2026/",
    "before": "2026-11-05",
