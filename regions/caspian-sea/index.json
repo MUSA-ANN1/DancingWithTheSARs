@@ -1,6 +1,6 @@
 {
  "name": "caspian-sea",
- "generated": "2026-11-26T15:51:23+00:00",
+ "generated": "2026-11-27T15:20:22+00:00",
  "count": 25,
  "pairs": [
   {
@@ -434,6 +434,18 @@
    "id": "nov10-nov22-2026",
    "before": "2026-11-10",
    "after": "2026-11-22",
+   "error": "All-NaN slice encountered"
+  },
+  {
+   "id": "nov01-nov13-2026",
+   "before": "2026-11-01",
+   "after": "2026-11-13",
+   "error": "All-NaN slice encountered"
+  },
+  {
+   "id": "oct29-nov10-2026",
+   "before": "2026-10-29",
+   "after": "2026-11-10",
    "error": "All-NaN slice encountered"
   }
  ]
