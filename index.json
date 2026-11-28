@@ -1,11 +1,11 @@
 {
- "generated": "2026-11-27T15:20:22+00:00",
+ "generated": "2026-11-28T14:31:05+00:00",
  "regions": [
   {
    "type": "mosaic",
    "mode": "shore",
-   "before": "2026-11-12",
-   "after": "2026-11-24",
+   "before": "2026-11-14",
+   "after": "2026-11-26",
    "bbox": [
     46.5,
     36.4,
@@ -18,47 +18,54 @@
    ],
    "pol": "HHHH",
    "quality_mask": "Applied before downsampling; mask values 1..254 valid, 0 and 255 excluded",
-   "quality_masked_scene_count": 12,
+   "quality_masked_scene_count": 14,
    "frame_pair_dates": [
     {
-     "before": "2026-11-12",
-     "after": "2026-11-24",
-     "track": "099",
+     "before": "2026-11-14",
+     "after": "2026-11-26",
+     "track": "128",
+     "direction": "A",
+     "frame": "020"
+    },
+    {
+     "before": "2026-11-14",
+     "after": "2026-11-26",
+     "track": "128",
      "direction": "A",
      "frame": "021"
     },
     {
-     "before": "2026-11-12",
-     "after": "2026-11-24",
-     "track": "099",
+     "before": "2026-11-14",
+     "after": "2026-11-26",
+     "track": "128",
      "direction": "A",
      "frame": "022"
     },
     {
-     "before": "2026-11-12",
-     "after": "2026-11-24",
-     "track": "099",
+     "before": "2026-11-14",
+     "after": "2026-11-26",
+     "track": "128",
      "direction": "A",
      "frame": "023"
     },
     {
-     "before": "2026-11-12",
-     "after": "2026-11-24",
-     "track": "099",
+     "before": "2026-11-14",
+     "after": "2026-11-26",
+     "track": "128",
      "direction": "A",
      "frame": "024"
     },
     {
-     "before": "2026-11-12",
-     "after": "2026-11-24",
-     "track": "099",
+     "before": "2026-11-14",
+     "after": "2026-11-26",
+     "track": "128",
      "direction": "A",
      "frame": "025"
     },
     {
-     "before": "2026-11-12",
-     "after": "2026-11-24",
-     "track": "099",
+     "before": "2026-11-14",
+     "after": "2026-11-26",
+     "track": "128",
      "direction": "A",
      "frame": "026"
     }
@@ -69,8 +76,8 @@
     0.0
    ],
    "threshold": [
-    -2.9,
-    -2.6
+    -3.1,
+    -2.9
    ],
    "stats": {
     "common_coverage_pct": 100.0,
@@ -84,8 +91,8 @@
     "retreat_pct_of_confident_coastal": 0.0,
     "advance_pct_of_confident_coastal": 0.0,
     "threshold_db": [
-     -2.9,
-     -2.6
+     -3.1,
+     -2.9
     ],
     "confidence_rules": {
      "threshold_margin_db": 2.0,
@@ -103,91 +110,103 @@
     "All contributing scenes use one consistent polarization (HHHH preferred, otherwise HVHV) and require the GCOV mask; mask values 0 and 255 are excluded before downsampling.",
     "Water classification is exploratory; wind, waves, vegetation, soil moisture and radar geometry can mimic shoreline change.",
     "coverage.png shows valid NISAR observation availability, not the shoreline. reference.png is Natural Earth reference geography, not an observation.",
-    "Processed 6 frame pairs; tile dates range from 2026-11-12 to 2026-11-24."
+    "Processed 7 frame pairs; tile dates range from 2026-11-14 to 2026-11-26."
    ],
    "scenes": [
-    "NISAR_L2_PR_GCOV_035_099_A_021_2005_DHDH_A_20261112T012200_20261112T012235_P05036_N_F_J_001",
-    "NISAR_L2_PR_GCOV_036_099_A_021_2005_DHDH_A_20261124T012201_20261124T012236_P05036_N_F_J_001",
-    "NISAR_L2_PR_GCOV_035_099_A_022_2005_DHDH_A_20261112T012234_20261112T012309_P05036_N_F_J_001",
-    "NISAR_L2_PR_GCOV_036_099_A_022_2005_DHDH_A_20261124T012235_20261124T012309_P05036_N_F_J_001",
-    "NISAR_L2_PR_GCOV_035_099_A_023_2005_DHDH_A_20261112T012308_20261112T012343_P05036_N_F_J_001",
-    "NISAR_L2_PR_GCOV_036_099_A_023_2005_DHDH_A_20261124T012308_20261124T012343_P05036_N_F_J_001",
-    "NISAR_L2_PR_GCOV_035_099_A_024_2005_DHDH_A_20261112T012342_20261112T012417_P05036_N_F_J_001",
-    "NISAR_L2_PR_GCOV_036_099_A_024_2005_DHDH_A_20261124T012342_20261124T012417_P05036_N_F_J_001",
-    "NISAR_L2_PR_GCOV_035_099_A_025_2005_DHDH_A_20261112T012416_20261112T012451_P05036_N_F_J_001",
-    "NISAR_L2_PR_GCOV_036_099_A_025_2005_DHDH_A_20261124T012416_20261124T012452_P05036_N_F_J_001",
-    "NISAR_L2_PR_GCOV_035_099_A_026_2005_DHDH_A_20261112T012450_20261112T012525_P05036_N_F_J_001",
-    "NISAR_L2_PR_GCOV_036_099_A_026_2005_DHDH_A_20261124T012451_20261124T012526_P05036_N_F_J_001"
+    "NISAR_L2_PR_GCOV_035_128_A_020_2005_DHDH_A_20261114T013805_20261114T013840_P05036_N_F_J_001",
+    "NISAR_L2_PR_GCOV_036_128_A_020_2005_DHDH_A_20261126T013806_20261126T013841_P05036_N_F_J_001",
+    "NISAR_L2_PR_GCOV_035_128_A_021_2005_DHDH_A_20261114T013839_20261114T013914_P05036_N_F_J_001",
+    "NISAR_L2_PR_GCOV_036_128_A_021_2005_DHDH_A_20261126T013840_20261126T013914_P05036_N_F_J_001",
+    "NISAR_L2_PR_GCOV_035_128_A_022_2005_DHDH_A_20261114T013913_20261114T013948_P05036_N_F_J_001",
+    "NISAR_L2_PR_GCOV_036_128_A_022_2005_DHDH_A_20261126T013913_20261126T013948_P05036_N_F_J_001",
+    "NISAR_L2_PR_GCOV_035_128_A_023_2005_DHDH_A_20261114T013947_20261114T014022_P05036_N_F_J_001",
+    "NISAR_L2_PR_GCOV_036_128_A_023_2005_DHDH_A_20261126T013947_20261126T014022_P05036_N_F_J_001",
+    "NISAR_L2_PR_GCOV_035_128_A_024_2005_DHDH_A_20261114T014021_20261114T014056_P05036_N_F_J_001",
+    "NISAR_L2_PR_GCOV_036_128_A_024_2005_DHDH_A_20261126T014021_20261126T014056_P05036_N_F_J_001",
+    "NISAR_L2_PR_GCOV_035_128_A_025_2005_DHDH_A_20261114T014055_20261114T014130_P05036_N_F_J_001",
+    "NISAR_L2_PR_GCOV_036_128_A_025_2005_DHDH_A_20261126T014055_20261126T014130_P05036_N_F_J_001",
+    "NISAR_L2_PR_GCOV_035_128_A_026_2005_DHDH_A_20261114T014129_20261114T014204_P05036_N_F_J_001",
+    "NISAR_L2_PR_GCOV_036_128_A_026_2005_DHDH_A_20261126T014129_20261126T014205_P05036_N_F_J_001"
    ],
-   "frame_pairs": 6,
-   "pair_id": "nov12-nov24-2026",
+   "frame_pairs": 7,
+   "pair_id": "nov14-nov26-2026",
    "before_date_window": [
-    "2026-11-12",
-    "2026-11-12"
+    "2026-11-14",
+    "2026-11-14"
    ],
    "after_date_window": [
-    "2026-11-24",
-    "2026-11-24"
+    "2026-11-26",
+    "2026-11-26"
    ],
    "max_composite_span_days": 7,
    "input_audits": [
     {
-     "scene": "NISAR_L2_PR_GCOV_035_099_A_021_2005_DHDH_A_20261112T012200_20261112T012235_P05036_N_F_J_001",
+     "scene": "NISAR_L2_PR_GCOV_035_128_A_020_2005_DHDH_A_20261114T013805_20261114T013840_P05036_N_F_J_001",
      "polarization": "HHHH",
      "quality_mask_used": true
     },
     {
-     "scene": "NISAR_L2_PR_GCOV_036_099_A_021_2005_DHDH_A_20261124T012201_20261124T012236_P05036_N_F_J_001",
+     "scene": "NISAR_L2_PR_GCOV_036_128_A_020_2005_DHDH_A_20261126T013806_20261126T013841_P05036_N_F_J_001",
      "polarization": "HHHH",
      "quality_mask_used": true
     },
     {
-     "scene": "NISAR_L2_PR_GCOV_035_099_A_022_2005_DHDH_A_20261112T012234_20261112T012309_P05036_N_F_J_001",
+     "scene": "NISAR_L2_PR_GCOV_035_128_A_021_2005_DHDH_A_20261114T013839_20261114T013914_P05036_N_F_J_001",
      "polarization": "HHHH",
      "quality_mask_used": true
     },
     {
-     "scene": "NISAR_L2_PR_GCOV_036_099_A_022_2005_DHDH_A_20261124T012235_20261124T012309_P05036_N_F_J_001",
+     "scene": "NISAR_L2_PR_GCOV_036_128_A_021_2005_DHDH_A_20261126T013840_20261126T013914_P05036_N_F_J_001",
      "polarization": "HHHH",
      "quality_mask_used": true
     },
     {
-     "scene": "NISAR_L2_PR_GCOV_035_099_A_023_2005_DHDH_A_20261112T012308_20261112T012343_P05036_N_F_J_001",
+     "scene": "NISAR_L2_PR_GCOV_035_128_A_022_2005_DHDH_A_20261114T013913_20261114T013948_P05036_N_F_J_001",
      "polarization": "HHHH",
      "quality_mask_used": true
     },
     {
-     "scene": "NISAR_L2_PR_GCOV_036_099_A_023_2005_DHDH_A_20261124T012308_20261124T012343_P05036_N_F_J_001",
+     "scene": "NISAR_L2_PR_GCOV_036_128_A_022_2005_DHDH_A_20261126T013913_20261126T013948_P05036_N_F_J_001",
      "polarization": "HHHH",
      "quality_mask_used": true
     },
     {
-     "scene": "NISAR_L2_PR_GCOV_035_099_A_024_2005_DHDH_A_20261112T012342_20261112T012417_P05036_N_F_J_001",
+     "scene": "NISAR_L2_PR_GCOV_035_128_A_023_2005_DHDH_A_20261114T013947_20261114T014022_P05036_N_F_J_001",
      "polarization": "HHHH",
      "quality_mask_used": true
     },
     {
-     "scene": "NISAR_L2_PR_GCOV_036_099_A_024_2005_DHDH_A_20261124T012342_20261124T012417_P05036_N_F_J_001",
+     "scene": "NISAR_L2_PR_GCOV_036_128_A_023_2005_DHDH_A_20261126T013947_20261126T014022_P05036_N_F_J_001",
      "polarization": "HHHH",
      "quality_mask_used": true
     },
     {
-     "scene": "NISAR_L2_PR_GCOV_035_099_A_025_2005_DHDH_A_20261112T012416_20261112T012451_P05036_N_F_J_001",
+     "scene": "NISAR_L2_PR_GCOV_035_128_A_024_2005_DHDH_A_20261114T014021_20261114T014056_P05036_N_F_J_001",
      "polarization": "HHHH",
      "quality_mask_used": true
     },
     {
-     "scene": "NISAR_L2_PR_GCOV_036_099_A_025_2005_DHDH_A_20261124T012416_20261124T012452_P05036_N_F_J_001",
+     "scene": "NISAR_L2_PR_GCOV_036_128_A_024_2005_DHDH_A_20261126T014021_20261126T014056_P05036_N_F_J_001",
      "polarization": "HHHH",
      "quality_mask_used": true
     },
     {
-     "scene": "NISAR_L2_PR_GCOV_035_099_A_026_2005_DHDH_A_20261112T012450_20261112T012525_P05036_N_F_J_001",
+     "scene": "NISAR_L2_PR_GCOV_035_128_A_025_2005_DHDH_A_20261114T014055_20261114T014130_P05036_N_F_J_001",
      "polarization": "HHHH",
      "quality_mask_used": true
     },
     {
-     "scene": "NISAR_L2_PR_GCOV_036_099_A_026_2005_DHDH_A_20261124T012451_20261124T012526_P05036_N_F_J_001",
+     "scene": "NISAR_L2_PR_GCOV_036_128_A_025_2005_DHDH_A_20261126T014055_20261126T014130_P05036_N_F_J_001",
+     "polarization": "HHHH",
+     "quality_mask_used": true
+    },
+    {
+     "scene": "NISAR_L2_PR_GCOV_035_128_A_026_2005_DHDH_A_20261114T014129_20261114T014204_P05036_N_F_J_001",
+     "polarization": "HHHH",
+     "quality_mask_used": true
+    },
+    {
+     "scene": "NISAR_L2_PR_GCOV_036_128_A_026_2005_DHDH_A_20261126T014129_20261126T014205_P05036_N_F_J_001",
      "polarization": "HHHH",
      "quality_mask_used": true
     }
@@ -201,14 +220,31 @@
     "coverage": "coverage.png",
     "reference": "reference.png"
    },
-   "name": "caspian-sea/pairs/nov12-nov24-2026",
-   "label": "Caspian Sea basin-wide view \u00b7 2026-11-12 to 2026-11-24",
+   "name": "caspian-sea/pairs/nov14-nov26-2026",
+   "label": "Caspian Sea basin-wide view \u00b7 2026-11-14 to 2026-11-26",
    "lon": 50.7,
    "lat": 41.8,
    "encoding": "PNG RGBA: R=G=B=v, alpha 255 = valid, 0 = no data. value = lo + (v-1)/254*(hi-lo)",
-   "updated": "2026-11-26T15:29:13+00:00",
-   "elapsed_s": 386.0,
+   "updated": "2026-11-28T14:24:44+00:00",
+   "elapsed_s": 467.4,
    "available_pairs": [
+    {
+     "id": "nov14-nov26-2026",
+     "folder": "pairs/nov14-nov26-2026/",
+     "before": "2026-11-14",
+     "after": "2026-11-26",
+     "pol": "HHHH",
+     "updated": "2026-11-28T14:24:44+00:00",
+     "images": {
+      "before": "before.png",
+      "after": "after.png",
+      "water_before": "water_before.png",
+      "water_after": "water_after.png",
+      "change": "change.png",
+      "coverage": "coverage.png",
+      "reference": "reference.png"
+     }
+    },
     {
      "id": "nov12-nov24-2026",
      "folder": "pairs/nov12-nov24-2026/",
